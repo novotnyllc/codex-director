@@ -1,0 +1,5 @@
+.DS_Store
+.workflow/
+prompt-exports/
+*.log
+*.tmp
