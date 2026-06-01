@@ -20,9 +20,9 @@ The `codex-dynamic-workflows` skill owns the orchestration protocol for one comp
 
 Call into `codex-dynamic-workflows` when the CoS triage decides a task needs explicit task-level orchestration: packetization, integration, approval tracking, verification state, reusable workflow artifacts, or simulated packet passes.
 
-For the full relationship between CoS, dynamic workflow artifacts, RepoPrompt workflows, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
+For the full relationship between CoS, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
 
-Short version: dynamic workflow owns complex-task orchestration; RepoPrompt workflows are preferred context/execution engines when available; the CoS remains the portfolio-level coordinator.
+Short version: dynamic workflow owns complex-task orchestration; workflow playbooks define the phases; optional tools may implement those phases; the CoS remains the portfolio-level coordinator.
 
 ## When To Invoke
 
@@ -49,17 +49,17 @@ Do not invoke it for small direct tasks. Use the build/review/investigate workfl
 
 The CoS may still create real Codex worker threads for packets, but the dynamic workflow packet plan defines what each worker owns. If no delegation runner or separate worker thread is appropriate, dynamic workflow's simulated packet pattern keeps isolated passes and result notes separate until integration.
 
-If RepoPrompt is available, workers should use the matching RP workflow inside their packet when it fits:
+Workers should use the matching self-contained workflow inside their packet:
 
-- `rp-investigate` for research/diagnosis packets
-- `rp-deep-plan` for planning packets
-- `rp-build` for implementation packets
-- `rp-orchestrate` for packet-internal decomposition
-- `rp-review` for review packets
-- `rp-refactor` for behavior-preserving cleanup packets
-- `rp-optimize` for performance packets
+- investigate/research workflow for research or diagnosis packets
+- deep plan workflow for planning packets
+- build workflow for implementation packets
+- orchestration workflow for packet-internal decomposition
+- review workflow for review packets
+- refactor workflow for behavior-preserving cleanup packets
+- optimize workflow for performance packets
 
-Do not let a worker's RP workflow overwrite the `.workflow/` task source of truth. It may produce subplans and exports, but packet status and integration decisions belong in the dynamic workflow artifact.
+Do not let a worker's local workflow overwrite the `.workflow/` task source of truth. It may produce subplans and exports, but packet status and integration decisions belong in the dynamic workflow artifact.
 
 ## Setup
 

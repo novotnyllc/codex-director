@@ -52,17 +52,17 @@ Before answering or dispatching, the chief thread decides:
 - Goal fit: chief-ledger only, worker Codex Goal, or both with evidence finish line?
 
 ## Context Workflow Routing
-Select the narrowest workflow that fits. If RepoPrompt MCP tools are available, prefer them for context-heavy work because `context_builder`, Oracle, exports, and RP skills provide strong planning/review handoffs. If RepoPrompt is not available, use equivalent local search/read/test tools, Codex worker threads, and the same workflow discipline.
+Select the narrowest workflow that fits. The workflow playbooks in this skill are self-contained: they define triggers, phases, roles, model/effort routing, outputs, and evidence. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the CoS brief must not depend on external workflow names or runner-specific parameters.
 
-- Research: repo/docs/memory/prior-art/external scout pass before planning. Use a Codex research thread, `context_builder`, local/web searches, or another available research lane as appropriate.
-- Investigate: deep read-only diagnosis or "how does this work?" Prefer `rp-investigate` when available.
-- Deep plan: durable implementation or architecture plan, no code. Prefer `rp-deep-plan` when available.
-- Build: bounded implementation where one worker can plan and edit. Prefer `rp-build` or `context_builder` plan mode when available.
-- Orchestrate: multi-part work with dependencies, parallel lanes, or substantial ambiguity. Prefer `rp-orchestrate` when available.
+- Research: repo/docs/memory/prior-art/external scout pass before planning. Use a Codex research thread, local/web searches, or another available research lane as appropriate.
+- Investigate: deep read-only diagnosis or "how does this work?"
+- Deep plan: durable implementation or architecture plan, no code.
+- Build: bounded implementation where one worker can plan, edit, verify, and summarize.
+- Orchestrate: multi-part work with dependencies, parallel lanes, or substantial ambiguity.
 - Dynamic workflow: complex task orchestration with planning, packets, approvals, integration, verification, and reusable artifacts. Invoke `codex-dynamic-workflows` when available and warranted.
-- Review: code review of diffs, PRs, worker output, or current changes. Prefer `rp-review` or `context_builder` review mode when available.
-- Refactor: behavior-preserving structural cleanup. Prefer `rp-refactor` when available.
-- Optimize: performance or efficiency work. Prefer `rp-optimize` when available.
+- Review: code review of diffs, PRs, worker output, or current changes.
+- Refactor: behavior-preserving structural cleanup.
+- Optimize: performance or efficiency work.
 
 Orchestration is the chief thread's mental model always, but formal orchestration tools or delegation runners should be invoked only when decomposition or delegation is actually needed. Avoid teaching or depending on unstable runner-specific parameters in the CoS brief.
 

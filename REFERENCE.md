@@ -37,7 +37,7 @@ Constraints:
 - Do not touch unrelated dirty changes.
 - Do not print secrets or private data.
 Likely skills/context workflows: <predicted skills/tools>
-Research lane: <none/local/thread/context_builder/web/other available lane>
+Research lane: <none/local/thread/context engine/web/other available lane>
 Oracle lane: <none or predicted second-opinion path>
 Plan review gate: <fast plan check/oracle/review thread/planning workflow>
 Adversarial review: <fast self-check/review thread/oracle/review workflow>
@@ -50,8 +50,8 @@ Worker expectations:
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
-- Use the best available context engine for the task. Prefer RepoPrompt `context_builder`, Oracle, exports, and RP skills when available and useful.
-- Treat oracle as a role, not a vendor. Prefer RepoPrompt Oracle over curated context when available; otherwise use a separate Codex worker thread, review workflow, or other second-opinion tool.
+- Use the best available context engine for the task, but keep the brief self-contained. Optional tools can implement the workflow; they should not define it.
+- Treat oracle as a role, not a vendor. Use a separate Codex worker thread, browser oracle, review workflow, or other second-opinion lane when available and useful.
 - Default to adversarial review for worker-thread tasks. Use a fast self-check only for trivial direct answers, mechanical one-line edits, or clearly low-risk work.
 - Use worker-internal delegation only when the selected workflow and current runtime support it, and only when the task spans multiple domains, has unclear ownership, or needs deep investigation/review. Do not require or document unstable runner-specific parameters in the worker brief.
 - Use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Inspect existing Goals before continuing and audit evidence before completion.
@@ -67,7 +67,7 @@ Worker expectations:
 Instructions read: <files>
 Task shape: <build/plan/investigate/review/orchestrate>
 Selected skills/context workflow: <skills/tools and why>
-Research lane: <none/local/thread/context_builder/web/other available lane and why>
+Research lane: <none/local/thread/context engine/web/other available lane and why>
 Oracle lane: <none/tool/thread and why>
 Adversarial review: <fast self-check/review thread/oracle/review workflow and why>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
@@ -175,13 +175,107 @@ When delegating, still keep briefs bounded and evidence concise.
 
 Research should gather only what planning needs: existing repo patterns, docs/specs, prior decisions, memory, relevant issues/PRs, current external API/library facts, and comparable prior art. Record sources, conflicts, and confidence; feed findings into the plan instead of letting implementers rediscover them mid-task.
 
-Use an oracle lane when a plan or result needs independent critique, cross-file reasoning, security/risk review, or ambiguity resolution. Prefer RepoPrompt Oracle when available and relevant because it reasons over curated context. Otherwise use a separate Codex worker thread, review workflow, or other available second-opinion tool.
+Use an oracle lane when a plan or result needs independent critique, cross-file reasoning, security/risk review, or ambiguity resolution. Use a separate Codex worker thread, browser oracle, review workflow, or other available second-opinion lane.
 
-Default to an adversarial review gate for any task important enough to dispatch to a Codex worker thread. The review may be a separate review-oriented Codex worker thread, RepoPrompt Oracle, `context_builder` review mode, `rp-review`, or another stable review lane exposed by the selected workflow. The reviewer should challenge correctness, scope, risks, tests, and done criteria.
+Default to an adversarial review gate for any task important enough to dispatch to a Codex worker thread. The review may be a separate review-oriented Codex worker thread, browser oracle, self-contained review workflow, or another stable review lane exposed by the current runtime. The reviewer should challenge correctness, scope, risks, tests, and done criteria.
+
+## Lane And Workflow Contracts
+
+Each lane is a role with a contract, not a vendor-specific tool. Pick the lightest implementation that satisfies the contract.
+
+### Research Lane
+
+Purpose: gather facts before planning so implementers do not rediscover basics mid-task.
+
+Use when: external/current facts may matter, ownership is unclear, repo patterns are unknown, prior decisions may exist, task spans multiple modules/repos, or the request is under-specified.
+
+Model/effort: use Spark/low for narrow repo or docs scouting; Spark/medium for web/current-fact research; main/high for synthesis that affects architecture, data, security, or product direction.
+
+Output: concise findings with sources, conflicts, confidence, and plan implications. No implementation.
+
+### Oracle Lane
+
+Purpose: provide independent critique or synthesis over a plan, evidence packet, research packet, or result.
+
+Use when: decisions are ambiguous, cross-file reasoning is needed, user-facing or security/data risk exists, review findings conflict, or the plan would be expensive to undo.
+
+Model/effort: use main/high by default. Use Spark/medium only for quick second-pass sanity checks. Use `xhigh` only for high-risk architecture, auth/data/security, irreversible migration, or repeated disagreement between lanes.
+
+Output: verdict, must-fix issues, should-fix issues, assumptions, confidence, and exact follow-up questions. The oracle is advisory; local evidence and tests remain authoritative.
+
+### Plan Review Gate
+
+Purpose: prevent non-trivial work from continuing with a vague or unreviewed plan.
+
+Use when: task has multiple work items, dependencies, data/auth/security risk, user-facing behavior, cross-repo ownership, or unclear verification.
+
+Model/effort: Spark/medium for low-risk plan challenge; main/high for architecture, security/data, migrations, or broad user-facing work.
+
+Output: approved/approved-with-fixes/rework verdict, missing work items, missing tests, scope risks, and revised stop points.
+
+### Adversarial Review Gate
+
+Purpose: challenge completed or near-complete work before the CoS accepts it.
+
+Use when: any worker thread changed code/docs/config, any dynamic workflow packet is ready to integrate, or any result affects users, data, auth, payments, deployments, or secrets.
+
+Model/effort: Spark/high for first-pass code/doc review; main/high for final verdict or risky changes; `xhigh` only for serious security/data/architecture concerns.
+
+Output: findings first, ordered by severity, with file/line or artifact references, verification gaps, and final accept/reject verdict.
+
+### Orchestration Workflow
+
+Purpose: break multi-part work into bounded items and keep progress auditable.
+
+Use when: work has parallel lanes, dependencies, multiple repos/modules, phased approvals, multiple workers, or long-running state.
+
+Model/effort: main/high for decomposition and integration decisions; Spark/medium for packet drafting/status summarization; `xhigh` for conflict resolution or high-risk integration.
+
+Output: task map, packet briefs, dependencies, owner/thread mapping, approval gates, verification matrix, integration plan, and concise status ledger.
+
+### Build Workflow
+
+Purpose: implement a bounded change with enough context, plan review, verification, and evidence.
+
+Use when: one worker can reasonably own the change or one dynamic workflow packet is ready for implementation.
+
+Model/effort: Spark/high for bounded implementation with clear tests; main/high when design judgment, unfamiliar architecture, or risky behavior is involved.
+
+Output: changed files, commands/tests, review verdict, commit hash when applicable, risks, and blockers.
+
+### Refactor Workflow
+
+Purpose: improve structure while preserving behavior.
+
+Use when: duplication, naming, boundaries, testability, or architecture can improve without changing product behavior.
+
+Model/effort: Spark/high for narrow refactors; main/high for cross-module boundaries or API changes.
+
+Output: behavior-preservation claim, changed files, before/after rationale, tests, review verdict, and rollback risk.
+
+### Optimize Workflow
+
+Purpose: improve performance, latency, memory, cost, or token usage with measurement.
+
+Use when: a bottleneck is reported, usage cost is high, a loop is slow, or a workflow is too verbose.
+
+Model/effort: Spark/medium for measurement collection; Spark/high for local optimization; main/high for algorithmic or architecture tradeoffs.
+
+Output: baseline, change, after measurement, tradeoffs, tests, and residual risks.
+
+### Prompt Export Workflow
+
+Purpose: package just enough context for an oracle, browser, reviewer, or worker handoff without bloating chat.
+
+Use when: another lane needs context, a browser oracle is needed, or a result must be preserved as an artifact.
+
+Model/effort: Spark/medium.
+
+Output: local export path, included sources, excluded sensitive material, exact questions, and expected response shape.
 
 ## Adapted Workflow References
 
-Use these workflow playbooks first. Prefer RepoPrompt implementations when they are available and fit the task; otherwise follow the same phases with the best available tools.
+Use these workflow playbooks first. They are the source of truth. Optional external tools may implement a phase, but the CoS and worker briefs should name the self-contained workflow and the task outcome, not an external workflow dependency.
 
 - [Build workflow](references/build-workflow.md)
 - [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
@@ -208,31 +302,31 @@ Create one research-oriented Codex worker thread or use the best available resea
 Small bounded build:
 
 ```text
-Create one Codex worker thread in <repo>. Use a build workflow: prefer rp-build or context_builder plan mode when available, otherwise do a local quick scan, implement, verify, and summarize.
+Create one Codex worker thread in <repo>. Use the build workflow: gather the minimum necessary context, produce a reviewed plan when non-trivial, implement, verify, and summarize concise evidence.
 ```
 
 Deep planning:
 
 ```text
-Create one Codex worker thread in <repo or workspace>. Use a deep planning workflow: prefer rp-deep-plan when available, otherwise gather context, draft a durable plan document, and do not implement.
+Create one Codex worker thread in <repo or workspace>. Use the deep planning workflow: gather context, draft a durable plan document, review it, and do not implement.
 ```
 
 Multi-part work:
 
 ```text
-Create one Codex worker thread to use an orchestration workflow: prefer rp-orchestrate when available, otherwise decompose the work, delegate only if tools support it, verify each phase, and report back with completion evidence.
+Create one Codex worker thread to use the orchestration workflow: decompose the work, delegate only if tools support it, verify each phase, and report back with completion evidence.
 ```
 
 Review:
 
 ```text
-Create one Codex worker thread in <repo>. Use a review workflow: prefer rp-review or context_builder review mode when available. Return findings first, ordered by severity, with file:line references.
+Create one Codex worker thread in <repo>. Use the review workflow. Return findings first, ordered by severity, with file:line references.
 ```
 
 Oracle check:
 
 ```text
-Use an oracle lane to critique the plan/result before finalizing. Prefer RepoPrompt Oracle if curated context exists; otherwise create a separate review-oriented Codex worker thread with the plan/result and exact questions to answer.
+Use an oracle lane to critique the plan/result before finalizing. Create a separate review-oriented Codex worker thread, browser oracle prompt, or other available second-opinion lane with the plan/result and exact questions to answer.
 ```
 
 Plan review gate:
@@ -254,7 +348,7 @@ Before marking complete, run an adversarial review pass. Ask the reviewer to fin
 - Letting worker threads choose skills or context workflows silently.
 - Skipping research before non-trivial planning, especially when external facts or prior decisions may matter.
 - Continuing into non-trivial implementation before the plan is reviewed.
-- Treating oracle as RepoPrompt-only instead of a second-opinion role.
+- Treating oracle as any single vendor/tool instead of a second-opinion role.
 - Skipping adversarial review for worker-thread tasks without explicitly marking the task low-risk.
 - Using formal orchestration for every tiny task.
 - Skipping review for risky cross-module or security-sensitive changes.

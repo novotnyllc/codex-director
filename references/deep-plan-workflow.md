@@ -55,15 +55,12 @@ Do not write the detailed approach before context planning unless it is already 
 
 ## Phase 4: Context Plan Pass
 
-Preferred path:
+Use the lightest adequate planning path:
 
-- Use `context_builder` plan mode with the plan file/background as context.
+- Use a context engine when it can cheaply synthesize the plan file/background, likely files, risks, and verification strategy.
+- Ask an oracle/review thread to critique the evidence and propose an approach when independent judgment would reduce risk.
+- Draft directly from research when the scope is narrow.
 - Export the response when it will be handed to implementers or reviewers.
-
-Fallback path:
-
-- Ask an oracle/review thread to critique the evidence and propose an approach.
-- Or draft directly from research when the scope is narrow.
 
 The draft must include:
 

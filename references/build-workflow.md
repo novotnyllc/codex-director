@@ -4,7 +4,7 @@ Use for bounded implementation where one Codex worker thread can plan, edit, ver
 
 ## Principle
 
-Do not jump from request to edits. Build enough context to produce a grounded plan, review that plan when the task is non-trivial, then implement directly. Use RepoPrompt `context_builder` when available; otherwise use the same phases with local search, code structure, file reads, and a review-oriented thread when useful.
+Do not jump from request to edits. Build enough context to produce a grounded plan, review that plan when the task is non-trivial, then implement directly. Use any available context engine, local search, code structure, file reads, and review lane that satisfies the workflow contract.
 
 ## Phase 0: Scope And Workspace
 
@@ -36,17 +36,12 @@ Avoid deep reading before context building; it invites shallow confidence.
 
 ## Phase 2: Context Build And Plan
 
-Preferred path:
+Build context with the lightest adequate path:
 
-- Use `context_builder` in plan mode with the reformulated task.
-- Include known file/module hints and constraints.
-- Ask it for approach, files, edge cases, and verification.
-
-Fallback path:
-
-- Use targeted search/read/code-structure calls.
+- Use a context engine when one can cheaply map files, patterns, edge cases, and verification.
+- Otherwise use targeted search/read/code-structure calls.
 - Read only files needed to understand the implementation boundary.
-- Draft the plan yourself, then send it to an oracle/review thread when non-trivial.
+- Draft the plan, then send it to an oracle/review lane when non-trivial.
 
 The plan must include:
 
@@ -70,7 +65,7 @@ Review questions:
 - Are unrelated changes excluded?
 - Is the commit boundary coherent?
 
-Use RepoPrompt Oracle, a review Codex worker thread, or a local adversarial self-review depending on risk.
+Use the plan review gate from `REFERENCE.md`: fast self-check for tiny low-risk changes, a review Codex worker thread or oracle lane for non-trivial work, and main/high or `xhigh` escalation for risky architecture/data/auth/security decisions.
 
 ## Phase 4: Implementation
 
@@ -103,7 +98,7 @@ If verification is blocked, report the exact blocker and what remains unverified
 
 Default review gate for worker-thread tasks:
 
-- Separate Codex review thread, RepoPrompt review mode, Oracle critique, or worker-internal review agent.
+- Separate Codex review thread, oracle critique, self-contained review workflow, or worker-internal review lane.
 - Ask the reviewer to find bugs, missed requirements, unsafe assumptions, insufficient tests, and scope drift.
 - Fix must-fix findings before reporting complete.
 

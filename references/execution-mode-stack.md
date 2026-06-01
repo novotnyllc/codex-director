@@ -1,6 +1,6 @@
 # Execution Mode Stack
 
-Use this to decide how the chief-of-staff thread, dynamic workflow artifacts, RepoPrompt workflows, Codex worker threads, and oracle/review lanes fit together.
+Use this to decide how the chief-of-staff thread, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes fit together.
 
 ## Core Rule
 
@@ -61,19 +61,19 @@ Owns:
 
 Dynamic workflow is not a replacement for the CoS. It is the CoS's task-level orchestrator for one complex task. The CoS still decides when to invoke it, how to staff packets with Codex worker threads, how to manage worktrees/commits, and how to reconcile the result into the larger project.
 
-### RepoPrompt workflows
+### Context and execution tools
 
-Use RepoPrompt workflows as preferred execution implementations when RepoPrompt is available and fits the task.
+Use optional context, oracle, browser, and delegation tools as implementations when they are available and fit the task. Do not make the CoS operating model depend on any one tool family.
 
 Owns:
 
 - codebase context building
 - oracle reasoning over curated context
-- RP delegation/execution helpers when useful
+- delegation/execution helpers when useful
 - exports for plan/review handoff
 - live implementation/review/investigation loops
 
-RepoPrompt is not the durable project ledger. It is a high-quality context and execution engine.
+These tools are not the durable project ledger. They are interchangeable engines for the self-contained workflow phases.
 
 ### Codex worker threads
 
@@ -103,7 +103,7 @@ Examples:
 - fix a typo
 - run a simple command
 
-No dynamic workflow. No RP orchestration. Fast self-check is enough.
+No dynamic workflow. No formal orchestration runner. Fast self-check is enough.
 
 ### 2. Single bounded implementation, review, or investigation
 
@@ -120,15 +120,7 @@ Use the selected workflow reference:
 - prompt export
 - Browser ChatGPT oracle
 
-Prefer RP implementations where available:
-
-- `rp-build` for bounded implementation
-- `rp-review` for code review
-- `rp-investigate` for deep read-only diagnosis
-- `rp-deep-plan` for durable plans
-- `rp-refactor` for behavior-preserving cleanup
-- `rp-optimize` for measured performance loops
-- `rp-oracle-export` for packaging prompts
+Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
 
 No dynamic workflow unless durable packet/state artifacts are useful.
 
@@ -136,14 +128,9 @@ No dynamic workflow unless durable packet/state artifacts are useful.
 
 Use orchestration without a durable `.workflow/` run when the task is multi-step but not large enough to need long-lived artifacts.
 
-Preferred if available:
-
-- `rp-orchestrate` inside the responsible Codex worker thread.
-
-Otherwise:
-
 - follow the CoS orchestrate workflow reference
 - create multiple Codex worker threads only for disjoint items
+- use available delegation runners only when they reduce risk or token load
 - keep the CoS ledger as the state
 
 ### 4. Complex, risky, long-running, or reusable
@@ -162,45 +149,45 @@ Use this when the task needs:
 - reusable workflow recipe
 - many packets or cross-track coordination
 
-When RepoPrompt is also available, use both:
+When optional context/delegation tools are also available, use them as implementations under the same artifact source of truth:
 
 1. CoS invokes `codex-dynamic-workflows` to create the task orchestration run.
 2. CoS uses the dynamic workflow plan/state as the task source of truth.
 3. For each packet, CoS dispatches a Codex worker thread.
-4. The worker uses the best RP workflow for its packet when useful.
-5. For multi-packet execution inside one worker, use `rp-orchestrate`.
+4. The worker uses the relevant self-contained workflow playbook for its packet.
+5. For multi-packet execution inside one worker, use the orchestration workflow and available delegation runners only when useful.
 6. Worker writes concise result evidence into `results/`.
 7. CoS integrates, verifies, reconciles commits/worktrees, and writes final report.
 
-## How `rp-orchestrate` Fits
+## How Optional Execution Tools Fit
 
-`rp-orchestrate` is a live execution workflow. It is best when the current worker needs to decompose work, use RepoPrompt's available delegation/execution helpers, verify items, and keep moving.
+Optional execution tools are implementation helpers. They are best when the current worker needs to decompose work, delegate a bounded subtask, verify items, or package context without bloating the main thread.
 
 `codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, simulated or real delegated packet passes, integration, verification state, and a final audit trail.
 
-Use both when the task is complex and RepoPrompt is available:
+Use both when the task is complex and optional tooling is available:
 
 ```text
 CoS creates .workflow/<slug>/
 CoS creates packet files
 Codex worker thread handles Packet 02
-Worker invokes rp-orchestrate for that packet if it has sub-items
+Worker uses the orchestration workflow and available delegation runner only if the packet has real sub-items
 Worker writes results/02-*.md
 CoS integrates all packet results
 ```
 
-Do not let `rp-orchestrate` create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans, but the dynamic workflow artifact remains the task source of truth.
+Do not let an optional execution tool create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans, but the dynamic workflow artifact remains the task source of truth.
 
-## How Other RP Skills Fit
+## How Workflow Playbooks Fit
 
-Use the narrow RP skill that matches each packet:
+Use the narrow self-contained workflow that matches each packet:
 
-- Research packet -> `rp-investigate` or context/question mode
-- Plan packet -> `rp-deep-plan`
-- Build packet -> `rp-build`
-- Review packet -> `rp-review`
-- Refactor packet -> `rp-refactor`
-- Optimize packet -> `rp-optimize`
+- Research packet -> investigate/research workflow
+- Plan packet -> deep plan workflow
+- Build packet -> build workflow
+- Review packet -> review workflow
+- Refactor packet -> refactor workflow
+- Optimize packet -> optimize workflow
 - Browser/external oracle packet -> prompt export, then Browser ChatGPT oracle
 
 The CoS should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions.

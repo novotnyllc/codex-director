@@ -43,15 +43,11 @@ For Question/Plan:
 
 ## Phase 3: Build Context
 
-Preferred path when RepoPrompt is available:
+Build context with the lightest adequate method:
 
-- Use `context_builder` with response type `clarify`.
+- Use a context engine when it can cheaply curate files, slices, summaries, and code structure.
 - For Review exports, include "code review" in the instructions when reviewing code changes.
-- Trust the curated selection and generated prompt unless a concrete issue is visible.
-
-Fallback path:
-
-- Use targeted search/read/code-structure/git commands.
+- Otherwise use targeted search/read/code-structure/git commands.
 - Add only relevant evidence.
 - Write a prompt that includes task, context, constraints, desired output, and evidence pointers.
 
@@ -96,4 +92,4 @@ If using Browser ChatGPT oracle, pass the export path to [Browser ChatGPT oracle
 - Asking generic workflow questions before checking evidence.
 - Using fast path for broad review/plan tasks.
 - Sending sensitive data externally without permission or redaction.
-- Rewriting a context-builder prompt after it already produced a good export.
+- Rewriting a good exported prompt without a concrete defect.

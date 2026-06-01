@@ -38,14 +38,11 @@ For plans/workers:
 
 ## Phase 2: Build Review Context
 
-Preferred path:
+Build review context with the lightest adequate path:
 
-- Use `context_builder` review mode or the repo's review skill if available.
 - Include the confirmed comparison scope and changed files.
-
-Fallback path:
-
 - Use git diff, targeted reads, code structure, tests, and local instructions.
+- Use a review-oriented context engine if available and useful.
 - If the change is broad, create a separate review-oriented Codex worker thread.
 
 Do not manually deep-read the whole repo before review context is built.

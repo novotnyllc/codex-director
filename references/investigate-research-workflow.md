@@ -45,12 +45,12 @@ Use independent scouts when lanes can run in parallel:
 Scout <lane>: Answer <specific question>. Return sources, confidence, conflicts, and plan implications. Do not propose implementation unless asked.
 ```
 
-Preferred implementations:
+Possible implementations:
 
-- RepoPrompt explore/context tools when available.
 - Codex research worker thread.
 - Local search/read/git.
 - Web browsing for current external facts.
+- Any available context or delegation runner that can answer the narrow scout question without bloating the main thread.
 
 Keep scout output brief. The coordinator synthesizes; scouts do not write the final voice.
 

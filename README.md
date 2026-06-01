@@ -23,7 +23,7 @@ If a skill directory already exists at that path, replace it intentionally after
 ```text
 Chief-of-staff Codex thread
   -> Codex worker threads
-      -> selected workflow / dynamic workflow packet / RepoPrompt implementation
+      -> selected self-contained workflow / dynamic workflow packet / optional tool implementation
           -> research, oracle, review, and verification gates
 ```
 

@@ -16,7 +16,7 @@ Do not print sensitive payloads in chat. Prefer local files and concise status.
 
 Use Browser ChatGPT oracle when:
 
-- RepoPrompt Oracle is unavailable, insufficient, or the user specifically wants ChatGPT web.
+- The normal local oracle lane is unavailable, insufficient, or the user specifically wants ChatGPT web.
 - A plan/result needs independent critique.
 - The prompt benefits from ChatGPT's current web product context or model mix.
 - The user is already signed in and wants automatic round-trip results.
@@ -30,16 +30,9 @@ Do not use it for:
 
 ## Phase 1: Package The Prompt
 
-Preferred path when RepoPrompt is available:
+Use [Prompt Export workflow](prompt-export-workflow.md) to extract the real task, infer Question/Plan/Review, build context, and export a repo-local prompt file under `prompt-exports/`.
 
-1. Use [Prompt Export workflow](prompt-export-workflow.md), preferably through the `rp-oracle-export` implementation when RepoPrompt is available, to extract the real task, infer Question/Plan/Review, build context, and export a repo-local prompt file under `prompt-exports/`.
-2. Treat the exported file as the exact Browser payload unless a concrete issue is found.
-
-Fallback path:
-
-1. Build the prompt from the current plan/review/research artifact and selected evidence.
-2. Include task, context, constraints, desired output format, and explicit review questions.
-3. Save it under `prompt-exports/<timestamp>-browser-oracle-<slug>.md`.
+If a full export is unnecessary, build the prompt from the current plan/review/research artifact and selected evidence. Include task, context, constraints, desired output format, and explicit review questions. Save it under `prompt-exports/<timestamp>-browser-oracle-<slug>.md`.
 
 The prompt should ask for concise, actionable output. Examples:
 
@@ -51,6 +44,8 @@ Review this plan adversarially. Return:
 4. Test/verification gaps
 5. Verdict: proceed / revise / block
 ```
+
+Model/effort guidance: browser oracle is normally a main/high-quality second-opinion lane. Use it only when the expected critique is worth the browser round trip. Do not use it as a cheap first-pass scout.
 
 ```text
 Review this implementation summary and evidence. Return only findings that could change whether this should ship.
