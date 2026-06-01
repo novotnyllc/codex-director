@@ -14,6 +14,7 @@ Chief-of-staff Codex thread
 |-- one Codex worker thread using a selected workflow
 |-- dynamic workflow for complex task orchestration
 |   `-- packets mapped to Codex worker threads or simulated packet passes
+|-- Codex Goals inside worker threads when persistence is warranted
 `-- oracle/review/research lanes attached where needed
 ```
 
@@ -81,6 +82,7 @@ Own:
 - one bounded packet or task
 - activation report
 - local plan and verification
+- Codex Goal when the packet/task needs persistence
 - concise evidence
 - commits for their work when authorized
 
@@ -202,6 +204,16 @@ Use the narrow RP skill that matches each packet:
 - Browser/external oracle packet -> prompt export, then Browser ChatGPT oracle
 
 The CoS should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions.
+
+## How Codex Goals Fit
+
+Use Codex Goals inside the chief thread or worker threads only when the objective is durable, evidence-based, and likely to span turns or iterations.
+
+- CoS project ledger tracks portfolio work.
+- Dynamic workflow tracks complex task orchestration.
+- Codex Goal gives a single thread a persistent finish line.
+
+Worker Goals must name the outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition. The CoS should audit evidence before accepting a Goal as complete. See [Codex Goals integration](goals-integration.md).
 
 ## Conflict Rules
 

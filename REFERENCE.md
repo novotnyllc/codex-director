@@ -44,6 +44,7 @@ Adversarial review: <fast self-check/review thread/oracle/review workflow>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
 Verbosity limit: <brief status/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
+Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
 - Start with an activation report: instructions read, task shape, selected skills/context workflow, oracle lane yes/no, plan review gate, adversarial review gate, goal yes/no, delegation yes/no, done criteria.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
@@ -53,6 +54,7 @@ Worker expectations:
 - Treat oracle as a role, not a vendor. Prefer RepoPrompt Oracle over curated context when available; otherwise use a separate Codex worker thread, review workflow, or other second-opinion tool.
 - Default to adversarial review for worker-thread tasks. Use a fast self-check only for trivial direct answers, mechanical one-line edits, or clearly low-risk work.
 - Use subagents only when the selected workflow calls for delegation or when the task spans multiple domains, has unclear ownership, or needs deep investigation/review.
+- Use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Inspect existing Goals before continuing and audit evidence before completion.
 - Commit regularly in logical units when changing repo files. Use isolated worktrees when work is parallel, risky, long-running, or likely to conflict. Reconcile all work back to the canonical repo/branch and clean up finished worktrees.
 - Report concise evidence only: changed files, commands/tests, review verdicts, artifact paths, unresolved risks, and blockers. Do not paste long logs or narrate exploration unless requested.
 - If scope expands beyond the brief, report back before widening.
@@ -71,7 +73,7 @@ Adversarial review: <fast self-check/review thread/oracle/review workflow and wh
 Evidence required: <files/tests/review verdict/artifacts/blockers>
 Verbosity limit: <brief/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
-Codex goal: <yes/no and why>
+Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Delegation: <none/subagents/other thread and why>
 Done criteria: <short list>
 Plan review: <completed/not needed and why>
@@ -186,6 +188,7 @@ Use these workflow playbooks first. Prefer RepoPrompt implementations when they 
 - [Deep plan workflow](references/deep-plan-workflow.md)
 - [Dynamic workflow integration](references/dynamic-workflow-integration.md)
 - [Execution mode stack](references/execution-mode-stack.md)
+- [Codex Goals integration](references/goals-integration.md)
 - [Investigate and research workflow](references/investigate-research-workflow.md)
 - [Orchestrate workflow](references/orchestrate-workflow.md)
 - [Prompt export workflow](references/prompt-export-workflow.md)

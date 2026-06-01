@@ -122,8 +122,9 @@ Before marking the task complete:
 2. Confirm packet outputs are integrated.
 3. Confirm approval-gated work had approval.
 4. Confirm verification evidence satisfies success criteria.
-5. Confirm commits/worktrees reconciled into the canonical repo/branch.
-6. Confirm final report captures accepted/rejected results, conflicts, remaining risks, and next actions.
+5. Confirm any worker Codex Goals were audited against their verification surfaces.
+6. Confirm commits/worktrees reconciled into the canonical repo/branch.
+7. Confirm final report captures accepted/rejected results, conflicts, remaining risks, and next actions.
 
 Use the dynamic workflow verification helper when useful:
 

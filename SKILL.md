@@ -48,7 +48,7 @@ Before answering or dispatching, the chief thread decides:
 - Work plan: What are the right work items, dependencies, and stop points?
 - Review gate: fast self-check, adversarial review thread, oracle critique, or full code review?
 - Git/worktree: main checkout or isolated worktree, branch name, commit cadence, reconciliation path?
-- Goal tracking: chief-ledger only, worker Codex goal, or both?
+- Goal fit: chief-ledger only, worker Codex Goal, or both with evidence finish line?
 
 ## Context Workflow Routing
 Select the narrowest workflow that fits. If RepoPrompt MCP tools are available, prefer them for context-heavy work because `context_builder`, Oracle, exports, and RP skills provide strong planning/review handoffs. If RepoPrompt is not available, use equivalent local search/read/test tools, Codex worker threads, and the same workflow discipline.
@@ -85,7 +85,7 @@ Every Codex worker thread gets a bounded brief with repo/path, task, done criter
 
 ## Goals Policy
 
-The chief thread proactively maintains a project goal ledger: active work, owner thread, status, blockers, next action, and done criteria. Worker threads should create or use Codex goals when a task is multi-turn, interruption-prone, monitored over time, has a concrete finish condition, or requires repeated verification.
+The chief thread maintains a project goal ledger. Worker threads use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Goals must name outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.
 
 ## Monitoring
 
