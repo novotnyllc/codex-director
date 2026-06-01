@@ -46,7 +46,7 @@ Owns:
 - success criteria and task-level plan
 - approval gates
 - packetization
-- simulated subagent passes when no runner is available
+- simulated packet passes when no delegation runner is available
 - packet integration
 - verification strategy and verification state
 - reusable workflow recipes
@@ -69,7 +69,7 @@ Owns:
 
 - codebase context building
 - oracle reasoning over curated context
-- RP subagent execution when useful
+- RP delegation/execution helpers when useful
 - exports for plan/review handoff
 - live implementation/review/investigation loops
 
@@ -90,7 +90,7 @@ Workers must report scope expansion, blockers, and verification gaps back to the
 
 ## Selection Order
 
-Delegation is proactive. The user does not need to say "subagents", "swarm", "parallel", or "dynamic workflow" for the CoS to use them. Choose delegation when it improves speed, coverage, review independence, risk control, context management, or token economy.
+Delegation is proactive. The user does not need to say "swarm", "parallel", or "dynamic workflow" for the CoS to use available delegation mechanisms. Choose delegation when it improves speed, coverage, review independence, risk control, context management, or token economy.
 
 ### 1. Tiny or advisory
 
@@ -174,9 +174,9 @@ When RepoPrompt is also available, use both:
 
 ## How `rp-orchestrate` Fits
 
-`rp-orchestrate` is a live execution workflow. It is best when the current worker needs to decompose work, dispatch RepoPrompt subagents, verify items, and keep moving.
+`rp-orchestrate` is a live execution workflow. It is best when the current worker needs to decompose work, use RepoPrompt's available delegation/execution helpers, verify items, and keep moving.
 
-`codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, simulated or real subagent passes, integration, verification state, and a final audit trail.
+`codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, simulated or real delegated packet passes, integration, verification state, and a final audit trail.
 
 Use both when the task is complex and RepoPrompt is available:
 

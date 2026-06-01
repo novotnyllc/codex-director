@@ -6,7 +6,7 @@ Use when a project chief-of-staff thread needs task-level orchestration for a co
 
 The chief-of-staff thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktrees, commits, reconciliation, and final user-facing status.
 
-The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, simulated or real subagent work, integration, verification, reusable recipes, and the run artifact:
+The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, simulated or real delegated packet work, integration, verification, reusable recipes, and the run artifact:
 
 ```text
 .workflow/<slug>/
@@ -18,7 +18,7 @@ The `codex-dynamic-workflows` skill owns the orchestration protocol for one comp
 `-- final-report.md
 ```
 
-Call into `codex-dynamic-workflows` when the CoS triage decides a task needs explicit task-level orchestration: packetization, integration, approval tracking, verification state, reusable workflow artifacts, or simulated subagent passes.
+Call into `codex-dynamic-workflows` when the CoS triage decides a task needs explicit task-level orchestration: packetization, integration, approval tracking, verification state, reusable workflow artifacts, or simulated packet passes.
 
 For the full relationship between CoS, dynamic workflow artifacts, RepoPrompt workflows, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
 
@@ -33,7 +33,7 @@ Invoke dynamic workflow mode when at least two are true:
 - Risk is present: destructive edits, external writes, deploys, secrets, production data, billing, user accounts, migrations, or broad repo-wide changes.
 - Verification benefits from a separate pass from implementation.
 - The workflow could become a reusable recipe.
-- The user explicitly asks for a dynamic workflow, swarm, packets, subagents, or Claude Code-style orchestration.
+- The user explicitly asks for a dynamic workflow, swarm, packets, delegated workers, or Claude Code-style orchestration.
 - Delegation would materially improve speed, coverage, review independence, risk control, context management, or token economy even if the user did not ask for it by name.
 
 Do not invoke it for small direct tasks. Use the build/review/investigate workflows directly.
@@ -47,7 +47,7 @@ Do not invoke it for small direct tasks. Use the build/review/investigate workfl
 - CoS sequencing rules -> `orchestration.md`
 - CoS final status -> `final-report.md`
 
-The CoS may still create real Codex worker threads for packets, but the dynamic workflow packet plan defines what each worker owns. If no subagent/thread runner is appropriate, dynamic workflow's simulated packet pattern keeps isolated passes and result notes separate until integration.
+The CoS may still create real Codex worker threads for packets, but the dynamic workflow packet plan defines what each worker owns. If no delegation runner or separate worker thread is appropriate, dynamic workflow's simulated packet pattern keeps isolated passes and result notes separate until integration.
 
 If RepoPrompt is available, workers should use the matching RP workflow inside their packet when it fits:
 

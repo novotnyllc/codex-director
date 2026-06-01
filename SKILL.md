@@ -21,7 +21,7 @@ Thread vocabulary:
 - Research lane: a scout pass that gathers repo, docs, memory, prior-art, and external facts before planning.
 - Oracle: a second-opinion reasoning lane for plan critique, review, ambiguity resolution, or risk checks.
 - Adversarial review: an independent challenge pass that looks for bugs, missed requirements, unsafe assumptions, and verification gaps.
-- Subagent: an optional worker-internal delegate used only when the selected workflow calls for it.
+- Delegation runner: whatever worker-internal or external delegation mechanism is available in the current runtime. Do not require or describe a version-specific subagent API.
 
 ## Setup Workflow
 
@@ -45,7 +45,7 @@ Before answering or dispatching, the chief thread decides:
 - Agent/model profile: Spark throughput, main-model judgment, or `xhigh` escalation?
 - Risk: secrets, production, private data, destructive ops, migrations, auth, security, user-facing behavior?
 - Skill/context prediction: Which named skills, context tools, oracle lane, or review workflows should the worker use?
-- Delegation: direct answer, worker thread(s), subagents, or dynamic workflow?
+- Delegation: direct answer, worker thread(s), available delegation runner, or dynamic workflow?
 - Work plan: What are the right work items, dependencies, and stop points?
 - Review gate: fast self-check, adversarial review thread, oracle critique, or full code review?
 - Git/worktree: main checkout or isolated worktree, branch name, commit cadence, reconciliation path?
@@ -54,7 +54,7 @@ Before answering or dispatching, the chief thread decides:
 ## Context Workflow Routing
 Select the narrowest workflow that fits. If RepoPrompt MCP tools are available, prefer them for context-heavy work because `context_builder`, Oracle, exports, and RP skills provide strong planning/review handoffs. If RepoPrompt is not available, use equivalent local search/read/test tools, Codex worker threads, and the same workflow discipline.
 
-- Research: repo/docs/memory/prior-art/external scout pass before planning. Use a Codex research thread, subagent, `context_builder`, or local/web searches as appropriate.
+- Research: repo/docs/memory/prior-art/external scout pass before planning. Use a Codex research thread, `context_builder`, local/web searches, or another available research lane as appropriate.
 - Investigate: deep read-only diagnosis or "how does this work?" Prefer `rp-investigate` when available.
 - Deep plan: durable implementation or architecture plan, no code. Prefer `rp-deep-plan` when available.
 - Build: bounded implementation where one worker can plan and edit. Prefer `rp-build` or `context_builder` plan mode when available.
@@ -64,7 +64,7 @@ Select the narrowest workflow that fits. If RepoPrompt MCP tools are available, 
 - Refactor: behavior-preserving structural cleanup. Prefer `rp-refactor` when available.
 - Optimize: performance or efficiency work. Prefer `rp-optimize` when available.
 
-Orchestration is the chief thread's mental model always, but formal orchestration tools or subagents should be invoked only when decomposition or delegation is actually needed.
+Orchestration is the chief thread's mental model always, but formal orchestration tools or delegation runners should be invoked only when decomposition or delegation is actually needed. Avoid teaching or depending on unstable runner-specific parameters in the CoS brief.
 
 ## Gates
 
