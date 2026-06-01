@@ -184,6 +184,7 @@ Default to an adversarial review gate for any task important enough to dispatch 
 Use these workflow playbooks first. Prefer RepoPrompt implementations when they are available and fit the task; otherwise follow the same phases with the best available tools.
 
 - [Build workflow](references/build-workflow.md)
+- [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
 - [Browser ChatGPT oracle workflow](references/browser-chatgpt-oracle-workflow.md)
 - [Deep plan workflow](references/deep-plan-workflow.md)
 - [Dynamic workflow integration](references/dynamic-workflow-integration.md)

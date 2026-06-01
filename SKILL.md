@@ -42,6 +42,7 @@ Before answering or dispatching, the chief thread decides:
 - Research: what local, memory, prior-art, or external facts must be scouted before planning?
 - Done criteria: What must be true when complete?
 - Evidence/token budget: what proof is required, and how concise should it be?
+- Agent/model profile: Spark throughput, main-model judgment, or `xhigh` escalation?
 - Risk: secrets, production, private data, destructive ops, migrations, auth, security, user-facing behavior?
 - Skill/context prediction: Which named skills, context tools, oracle lane, or review workflows should the worker use?
 - Delegation: direct answer, worker thread(s), subagents, or dynamic workflow?
@@ -82,6 +83,8 @@ Commit regularly in logical units when repository work is being changed. A singl
 ## Worker Thread Rule
 
 Every Codex worker thread gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and expected verification. Each worker must start with an activation report covering those fields. If scope expands beyond the brief, it reports back before widening.
+
+Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md) to choose Spark for bounded throughput work, the main model for judgment/integration, and `xhigh` only for escalations.
 
 ## Goals Policy
 

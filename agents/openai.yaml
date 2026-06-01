@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codex Project Chief of Staff"
+  short_description: "Coordinate project work across Codex worker threads, dynamic workflows, goals, reviews, and research lanes"
+  default_prompt: "Use $codex-project-chief-of-staff to coordinate this project task with appropriate worker threads, dynamic workflows, goals, reviews, and evidence gates."
+
+policy:
+  allow_implicit_invocation: true
