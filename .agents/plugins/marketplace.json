@@ -1,0 +1,20 @@
+{
+  "name": "codex-project-chief-of-staff",
+  "interface": {
+    "displayName": "Codex Project Chief of Staff"
+  },
+  "plugins": [
+    {
+      "name": "codex-project-chief-of-staff",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-project-chief-of-staff"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
