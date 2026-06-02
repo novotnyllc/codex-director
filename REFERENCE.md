@@ -203,6 +203,16 @@ Model/effort: use main/high by default. Use Spark/medium only for quick second-p
 
 Output: verdict, must-fix issues, should-fix issues, assumptions, confidence, and exact follow-up questions. The oracle is advisory; local evidence and tests remain authoritative.
 
+### Browser ChatGPT Oracle
+
+Purpose: run an oracle prompt through the signed-in ChatGPT web app with `@Browser`, using ChatGPT Pro when available.
+
+Use when: the user explicitly asks for ChatGPT Pro, ChatGPT web, the signed-in Browser session, or an external second opinion that should not be satisfied by a local review thread alone.
+
+Model/effort: runner uses Spark/medium for Browser automation. The ChatGPT web model must be the Pro model exposed by the ChatGPT model picker. If Pro is unavailable or ambiguous, stop and ask before falling back.
+
+Output: prompt export path, selected ChatGPT model label, result artifact path, elapsed wait time, verdict, must-fix findings, follow-up changes, and blockers. The worker must open `https://chatgpt.com/`, start a new chat, submit the prompt, wait for completion even if it takes a while, and capture the final response.
+
 ### Plan Review Gate
 
 Purpose: prevent non-trivial work from continuing with a vague or unreviewed plan.
@@ -271,7 +281,7 @@ Use when: another lane needs context, a browser oracle is needed, or a result mu
 
 Model/effort: Spark/medium.
 
-Output: local export path, included sources, excluded sensitive material, exact questions, and expected response shape.
+Output: local export path, included sources, excluded sensitive material, exact questions, and expected response shape. If the receiver is Browser ChatGPT oracle, prompt export is not complete until the Browser ChatGPT oracle workflow has submitted the prompt and captured the result.
 
 ## Adapted Workflow References
 

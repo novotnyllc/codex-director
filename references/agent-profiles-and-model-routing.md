@@ -17,7 +17,7 @@ Use `gpt-5.3-codex-spark` as a separate-bucket throughput model for bounded work
 | `research-scout` | Narrow repo/docs/web/prior-art question, no edits | Spark | low/medium |
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `prompt-exporter` | Package context for oracle/review lanes | Spark | medium |
-| `browser-oracle-runner` | Submit exported prompt through signed-in ChatGPT Browser and capture result | Spark | medium |
+| `browser-oracle-runner` | Open chatgpt.com with Browser, start a new ChatGPT Pro chat, submit prompt, wait, and capture result | Spark | medium |
 | `implementation-worker` | Bounded build/refactor/test packet with clear instructions | Spark or main | high |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | Spark first pass, main for final/high-risk | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | main | high |

@@ -6,6 +6,8 @@ Use when a worker needs to package project context for an oracle, review model, 
 
 Extract the real task, select the right evidence, export a self-contained prompt artifact, and hand that artifact to the next reasoning lane. The export should make the receiver useful immediately without requiring the user to copy context manually.
 
+When the intended receiver is Browser ChatGPT oracle, prompt export is only Phase 1. The worker must continue into [Browser ChatGPT oracle workflow](browser-chatgpt-oracle-workflow.md), open `chatgpt.com` with `@Browser`, start a new chat, select the Pro model when available, submit the prompt, wait for completion, and capture the result artifact.
+
 ## Phase 0: Extract The Real Task
 
 Strip prompt/export meta-framing.
@@ -73,7 +75,7 @@ The prompt should contain:
 - review/plan/question focus
 - safety notes about secrets or private data if relevant
 
-## Phase 5: Handoff
+## Phase 5: Handoff Or Execute
 
 Return or pass forward:
 
@@ -83,7 +85,7 @@ Return or pass forward:
 - token/size caveat if known
 - intended receiver: Browser ChatGPT oracle, local oracle, review worker, etc.
 
-If using Browser ChatGPT oracle, pass the export path to [Browser ChatGPT oracle workflow](browser-chatgpt-oracle-workflow.md).
+If using Browser ChatGPT oracle, do not stop here. Pass the export path to [Browser ChatGPT oracle workflow](browser-chatgpt-oracle-workflow.md) and run the Browser round trip unless blocked.
 
 ## Anti-Patterns
 
@@ -93,3 +95,4 @@ If using Browser ChatGPT oracle, pass the export path to [Browser ChatGPT oracle
 - Using fast path for broad review/plan tasks.
 - Sending sensitive data externally without permission or redaction.
 - Rewriting a good exported prompt without a concrete defect.
+- Treating the export file as the final result when the selected lane is Browser ChatGPT oracle.
