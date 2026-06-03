@@ -11,6 +11,39 @@ codex plugin marketplace add novotnyllc/codex-director
 codex plugin add codex-director --marketplace codex-director
 ```
 
+## Use
+
+After installing, open Codex in the project you want the Director to own. The project can be a single repo, a multi-repo workspace, or a plain working folder.
+
+Start a new Codex thread and send a setup prompt like:
+
+```text
+Start $codex-director for this project.
+Use this thread as the Director thread. Read the project instructions, identify the project scope, set up the Director operating brief, and tell me what you need from me before coordinating work.
+```
+
+`$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate. After the Director thread is established, keep using that same thread for project-level requests:
+
+```text
+Coordinate the Discord invite work and use dynamic workflow if the task needs packets.
+```
+
+```text
+Review worker progress, reconcile completed work, and tell me what is blocked.
+```
+
+```text
+Plan the next implementation slice, run research and adversarial review first, then dispatch worker threads where useful.
+```
+
+For a multi-repo workspace, name the scope directly:
+
+```text
+Start $codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
+```
+
+If Codex can manage threads in the current runtime, the Director should title and pin the thread. If not, manually name the thread `Director: <project>` and keep using it as the coordination home.
+
 ## Structure
 
 - `.agents/plugins/marketplace.json` declares this repository as a Codex plugin marketplace.
