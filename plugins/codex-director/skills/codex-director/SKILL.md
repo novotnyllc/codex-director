@@ -28,7 +28,7 @@ When asked to set up a director thread:
 Before answering or dispatching, decide:
 
 - Route: Which repo/path owns this?
-- Shape: answer, research, investigate, deep-plan, build, orchestrate, review, refactor, or optimize?
+- Shape: answer, research, investigate, deep-plan, dynamic-workflow, build, orchestrate, review, refactor, or optimize?
 - Evidence: what proof is required, and how concise can it be?
 - Risk: secrets, production, migrations, auth, security, destructive ops, or user-facing behavior?
 - Delegation: direct answer, worker thread, available delegation runner, oracle, or dynamic workflow?
@@ -36,14 +36,14 @@ Before answering or dispatching, decide:
 - Goal fit: Director ledger only, worker Codex Goal, or both?
 
 ## Context Workflow Routing
-Select the narrowest self-contained workflow that fits. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the Director brief must not depend on external workflow names or runner-specific parameters.
+Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the Director brief must not depend on external workflow names or runner-specific parameters.
 
 - Research: repo/docs/memory/prior-art/external scout pass before planning.
 - Investigate: deep read-only diagnosis or "how does this work?"
 - Deep plan: durable implementation or architecture plan, no code.
+- Dynamic workflow: complex task orchestration with planning, packets, approvals, integration, verification, and reusable artifacts.
 - Build: bounded implementation where one worker can plan, edit, verify, and summarize.
 - Orchestrate: multi-part work with dependencies, parallel lanes, or substantial ambiguity.
-- Dynamic workflow: complex orchestration with planning, packets, approvals, integration, verification, and reusable artifacts.
 - Review: code review of diffs, PRs, worker output, or current changes.
 - Refactor: behavior-preserving structural cleanup.
 - Optimize: performance or efficiency work.

@@ -293,20 +293,22 @@ Output: local export path, included sources, excluded sensitive material, exact 
 
 Use these workflow playbooks first. They are the source of truth. Optional external tools may implement a phase, but the Director and worker briefs should name the self-contained workflow and the task outcome, not an external workflow dependency.
 
-- [Build workflow](references/build-workflow.md)
-- [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
-- [Browser ChatGPT oracle workflow](references/browser-chatgpt-oracle-workflow.md)
-- [Deep plan workflow](references/deep-plan-workflow.md)
-- [Dynamic workflow integration](references/dynamic-workflow-integration.md)
+Check execution mode and dynamic workflow eligibility early for non-trivial work; do not bury dynamic workflow behind build/orchestrate once packetized state would reduce drift.
+
 - [Execution mode stack](references/execution-mode-stack.md)
-- [Codex Goals integration](references/goals-integration.md)
-- [Investigate and research workflow](references/investigate-research-workflow.md)
+- [Dynamic workflow integration](references/dynamic-workflow-integration.md)
 - [Orchestrate workflow](references/orchestrate-workflow.md)
-- [Prompt export workflow](references/prompt-export-workflow.md)
+- [Deep plan workflow](references/deep-plan-workflow.md)
+- [Build workflow](references/build-workflow.md)
+- [Investigate and research workflow](references/investigate-research-workflow.md)
 - [Review workflow](references/review-workflow.md)
 - [Refactor workflow](references/refactor-workflow.md)
-- [Runtime adapters](references/runtime-adapters.md)
 - [Optimize workflow](references/optimize-workflow.md)
+- [Browser ChatGPT oracle workflow](references/browser-chatgpt-oracle-workflow.md)
+- [Prompt export workflow](references/prompt-export-workflow.md)
+- [Codex Goals integration](references/goals-integration.md)
+- [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
+- [Runtime adapters](references/runtime-adapters.md)
 
 ## Dispatch Examples
 

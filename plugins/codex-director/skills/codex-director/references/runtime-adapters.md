@@ -190,16 +190,11 @@ For plugin-package checks:
 - Verify README commands match the current plugin layout.
 - If evaluating quality, run the plugin/skill evaluator before and after changes when available.
 
-For local install instructions, avoid user-specific paths in generic docs. Prefer:
-
-```bash
-codex plugin marketplace add "$PWD"
-codex plugin add codex-director --marketplace codex-director
-```
-
-For GitHub install instructions, prefer:
+For install instructions, use the GitHub marketplace source:
 
 ```bash
 codex plugin marketplace add novotnyllc/codex-director
 codex plugin add codex-director --marketplace codex-director
 ```
+
+Do not publish local checkout install commands in user-facing docs unless the user explicitly asks for development-only instructions.

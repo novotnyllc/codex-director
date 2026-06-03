@@ -11,12 +11,7 @@ codex plugin marketplace add novotnyllc/codex-director
 codex plugin add codex-director --marketplace codex-director
 ```
 
-For local development from a checkout:
-
-```bash
-codex plugin marketplace add "$PWD"
-codex plugin add codex-director --marketplace codex-director
-```
+The repository is private, so the installing environment must already have GitHub access to `novotnyllc/codex-director`.
 
 ## Structure
 

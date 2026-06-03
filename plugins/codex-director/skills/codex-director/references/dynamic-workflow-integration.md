@@ -26,14 +26,22 @@ Short version: dynamic workflow owns complex-task orchestration; workflow playbo
 
 ## When To Invoke
 
-Invoke dynamic workflow mode when at least two are true:
+Check dynamic workflow mode before selecting build or orchestrate for every non-trivial task.
+
+Invoke it when any hard trigger is true:
+
+- The user explicitly asks for a dynamic workflow, swarm, packets, delegated workers, or Claude Code-style orchestration.
+- The task needs explicit approval checkpoints, packet state, integration state, or a reusable recipe.
+- The task spans multiple repos, worktrees, service boundaries, or independently mergeable workstreams.
+- Risk and breadth are both present, such as migrations plus code changes, production data plus implementation, or external writes plus verification.
+
+Also invoke it when at least two soft signals are true:
 
 - The task has independent research, implementation, review, migration, QA, docs, or design tracks.
 - A success contract would reduce drift.
 - Risk is present: destructive edits, external writes, deploys, secrets, production data, billing, user accounts, migrations, or broad repo-wide changes.
 - Verification benefits from a separate pass from implementation.
 - The workflow could become a reusable recipe.
-- The user explicitly asks for a dynamic workflow, swarm, packets, delegated workers, or Claude Code-style orchestration.
 - Delegation would materially improve speed, coverage, review independence, risk control, context management, or token economy even if the user did not ask for it by name.
 
 Do not invoke it for small direct tasks. Use the build/review/investigate workflows directly.
