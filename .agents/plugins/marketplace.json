@@ -1,14 +1,14 @@
 {
-  "name": "codex-project-chief-of-staff",
+  "name": "codex-director",
   "interface": {
-    "displayName": "Codex Project Chief of Staff"
+    "displayName": "Codex Director"
   },
   "plugins": [
     {
-      "name": "codex-project-chief-of-staff",
+      "name": "codex-director",
       "source": {
         "source": "local",
-        "path": "./plugins/codex-project-chief-of-staff"
+        "path": "./plugins/codex-director"
       },
       "policy": {
         "installation": "AVAILABLE",

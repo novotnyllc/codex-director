@@ -1,9 +1,9 @@
-# Codex Project Chief Of Staff Reference
+# Codex Director Reference
 
 ## Operating Brief Template
 
 ```text
-You are the project chief-of-staff Codex thread for <project scope>.
+You are the project director Codex thread for <project scope>.
 
 Your job is to coordinate work across this project. Read and follow the project instruction files before routing work. Do not treat a non-git workspace root as a problem.
 
@@ -113,7 +113,7 @@ Keep evidence brief. Include exact error lines only when they explain a blocker.
 
 ## Verbosity Budget
 
-Default worker reports should fit in 5-10 bullets. Research scouts should return sources, conflicts, confidence, and plan implications, not a literature review. Reviewers should lead with findings and verdict, not process. The chief thread should ask for more detail only when needed to verify or unblock.
+Default worker reports should fit in 5-10 bullets. Research scouts should return sources, conflicts, confidence, and plan implications, not a literature review. Reviewers should lead with findings and verdict, not process. The director thread should ask for more detail only when needed to verify or unblock.
 
 ## Token Economy
 
@@ -133,7 +133,7 @@ Spend tokens when they buy correctness: architecture decisions, security/data ri
 
 ## Git And Worktree Contract
 
-The chief thread should hide worktree mechanics from the user unless there is a decision or blocker. The user gets the branch, commit, PR, or final state; the chief coordinates the temporary workspace.
+The director thread should hide worktree mechanics from the user unless there is a decision or blocker. The user gets the branch, commit, PR, or final state; the director coordinates the temporary workspace.
 
 - Check git status before dispatch and before reconciliation.
 - If there is one coherent workstream and no meaningful conflict risk, it may run in the main checkout on the appropriate branch.
@@ -225,7 +225,7 @@ Output: approved/approved-with-fixes/rework verdict, missing work items, missing
 
 ### Adversarial Review Gate
 
-Purpose: challenge completed or near-complete work before the CoS accepts it.
+Purpose: challenge completed or near-complete work before the Director accepts it.
 
 Use when: any worker thread changed code/docs/config, any dynamic workflow packet is ready to integrate, or any result affects users, data, auth, payments, deployments, or secrets.
 
@@ -285,7 +285,7 @@ Output: local export path, included sources, excluded sensitive material, exact 
 
 ## Adapted Workflow References
 
-Use these workflow playbooks first. They are the source of truth. Optional external tools may implement a phase, but the CoS and worker briefs should name the self-contained workflow and the task outcome, not an external workflow dependency.
+Use these workflow playbooks first. They are the source of truth. Optional external tools may implement a phase, but the Director and worker briefs should name the self-contained workflow and the task outcome, not an external workflow dependency.
 
 - [Build workflow](references/build-workflow.md)
 - [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)

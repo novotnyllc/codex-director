@@ -1,13 +1,13 @@
 ---
-name: codex-project-chief-of-staff
-description: Set up and operate a project-scoped chief-of-staff Codex thread that routes, creates, monitors, steers, and archives Codex worker threads. Use when the user wants a coordinating thread, project task portfolio, thread routing policy, or Codex-native delegation across repos/workspaces with context-aware workers.
+name: codex-director
+description: Set up and operate a project-scoped director Codex thread that routes, creates, monitors, steers, and archives Codex worker threads. Use when the user wants a coordinating thread, project task portfolio, thread routing policy, or Codex-native delegation across repos/workspaces with context-aware workers.
 ---
 
-# Codex Project Chief Of Staff
+# Codex Director
 
 ## Quick Start
 
-Create or operate one pinned chief-of-staff Codex thread for a single project scope. The chief thread coordinates; Codex worker threads implement, investigate, plan, or review.
+Create or operate one pinned director Codex thread for a single project scope. The director thread coordinates; Codex worker threads implement, investigate, plan, or review.
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
@@ -15,7 +15,7 @@ Default posture: delegate proactively when it improves speed, coverage, review i
 
 Thread vocabulary:
 
-- Chief-of-staff thread: the pinned coordinating Codex thread.
+- Director thread: the pinned coordinating Codex thread.
 - Codex worker thread: a background Codex thread for one bounded task.
 - Context engine: tools/workflows used for planning, discovery, review, and verification.
 - Research lane: a scout pass that gathers repo, docs, memory, prior-art, and external facts before planning.
@@ -25,17 +25,17 @@ Thread vocabulary:
 
 ## Setup Workflow
 
-When asked to set up a chief-of-staff thread:
+When asked to set up a director thread:
 
 1. Identify the project scope and relevant instruction files such as `AGENTS.md`, `CLAUDE.md`, or repo-local guides.
-2. Create or continue the project chief-of-staff Codex thread.
-3. Title it clearly, for example `Chief of Staff: <project>`.
+2. Create or continue the project director Codex thread.
+3. Title it clearly, for example `Director: <project>`.
 4. Pin it.
 5. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
 
-## CoS Triage
+## Director Triage
 
-Before answering or dispatching, the chief thread decides:
+Before answering or dispatching, the director thread decides:
 
 - Route: Which repo/path owns this?
 - Shape: answer, investigate, plan, build, review, refactor, optimize, or orchestrate?
@@ -49,10 +49,10 @@ Before answering or dispatching, the chief thread decides:
 - Work plan: What are the right work items, dependencies, and stop points?
 - Review gate: fast self-check, adversarial review thread, oracle critique, or full code review?
 - Git/worktree: main checkout or isolated worktree, branch name, commit cadence, reconciliation path?
-- Goal fit: chief-ledger only, worker Codex Goal, or both with evidence finish line?
+- Goal fit: director-ledger only, worker Codex Goal, or both with evidence finish line?
 
 ## Context Workflow Routing
-Select the narrowest workflow that fits. The workflow playbooks in this skill are self-contained: they define triggers, phases, roles, model/effort routing, outputs, and evidence. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the CoS brief must not depend on external workflow names or runner-specific parameters.
+Select the narrowest workflow that fits. The workflow playbooks in this skill are self-contained: they define triggers, phases, roles, model/effort routing, outputs, and evidence. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the Director brief must not depend on external workflow names or runner-specific parameters.
 
 - Research: repo/docs/memory/prior-art/external scout pass before planning. Use a Codex research thread, local/web searches, or another available research lane as appropriate.
 - Investigate: deep read-only diagnosis or "how does this work?"
@@ -64,7 +64,7 @@ Select the narrowest workflow that fits. The workflow playbooks in this skill ar
 - Refactor: behavior-preserving structural cleanup.
 - Optimize: performance or efficiency work.
 
-Orchestration is the chief thread's mental model always, but formal orchestration tools or delegation runners should be invoked only when decomposition or delegation is actually needed. Avoid teaching or depending on unstable runner-specific parameters in the CoS brief.
+Orchestration is the director thread's mental model always, but formal orchestration tools or delegation runners should be invoked only when decomposition or delegation is actually needed. Avoid teaching or depending on unstable runner-specific parameters in the Director brief.
 
 ## Gates
 
@@ -78,7 +78,7 @@ Every Codex worker thread should return concise evidence, not a transcript. Requ
 
 ## Git And Worktrees
 
-Commit regularly in logical units when repository work is being changed. A single coherent workstream may use the main checkout/branch when that is safe and matches project practice. Use isolated worktrees for parallel, risky, long-running, or conflicting work. The chief thread owns worktree creation, tracking, reconciliation, and cleanup; the user should see branch/task outcomes, not have to manage worktree mechanics. All work must ultimately reconcile into the canonical repo on an appropriate branch.
+Commit regularly in logical units when repository work is being changed. A single coherent workstream may use the main checkout/branch when that is safe and matches project practice. Use isolated worktrees for parallel, risky, long-running, or conflicting work. The director thread owns worktree creation, tracking, reconciliation, and cleanup; the user should see branch/task outcomes, not have to manage worktree mechanics. All work must ultimately reconcile into the canonical repo on an appropriate branch.
 
 ## Worker Thread Rule
 
@@ -88,7 +88,7 @@ Use [Agent profiles and model routing](references/agent-profiles-and-model-routi
 
 ## Goals Policy
 
-The chief thread maintains a project goal ledger. Worker threads use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Goals must name outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.
+The director thread maintains a project goal ledger. Worker threads use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Goals must name outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.
 
 ## Monitoring
 

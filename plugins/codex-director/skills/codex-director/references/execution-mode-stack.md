@@ -1,15 +1,15 @@
 # Execution Mode Stack
 
-Use this to decide how the chief-of-staff thread, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes fit together.
+Use this to decide how the director thread, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes fit together.
 
 ## Core Rule
 
-There is only one top-level coordinator: the chief-of-staff Codex thread.
+There is only one top-level coordinator: the director Codex thread.
 
-Everything else is an execution mode selected by the chief thread for a specific task:
+Everything else is an execution mode selected by the director thread for a specific task:
 
 ```text
-Chief-of-staff Codex thread
+Director Codex thread
 |-- direct answer or small local action
 |-- one Codex worker thread using a selected workflow
 |-- dynamic workflow for complex task orchestration
@@ -20,7 +20,7 @@ Chief-of-staff Codex thread
 
 ## Responsibilities
 
-### Chief-of-staff thread
+### Director thread
 
 Owns:
 
@@ -59,11 +59,11 @@ Owns:
 - `final-report.md`
 - workflow completeness audit
 
-Dynamic workflow is not a replacement for the CoS. It is the CoS's task-level orchestrator for one complex task. The CoS still decides when to invoke it, how to staff packets with Codex worker threads, how to manage worktrees/commits, and how to reconcile the result into the larger project.
+Dynamic workflow is not a replacement for the Director. It is the Director's task-level orchestrator for one complex task. The Director still decides when to invoke it, how to staff packets with Codex worker threads, how to manage worktrees/commits, and how to reconcile the result into the larger project.
 
 ### Context and execution tools
 
-Use optional context, oracle, browser, and delegation tools as implementations when they are available and fit the task. Do not make the CoS operating model depend on any one tool family.
+Use optional context, oracle, browser, and delegation tools as implementations when they are available and fit the task. Do not make the Director operating model depend on any one tool family.
 
 Owns:
 
@@ -86,11 +86,11 @@ Own:
 - concise evidence
 - commits for their work when authorized
 
-Workers must report scope expansion, blockers, and verification gaps back to the CoS.
+Workers must report scope expansion, blockers, and verification gaps back to the Director.
 
 ## Selection Order
 
-Delegation is proactive. The user does not need to say "swarm", "parallel", or "dynamic workflow" for the CoS to use available delegation mechanisms. Choose delegation when it improves speed, coverage, review independence, risk control, context management, or token economy.
+Delegation is proactive. The user does not need to say "swarm", "parallel", or "dynamic workflow" for the Director to use available delegation mechanisms. Choose delegation when it improves speed, coverage, review independence, risk control, context management, or token economy.
 
 ### 1. Tiny or advisory
 
@@ -128,10 +128,10 @@ No dynamic workflow unless durable packet/state artifacts are useful.
 
 Use orchestration without a durable `.workflow/` run when the task is multi-step but not large enough to need long-lived artifacts.
 
-- follow the CoS orchestrate workflow reference
+- follow the Director orchestrate workflow reference
 - create multiple Codex worker threads only for disjoint items
 - use available delegation runners only when they reduce risk or token load
-- keep the CoS ledger as the state
+- keep the Director ledger as the state
 
 ### 4. Complex, risky, long-running, or reusable
 
@@ -151,13 +151,13 @@ Use this when the task needs:
 
 When optional context/delegation tools are also available, use them as implementations under the same artifact source of truth:
 
-1. CoS invokes `codex-dynamic-workflows` to create the task orchestration run.
-2. CoS uses the dynamic workflow plan/state as the task source of truth.
-3. For each packet, CoS dispatches a Codex worker thread.
+1. Director invokes `codex-dynamic-workflows` to create the task orchestration run.
+2. Director uses the dynamic workflow plan/state as the task source of truth.
+3. For each packet, Director dispatches a Codex worker thread.
 4. The worker uses the relevant self-contained workflow playbook for its packet.
 5. For multi-packet execution inside one worker, use the orchestration workflow and available delegation runners only when useful.
 6. Worker writes concise result evidence into `results/`.
-7. CoS integrates, verifies, reconciles commits/worktrees, and writes final report.
+7. Director integrates, verifies, reconciles commits/worktrees, and writes final report.
 
 ## How Optional Execution Tools Fit
 
@@ -168,12 +168,12 @@ Optional execution tools are implementation helpers. They are best when the curr
 Use both when the task is complex and optional tooling is available:
 
 ```text
-CoS creates .workflow/<slug>/
-CoS creates packet files
+Director creates .workflow/<slug>/
+Director creates packet files
 Codex worker thread handles Packet 02
 Worker uses the orchestration workflow and available delegation runner only if the packet has real sub-items
 Worker writes results/02-*.md
-CoS integrates all packet results
+Director integrates all packet results
 ```
 
 Do not let an optional execution tool create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans, but the dynamic workflow artifact remains the task source of truth.
@@ -190,21 +190,21 @@ Use the narrow self-contained workflow that matches each packet:
 - Optimize packet -> optimize workflow
 - Browser/external oracle packet -> prompt export, then Browser ChatGPT oracle
 
-The CoS should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions.
+The Director should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions.
 
 ## How Codex Goals Fit
 
-Use Codex Goals inside the chief thread or worker threads only when the objective is durable, evidence-based, and likely to span turns or iterations.
+Use Codex Goals inside the director thread or worker threads only when the objective is durable, evidence-based, and likely to span turns or iterations.
 
-- CoS project ledger tracks portfolio work.
+- Director project ledger tracks portfolio work.
 - Dynamic workflow tracks complex task orchestration.
 - Codex Goal gives a single thread a persistent finish line.
 
-Worker Goals must name the outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition. The CoS should audit evidence before accepting a Goal as complete. See [Codex Goals integration](goals-integration.md).
+Worker Goals must name the outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition. The Director should audit evidence before accepting a Goal as complete. See [Codex Goals integration](goals-integration.md).
 
 ## Conflict Rules
 
-- If CoS and dynamic workflow disagree, the CoS updates the workflow artifact or pauses for user input.
+- If Director and dynamic workflow disagree, the Director updates the workflow artifact or pauses for user input.
 - If RP findings conflict with workflow plan, record the conflict in `results/` and update `plan.md` before implementation continues.
 - If worker threads disagree, inspect authoritative repo/source evidence before choosing.
 - If a packet grows beyond its scope, stop and re-plan rather than silently widening.
@@ -213,7 +213,7 @@ Worker Goals must name the outcome, verification surface, constraints, boundarie
 
 A task is complete only when all selected layers agree:
 
-- CoS ledger says done.
+- Director ledger says done.
 - Workflow artifact, if used, passes completion audit.
 - Worker threads have reported evidence.
 - Review gates have passed or residual risk is accepted.

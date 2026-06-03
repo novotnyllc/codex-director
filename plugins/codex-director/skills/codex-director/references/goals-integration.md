@@ -1,20 +1,20 @@
 # Codex Goals Integration
 
-Use when the chief-of-staff thread or a Codex worker thread is deciding whether to create, continue, audit, pause, or complete a Codex Goal.
+Use when the director thread or a Codex worker thread is deciding whether to create, continue, audit, pause, or complete a Codex Goal.
 
-## Relationship To The CoS Stack
+## Relationship To The Director Stack
 
-Codex Goals are persistence and completion-pressure for a single thread objective. They are not a replacement for chief-of-staff coordination, dynamic workflow orchestration, or review gates.
+Codex Goals are persistence and completion-pressure for a single thread objective. They are not a replacement for director coordination, dynamic workflow orchestration, or review gates.
 
 ```text
-CoS ledger = portfolio state
+Director ledger = portfolio state
 Dynamic workflow = complex task orchestration
 Codex worker thread = execution unit
 Codex Goal = persistent objective inside a thread
 Evidence = required before completion
 ```
 
-The CoS may ask a worker to create a Goal. A worker may propose a Goal when the task shape warrants it, but should not create one silently for trivial work.
+The Director may ask a worker to create a Goal. A worker may propose a Goal when the task shape warrants it, but should not create one silently for trivial work.
 
 ## Goal Fit Test
 
@@ -83,7 +83,7 @@ Research Goals should not overclaim from proxies. If proof is unavailable, final
 
 ## Completion Audit
 
-Before the CoS accepts a worker Goal as complete:
+Before the Director accepts a worker Goal as complete:
 
 1. Compare the stated outcome to evidence.
 2. Confirm named verification surfaces were run or inspected.
@@ -116,7 +116,7 @@ When dynamic workflow mode is active:
 - Overall task success criteria belong in `.workflow/<slug>/plan.md`.
 - Packet-level persistent objectives may become worker Goals.
 - Packet result files should include Goal outcome, verification surface, completion evidence, and blockers.
-- CoS completion requires both Goal audit and dynamic workflow completion audit.
+- Director completion requires both Goal audit and dynamic workflow completion audit.
 
 ## Anti-Patterns
 

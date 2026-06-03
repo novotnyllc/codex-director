@@ -1,6 +1,6 @@
 # Agent Profiles And Model Routing
 
-Use this when the chief-of-staff thread is choosing Codex worker thread roles, model families, and reasoning effort.
+Use this when the director thread is choosing Codex worker thread roles, model families, and reasoning effort.
 
 ## Core Policy
 
@@ -53,7 +53,7 @@ Do not use Spark as final authority for:
 
 Use the main/default stronger model for:
 
-- chief-of-staff top-level task decisions
+- director top-level task decisions
 - dynamic workflow setup and packet design
 - final plan review
 - cross-repo integration

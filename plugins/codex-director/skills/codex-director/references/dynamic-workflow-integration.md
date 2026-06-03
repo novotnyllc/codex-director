@@ -1,10 +1,10 @@
 # Dynamic Workflow Integration
 
-Use when a project chief-of-staff thread needs task-level orchestration for a complex task.
+Use when a project director thread needs task-level orchestration for a complex task.
 
 ## Relationship
 
-The chief-of-staff thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktrees, commits, reconciliation, and final user-facing status.
+The director thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktrees, commits, reconciliation, and final user-facing status.
 
 The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, simulated or real delegated packet work, integration, verification, reusable recipes, and the run artifact:
 
@@ -18,11 +18,11 @@ The `codex-dynamic-workflows` skill owns the orchestration protocol for one comp
 `-- final-report.md
 ```
 
-Call into `codex-dynamic-workflows` when the CoS triage decides a task needs explicit task-level orchestration: packetization, integration, approval tracking, verification state, reusable workflow artifacts, or simulated packet passes.
+Call into `codex-dynamic-workflows` when the Director triage decides a task needs explicit task-level orchestration: packetization, integration, approval tracking, verification state, reusable workflow artifacts, or simulated packet passes.
 
-For the full relationship between CoS, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
+For the full relationship between Director, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
 
-Short version: dynamic workflow owns complex-task orchestration; workflow playbooks define the phases; optional tools may implement those phases; the CoS remains the portfolio-level coordinator.
+Short version: dynamic workflow owns complex-task orchestration; workflow playbooks define the phases; optional tools may implement those phases; the Director remains the portfolio-level coordinator.
 
 ## When To Invoke
 
@@ -38,16 +38,16 @@ Invoke dynamic workflow mode when at least two are true:
 
 Do not invoke it for small direct tasks. Use the build/review/investigate workflows directly.
 
-## CoS Mapping
+## Director Mapping
 
-- CoS active goal -> `.workflow/<slug>/plan.md`
-- CoS worker thread brief -> packet file under `packets/`
+- Director active goal -> `.workflow/<slug>/plan.md`
+- Director worker thread brief -> packet file under `packets/`
 - Codex worker thread output -> result file under `results/`
-- CoS ledger snapshot -> `state.json`
-- CoS sequencing rules -> `orchestration.md`
-- CoS final status -> `final-report.md`
+- Director ledger snapshot -> `state.json`
+- Director sequencing rules -> `orchestration.md`
+- Director final status -> `final-report.md`
 
-The CoS may still create real Codex worker threads for packets, but the dynamic workflow packet plan defines what each worker owns. If no delegation runner or separate worker thread is appropriate, dynamic workflow's simulated packet pattern keeps isolated passes and result notes separate until integration.
+The Director may still create real Codex worker threads for packets, but the dynamic workflow packet plan defines what each worker owns. If no delegation runner or separate worker thread is appropriate, dynamic workflow's simulated packet pattern keeps isolated passes and result notes separate until integration.
 
 Workers should use the matching self-contained workflow inside their packet:
 
@@ -90,7 +90,7 @@ Verbosity limit:
 Git/worktree:
 ```
 
-Packets should be disjoint where possible. For code-edit packets, avoid overlapping files/modules unless the CoS deliberately serializes them.
+Packets should be disjoint where possible. For code-edit packets, avoid overlapping files/modules unless the Director deliberately serializes them.
 
 ## Integration
 

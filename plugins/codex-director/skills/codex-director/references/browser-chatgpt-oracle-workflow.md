@@ -1,6 +1,6 @@
 # Browser ChatGPT Oracle Workflow
 
-Use when the chief thread or a Codex worker thread needs an external second-opinion result from ChatGPT through the signed-in in-app Browser session, especially when the user wants the prompt run through ChatGPT Pro.
+Use when the director thread or a Codex worker thread needs an external second-opinion result from ChatGPT through the signed-in in-app Browser session, especially when the user wants the prompt run through ChatGPT Pro.
 
 ## Principle
 
@@ -82,7 +82,7 @@ After submitting:
 
 If extraction is brittle, capture the visible response text and a screenshot reference if useful. Do not rely only on a screenshot when text extraction is possible.
 
-If the response is long, save the full text to the result artifact and summarize only the verdict and must-fix items in the CoS status.
+If the response is long, save the full text to the result artifact and summarize only the verdict and must-fix items in the Director status.
 
 ## Phase 4: Feed Back Into The Workflow
 
