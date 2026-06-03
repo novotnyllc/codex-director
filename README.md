@@ -22,10 +22,12 @@ Start $codex-director for this project.
 Use this thread as the Director thread. Read the project instructions, identify the project scope, set up the Director operating brief, and tell me what you need from me before coordinating work.
 ```
 
-`$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate. After the Director thread is established, keep using that same thread for project-level requests:
+`$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate.
+
+After the Director thread is established, give it outcomes, not workflow mechanics. You should not need to say "use dynamic workflow", "orchestrate", "use workers", or "run subagents". The Director should decide that based on scope, risk, parallelism, evidence needs, and token economy.
 
 ```text
-Coordinate the Discord invite work and use dynamic workflow if the task needs packets.
+Coordinate the Discord invite work.
 ```
 
 ```text

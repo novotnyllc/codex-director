@@ -11,7 +11,7 @@ Create or operate one pinned Director thread for a single project scope. The Dir
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
-Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, or token economy.
+Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, or token economy. Do not wait for the user to say dynamic workflow, orchestrate, workers, swarm, or subagents before choosing the right mechanism.
 
 Keep this file as the compact dispatcher. Load [REFERENCE.md](REFERENCE.md) for the full operating brief, then load only the focused workflow reference needed for the task.
 

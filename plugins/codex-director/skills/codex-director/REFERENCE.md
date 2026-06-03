@@ -65,7 +65,7 @@ Worker expectations:
 
 ```text
 Instructions read: <files>
-Task shape: <build/plan/investigate/review/orchestrate>
+Task shape: <answer/research/investigate/deep-plan/dynamic-workflow/build/orchestrate/review/refactor/optimize>
 Selected skills/context workflow: <skills/tools and why>
 Research lane: <none/local/thread/context engine/web/other available lane and why>
 Oracle lane: <none/tool/thread and why>
