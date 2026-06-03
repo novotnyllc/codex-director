@@ -7,7 +7,7 @@ A Codex plugin containing a project-scoped director skill. It defines a pinned c
 Install from GitHub:
 
 ```bash
-codex plugin marketplace add novotnyllc/codex-director --ref main
+codex plugin marketplace add novotnyllc/codex-director
 codex plugin add codex-director --marketplace codex-director
 ```
 
