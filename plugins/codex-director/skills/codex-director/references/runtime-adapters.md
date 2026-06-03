@@ -184,7 +184,7 @@ Residual uncertainty:
 For plugin-package checks:
 
 - Validate `.codex-plugin/plugin.json`.
-- Validate `.agents/plugins/marketplace.json`.
+- Validate the shared `novotnyllc/marketplace` entry when installability changes.
 - Validate every `SKILL.md` frontmatter.
 - Check relative links.
 - Verify README commands match the current plugin layout.
@@ -193,8 +193,8 @@ For plugin-package checks:
 For install instructions, use the GitHub marketplace source:
 
 ```bash
-codex plugin marketplace add novotnyllc/codex-director
-codex plugin add codex-director --marketplace codex-director
+codex plugin marketplace add novotnyllc/marketplace
+codex plugin add codex-director --marketplace novotnyllc
 ```
 
 Do not publish local checkout install commands in user-facing docs unless the user explicitly asks for development-only instructions.

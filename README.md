@@ -7,8 +7,8 @@ A Codex plugin containing a project-scoped director skill. It defines a pinned c
 Install from GitHub:
 
 ```bash
-codex plugin marketplace add novotnyllc/codex-director
-codex plugin add codex-director --marketplace codex-director
+codex plugin marketplace add novotnyllc/marketplace
+codex plugin add codex-director --marketplace novotnyllc
 ```
 
 ## Use
@@ -48,7 +48,6 @@ If Codex can manage threads in the current runtime, the Director should title an
 
 ## Structure
 
-- `.agents/plugins/marketplace.json` declares this repository as a Codex plugin marketplace.
 - `plugins/codex-director/.codex-plugin/plugin.json` is the plugin manifest.
 - `plugins/codex-director/skills/codex-director/SKILL.md` is the compact entrypoint Codex reads when selecting the skill.
 - `plugins/codex-director/skills/codex-director/REFERENCE.md` contains the full operating brief, worker templates, evidence rules, and status formats.
