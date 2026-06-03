@@ -10,6 +10,8 @@ When the intended receiver is Browser ChatGPT oracle, prompt export is only Phas
 
 ## Phase 0: Extract The Real Task
 
+Confirm the launch contract first: model, thinking level, commit authority, required skills/workflows, receiver lane, sensitivity boundary, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+
 Strip prompt/export meta-framing.
 
 Examples:

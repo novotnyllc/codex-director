@@ -4,9 +4,9 @@ Use when a project director thread needs task-level orchestration for a complex 
 
 ## Relationship
 
-The director thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktrees, commits, reconciliation, and final user-facing status.
+The director thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktree/commit policy, reconciliation decisions, worker check-ins, and final user-facing status. Workers perform project work and repo-changing operations.
 
-The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, simulated or real delegated packet work, integration, verification, reusable recipes, and the run artifact:
+The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, Codex worker-thread packet work, integration, verification, reusable recipes, and the run artifact:
 
 ```text
 .workflow/<slug>/
@@ -18,7 +18,7 @@ The `codex-dynamic-workflows` skill owns the orchestration protocol for one comp
 `-- final-report.md
 ```
 
-Call into `codex-dynamic-workflows` when the Director triage decides a task needs explicit task-level orchestration: packetization, integration, approval tracking, verification state, reusable workflow artifacts, or simulated packet passes.
+Call into `codex-dynamic-workflows` when the Director triage decides a task needs explicit task-level orchestration: packetization, Codex worker-thread staffing, integration, approval tracking, verification state, or reusable workflow artifacts.
 
 For the full relationship between Director, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
 
@@ -44,7 +44,7 @@ Also invoke it when at least two soft signals are true:
 - The workflow could become a reusable recipe.
 - Delegation would materially improve speed, coverage, review independence, risk control, context management, or token economy even if the user did not ask for it by name.
 
-Do not invoke it for small direct tasks. Use the build/review/investigate workflows directly.
+Do not invoke it for small single-thread tasks. Start one Codex worker thread with the build, review, or investigate workflow instead.
 
 ## Director Mapping
 
@@ -55,7 +55,7 @@ Do not invoke it for small direct tasks. Use the build/review/investigate workfl
 - Director sequencing rules -> `orchestration.md`
 - Director final status -> `final-report.md`
 
-The Director may still create real Codex worker threads for packets, but the dynamic workflow packet plan defines what each worker owns. If no delegation runner or separate worker thread is appropriate, dynamic workflow's simulated packet pattern keeps isolated passes and result notes separate until integration.
+The Director creates real Codex worker threads for packets that benefit from isolation. The dynamic workflow packet plan defines what each worker owns. Packets too small for their own thread are combined with neighboring packets or handled by steering an existing worker; packet work is never executed in the Director thread.
 
 Workers should use the matching self-contained workflow inside their packet:
 
@@ -69,9 +69,29 @@ Workers should use the matching self-contained workflow inside their packet:
 
 Do not let a worker's local workflow overwrite the `.workflow/` task source of truth. It may produce subplans and exports, but packet status and integration decisions belong in the dynamic workflow artifact.
 
+## Recursive Use
+
+Dynamic workflow can recurse, but ownership must stay explicit:
+
+- The parent Director owns the top-level `.workflow/<slug>/` task artifact.
+- Each top-level packet is owned by one Codex worker thread.
+- A worker may create nested workflow artifacts or native sub-agents only for packet-internal subwork.
+- Nested helpers report to the owning worker; the owning worker writes the packet result under the parent `results/`.
+- A nested workflow must not redefine parent success criteria, approvals, packet ownership, or integration policy.
+
 ## Setup
 
-Dynamic workflow mode is optional. Use the installed `codex-dynamic-workflows` skill when it is available, but never hard-code a user-local skill path. If a helper script exists, resolve it relative to the installed skill directory. If no helper exists, create the artifact tree manually.
+Dynamic workflow mode is selected by the trigger rules above. Use the installed `codex-dynamic-workflows` skill for the orchestration protocol, but never hard-code a user-local skill path. Resolve helper scripts relative to the installed skill directory. Create the artifact tree manually when no helper script is packaged.
+
+Before creating packet briefs, record:
+
+- Codex skills loaded for Director-level routing
+- Codex skills each packet worker must consider
+- model and thinking level per packet
+- commit authority per packet
+- native thread handle requirements
+- stale/cancel policy
+- evidence and artifact retention policy
 
 Minimum artifact tree:
 

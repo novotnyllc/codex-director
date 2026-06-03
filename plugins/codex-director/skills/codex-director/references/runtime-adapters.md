@@ -1,6 +1,6 @@
 # Runtime Adapters
 
-Use this reference whenever a Director workflow says to create a worker thread, build context, invoke an oracle, manage a worktree, commit, or use a Codex Goal. The workflow contract is stable; adapters are interchangeable implementations.
+Use this reference whenever a Director workflow says to create a Codex worker thread, build context, invoke an oracle, manage a worktree, commit, or use a Codex Goal. The workflow contract is stable; adapters are interchangeable implementations, but they do not all live at the same layer.
 
 ## Core Rule
 
@@ -9,38 +9,98 @@ Name the role and outcome first, then choose the best available implementation:
 ```text
 Need: independent worker for Packet 02
 Role: implementation worker using build workflow
-Adapter: Codex thread tool / Agent Mode / local simulated pass
+Adapter: native Codex thread tool
 Evidence: activation report, changed files, tests, review verdict
 ```
 
-Never make a worker brief depend on a private path, a single vendor, or an unstable API name. If a tool is available, use it. If it is not, fall back to the same workflow in the current thread and label it as a simulated lane.
+Never make a worker brief depend on a private path, a single vendor, or an unstable API name. Codex worker thread lifecycle belongs to native Codex thread tools. Sub-agent APIs are worker-internal execution helpers, not substitutes for Director-managed Codex worker threads. Context engines are context builders, reviewers, or oracle helpers, not thread adapters.
+
+The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If no real worker thread is available, report the runtime blocker instead of doing the work inline.
 
 ## Adapter Selection
 
 Prefer this order:
 
-1. Native Codex thread tools, when available, for real background worker threads.
-2. Agent Mode delegation, when available, for bounded implementation, research, review, design, or orchestration sessions.
-3. Tool-specific context engines, when available, for context building, review, oracle, and prompt export.
-4. Local shell/git/file tools for direct single-thread execution.
-5. Simulated packet passes in the Director thread when no separate worker is available.
+1. Native Codex thread tools for real background worker threads.
+2. Native sub-agent tools, when allowed by the active workflow, for worker-internal decomposition, verification, or bounded helper tasks.
+3. Tool-specific context engines for context building, review, oracle, and prompt export.
+4. Local shell/git/file tools only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread.
+5. Runtime blocker reporting when no separate worker thread is available.
 
-Use the first adapter that satisfies the workflow's independence, evidence, and safety needs. Do not block a task merely because the preferred adapter is unavailable.
+Use the first adapter that satisfies the workflow's layer, independence, evidence, and safety needs. Do not block context building merely because a preferred context engine is unavailable. Do block project execution when no real Codex worker thread can own the work.
+
+## Capability Detection
+
+At Director setup and before the first worker dispatch in a session, inspect the active tool metadata for native Codex thread tools. Record the result in the ledger:
+
+```text
+Thread adapter: native-codex | simulated-unavailable
+Capability source: active tool metadata
+Searched terms: thread, session, conversation, chat, tab, fork, pin, title, archive, create, switch, list, close, send, wait, poll
+Available ops:
+Missing ops:
+Excluded hits:
+```
+
+`simulated-unavailable` means a brief or ledger item exists without an executing worker. It is a blocked state, not permission for the Director to perform the work inline.
+
+Exclude these hits from native thread detection:
+
+- Gmail or Outlook email threads
+- GitHub review/comment threads
+- Notion or app discussion threads
+- RepoPrompt agent sessions, compose tabs, workspace tabs, or context chats
+- `multi_agent_v1` sub-agents
+- Browser or Chrome tabs
 
 ## Thread Management Adapter
 
-Minimum operations:
+Found native Codex thread tools:
 
-| Need | Native Codex thread adapter | Agent Mode adapter | Fallback |
-|---|---|---|---|
-| Create worker | create thread with title and brief | start agent session | create a ledger item and run a simulated pass |
-| Send brief | send message to worker | agent start/steer message | write the brief into the active notes |
-| Monitor | read thread status/output | wait/poll session | checkpoint the simulated pass |
-| Steer | send follow-up | steer existing session | continue the current pass with the correction |
-| Capture evidence | copy summary/artifacts into ledger | record agent output/result path | write concise result notes |
-| Archive/cleanup | archive completed thread | cleanup completed session | mark ledger item closed |
+| Operation | Native Codex tool | Parameters that matter |
+|---|---|---|
+| Create worker | `codex_app.create_thread` | `prompt`, `target`, optional `model`, optional `thinking` |
+| Send initial brief | `codex_app.create_thread` | `prompt` is the full launch brief |
+| Send follow-up / steer | `codex_app.send_message_to_thread` | `threadId`, `prompt`, optional `model`, optional `thinking` |
+| List workers | `codex_app.list_threads` | optional `query`, optional `limit` |
+| Read / poll worker | `codex_app.read_thread` | `threadId`, optional `cursor`, `turnLimit`, `includeOutputs`, `maxOutputCharsPerItem` |
+| Set title | `codex_app.set_thread_title` | `threadId`, `title` |
+| Pin / unpin | `codex_app.set_thread_pinned` | `threadId`, `pinned` |
+| Archive / unarchive | `codex_app.set_thread_archived` | `threadId`, `archived` |
 
-Every real worker or simulated pass must start with an activation report. If it does not, steer it once:
+Lifecycle mapping:
+
+| Need | Native behavior |
+|---|---|
+| Create new thread | `create_thread` with `target.type = "project"` or `"projectless"` |
+| Select project/worktree | For project targets, choose `environment.type = "local"` or `"worktree"`; worktree can start from the current working tree or a named branch |
+| Send initial brief | Put the full self-contained launch contract in `create_thread.prompt` |
+| Fork existing conversation context | No native thread-context fork is exposed in the current tool metadata; pass an artifact path or self-contained context in the prompt |
+| List active threads | `list_threads` with a project/task query and limit |
+| Switch/bind UI to thread | No native switch/bind operation is exposed; keep `threadId` in the ledger and use read/send by id |
+| Send follow-up | `send_message_to_thread` |
+| Poll/wait | No blocking wait operation is exposed; poll with `read_thread` and record cursor/last turn seen |
+| Cancel/stop | No native hard cancel operation is exposed; send a stop request, record `cancel_requested`, poll for acknowledgment or staleness, then archive after evidence/cancel note is captured |
+| Archive/close | `set_thread_archived` |
+| Set title/pin | `set_thread_title`, `set_thread_pinned` |
+
+### Launch Contract
+
+Before calling `codex_app.create_thread`, define:
+
+- worker title
+- starting prompt
+- target project/worktree or projectless directory
+- model and thinking level
+- required skills or workflow references
+- context artifacts or source files to read first
+- git/worktree handling and commit authority
+- done criteria
+- evidence format and verbosity limit
+
+Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id such as `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, or `gpt-5.3-codex-spark` when the selected worker profile calls for an override. Use `create_thread.thinking` as `low`, `medium`, `high`, or `xhigh`. Otherwise mark the brief as inheriting the default runtime settings. After creation, title and pin important project/packet workers when useful.
+
+Every real worker must start with an activation report. If it does not, steer it once:
 
 ```text
 Before continuing, return the activation report required by the Director brief:
@@ -49,30 +109,106 @@ instructions read, task shape, selected workflow, research lane, oracle lane, re
 
 If the worker still skips activation or broadens scope, stop that lane and re-brief it.
 
-## Agent Mode Adapter
+### Required Thread Handle Fields
 
-Use role labels rather than hard-coded model names when possible:
+Every running or queued worker needs a ledger handle:
 
-- `explore`: narrow reconnaissance, one question, no edits.
-- `engineer`: bounded implementation when the plan is clear.
-- `pair`: complex implementation, integration, or ambiguous technical judgment.
-- `design`: plan critique, architecture critique, visual/product review, or adversarial design review.
+```text
+worker_id:
+thread_id:
+thread_title:
+adapter: native-codex | simulated-unavailable
+status: queued | running | needs_input | blocked | cancel_requested | stale | completed | archived
+project_id:
+target: local | worktree | projectless
+repo_path:
+worktree_path:
+branch:
+base_ref:
+model:
+thinking:
+starting_prompt_or_artifact:
+skills_required:
+workflow_playbook:
+commit_authority:
+done_criteria:
+evidence_required:
+created_at:
+last_poll_at:
+last_turn_seen:
+read_cursor:
+next_action:
+blockers:
+archive_after:
+cleanup_required:
+```
 
-Fresh worker is the default for independent items. Steer an existing worker only when the next item depends on its working memory or the items are tiny and tightly coupled.
+For non-dynamic work, this ledger can live in the Director thread notes or a repo-local status artifact. Escalate to `.workflow/<slug>/` when the task needs persistent packet state, multiple worker handles, worktrees, approval checkpoints, integration state, or durable evidence files.
 
-Parallel dispatch rules:
+### Polling, Input, And Staleness
+
+Read a newly created worker once after creation to confirm activation. For active short tasks, poll every 30-60 seconds. For long-running tasks, poll every 2-5 minutes and immediately after user steering, suspected blockage, or a dependent worker finishing.
+
+When a worker needs input:
+
+1. Answer from the brief, ledger, project instructions, or existing user authority when the answer is within scope.
+2. Ask the user when the answer changes outcome, expands scope, exposes sensitive data, requires production/destructive action, or changes commit authority.
+3. Record the decision in the ledger or `.workflow/<slug>/state.json`.
+
+A worker is stale when it misses the expected check-in window, stops making observable progress, or no longer matches the active brief. Steer once with the original boundary or stop request. If it remains stale, mark `stale`, archive after capturing the last readable state, and dispatch a replacement worker with a clean brief.
+
+### Cancel And Cleanup Semantics
+
+Cancellation is a state transition in the Director ledger:
+
+```text
+running -> cancel_requested -> stale | completed-cancelled -> archived
+```
+
+Adapter discovery may add a native hard-cancel operation in a later runtime. The current native Codex thread metadata does not expose hard cancel, so use `send_message_to_thread` with a stop instruction, then poll with `read_thread`. Do not archive a worker before recording its last known status, partial artifacts, branch/worktree, and cleanup needs.
+
+Partial worktree cleanup is project work. The Director records the cleanup requirement and dispatches a cleanup/reconciliation worker. The Director does not resolve files, remove branches, or rewrite working trees inline.
+
+## Hooks Adapter
+
+Codex supports lifecycle hooks and loads them from `hooks.json`, inline `[hooks]` config, and plugin-bundled `hooks/hooks.json`. Hooks are enabled by default under the canonical `features.hooks` key, but non-managed hooks still require trust review and can be disabled by runtime policy.
+
+The Director plugin bundles hooks as an optional, scoped advisory layer. Implementation notes live beside the hook files under `plugins/codex-director/hooks/`.
+
+| Event | Director use |
+|---|---|
+| `SessionStart` | Inject Director/worker role context only for Director-marked starts and compact resumes |
+| `UserPromptSubmit` | Inject routing context only when the prompt or recent transcript is Director-marked |
+| `Stop` | Emit a structured non-blocking closeout warning for Director-marked turns |
+| `SubagentStart` / `SubagentStop` | Remind Director-marked nested helpers to stay worker-internal and roll evidence up |
+
+Hooks do not create threads and are not a substitute for `codex_app.create_thread`. They are lifecycle reminders around the native thread adapter: role context, scoped warnings, and state hygiene prompts. Worker briefs, activation reports, monitoring, review gates, and ledger state remain the enforcement surface.
+
+## Worker-Internal Sub-Agent Adapter
+
+Sub-agents and other native delegation helpers sit below Codex worker threads. Use them only when the active workflow allows worker-internal decomposition and the helper can return concise evidence to the owning thread.
+
+Allowed uses:
+
+- a worker thread decomposes one packet into narrow subtasks
+- a worker runs a bounded scout, verification, review, or implementation helper
+- a dynamic workflow packet recursively needs its own mini-orchestration
+- the helper's output can be rolled up into the worker's result file or evidence summary
+
+Rules:
 
 1. Only parallelize disjoint work.
-2. Tell each worker what siblings are doing and what files/modules to avoid.
-3. Wait or poll regularly; do not leave workers unattended.
-4. Verify one worker's done criteria before dependent work continues.
-5. Clean up completed sessions after their evidence is recorded.
+2. Tell each sub-agent what sibling helpers are doing and what files/modules to avoid.
+3. Wait or poll regularly; do not leave helpers unattended.
+4. Verify helper output before the owning worker claims its packet is complete.
+5. Roll up helper evidence into the worker summary; do not expose helper transcripts as the Director ledger.
+6. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning packet.
 
 ## Context Engine Adapter
 
 A context engine can implement research, planning, review, or oracle phases. The Director still owns the workflow contract.
 
-When RepoPrompt is available, the usual mapping is:
+Usual mapping:
 
 - Verify workspace: bind to the project root first.
 - Broad planning: context builder in plan mode, optionally exported.
@@ -81,9 +217,11 @@ When RepoPrompt is available, the usual mapping is:
 - Oracle: curate selection first, then oracle send in plan/review/chat mode.
 - Handoff: export plan/review/oracle responses and pass the path to workers.
 
+Do not document a context engine as part of the Director's native thread runtime. It may be adopted later when it is the best context builder, but the Codex Director skill remains Codex-native and the worker lifecycle remains native Codex threads.
+
 When no context engine is available:
 
-- Use local search and file reads sparingly.
+- Have the owning worker use local search and file reads sparingly.
 - Prefer structured parsers and repo-local commands over broad manual reading.
 - Write a short context note with files read, facts found, assumptions, and unknowns.
 - Use a separate worker/reviewer as the oracle lane when possible.
@@ -110,7 +248,7 @@ Never silently pretend ChatGPT reviewed the work.
 
 Every worker brief must name one mode:
 
-- `no-commit`: edit/verify only; Director or user commits.
+- `no-commit`: edit/verify only; an integration worker or user commits after review.
 - `commit-when-green`: worker may commit logical units after verification.
 - `ask-before-commit`: worker must stop before each commit.
 - `pr-only`: worker may prepare branch/commits but final merge is via PR/review.
@@ -185,6 +323,7 @@ For plugin-package checks:
 
 - Validate `.codex-plugin/plugin.json`.
 - Validate the shared `novotnyllc/marketplace` entry when installability changes.
+- Validate plugin-bundled `hooks/hooks.json` and run the bundled hook runner against marked and unmarked sample payloads.
 - Validate every `SKILL.md` frontmatter.
 - Check relative links.
 - Verify README commands match the current plugin layout.

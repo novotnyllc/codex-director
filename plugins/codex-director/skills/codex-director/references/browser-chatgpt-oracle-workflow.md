@@ -16,6 +16,8 @@ Do not print sensitive payloads in chat. Prefer local files and concise status.
 
 ## Phase 0: Decide Whether Browser Oracle Is Appropriate
 
+Confirm the launch contract first: model/thinking for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+
 Use Browser ChatGPT oracle when:
 
 - The normal local oracle lane is unavailable, insufficient, or the user specifically wants ChatGPT web.

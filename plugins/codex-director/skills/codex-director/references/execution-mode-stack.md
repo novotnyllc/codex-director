@@ -10,14 +10,16 @@ Everything else is an execution mode selected by the director thread for a speci
 
 ```text
 Director Codex thread
-|-- runtime adapter layer
-|   |-- native Codex thread tools
-|   |-- Agent Mode or another delegation runner
-|   `-- local/simulated packet passes
-|-- direct answer or small local action
+|-- plugin-bundled hooks
+|   |-- reinforce role boundaries, routing, compaction recovery, closeout
+|-- Codex-native thread layer
+|   |-- create/title/pin/read/steer/archive worker threads
+|   `-- report a runtime blocker when no worker thread fits
+|-- coordination and status answers only
 |-- one Codex worker thread using a selected workflow
 |-- dynamic workflow for complex task orchestration
-|   `-- packets mapped to Codex worker threads or simulated packet passes
+|   |-- packets mapped to Codex worker threads
+|   `-- nested worker workflows or sub-agents only under an owning packet
 |-- Codex Goals inside worker threads when persistence is warranted
 `-- oracle/review/research lanes attached where needed
 ```
@@ -30,7 +32,7 @@ Owns:
 
 - project portfolio and active work ledger
 - routing to repo/path
-- whether to use direct work, a worker thread, or a dynamic workflow run
+- whether a request is coordination-only, one worker thread, or a dynamic workflow run
 - Codex worker thread creation, steering, monitoring, archival
 - worktree/branch/commit/reconciliation policy
 - final user-facing status
@@ -50,7 +52,7 @@ Owns:
 - success criteria and task-level plan
 - approval gates
 - packetization
-- simulated packet passes when no delegation runner is available
+- worker-thread packet ownership
 - packet integration
 - verification strategy and verification state
 - reusable workflow recipes
@@ -63,22 +65,23 @@ Owns:
 - `final-report.md`
 - workflow completeness audit
 
-Dynamic workflow is not a replacement for the Director. It is the Director's task-level orchestrator for one complex task. The Director still decides when to invoke it, how to staff packets with Codex worker threads, how to manage worktrees/commits, and how to reconcile the result into the larger project.
+Dynamic workflow is not a replacement for the Director. It is the Director's task-level orchestrator for one complex task. The Director still decides when to invoke it, how to staff packets with Codex worker threads, what worktree/commit policy applies, and which worker owns integration or reconciliation into the larger project.
 
 ### Runtime and context adapters
 
-Use optional thread, context, oracle, browser, and delegation tools as implementations when they are available and fit the task. Do not make the Director operating model depend on any one tool family.
+Use native Codex thread tools for worker-thread lifecycle. Use optional context, oracle, browser, and worker-internal sub-agent tools as implementations when they fit the task. Do not make the Director operating model depend on any non-native thread runner.
 
 Owns:
 
-- worker/thread creation, steering, polling, archival, and cleanup when the runtime supports it
+- Codex worker-thread creation, steering, polling, archival, and cleanup
+- Director hook reminders for role boundaries, compaction recovery, nested helper evidence, and closeout
 - codebase context building
 - oracle reasoning over curated context
-- delegation/execution helpers when useful
+- worker-internal sub-agent or execution helpers when useful
 - exports for plan/review handoff
-- live implementation/review/investigation loops
+- live implementation/review/investigation loops inside the owning worker thread
 
-These tools are not the durable project ledger. They are interchangeable engines for the self-contained workflow phases. See [Runtime adapters](runtime-adapters.md) for the adapter contract and fallback rules.
+Context and helper tools are not the durable project ledger and are not the native thread layer. They are interchangeable engines for self-contained workflow phases. See [Runtime adapters](runtime-adapters.md) for the adapter contract and fallback rules.
 
 ### Codex worker threads
 
@@ -93,26 +96,30 @@ Own:
 
 Workers must report scope expansion, blockers, and verification gaps back to the Director.
 
+### Director availability invariant
+
+The Director does not perform project work. It stays available for instructions, check-ins, steering, coordination, workflow-state updates, evidence integration, and final status. Any implementation, investigation, review, testing, refactor, optimization, or research work belongs in a Codex worker thread. Tiny work still gets a tiny worker brief.
+
 ## Selection Order
 
 Delegation is proactive. The user does not need to say "swarm", "parallel", or "dynamic workflow" for the Director to use available delegation mechanisms. Choose delegation when it improves speed, coverage, review independence, risk control, context management, or token economy.
 
-### 1. Tiny or advisory
+### 1. Coordination-only
 
-Use direct response or direct local action.
+Use a direct response only for coordination, status, routing, or user-instruction clarification.
 
 Examples:
 
-- answer a narrow question
-- inspect one file
-- fix a typo
-- run a simple command
+- report worker status
+- explain the current plan
+- ask for a missing approval
+- update the Director ledger from worker evidence
 
-No dynamic workflow. No formal orchestration runner. Fast self-check is enough.
+No project execution in the Director thread.
 
 ### 2. Single bounded implementation, review, or investigation
 
-Create one Codex worker thread if delegation helps, or do it directly if small.
+Create one Codex worker thread. Do not do it directly in the Director thread.
 
 Use the selected workflow reference:
 
@@ -127,7 +134,7 @@ Use the selected workflow reference:
 
 Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
 
-No dynamic workflow unless durable packet/state artifacts are useful.
+No dynamic workflow unless durable packet/state artifacts are useful; the single worker still executes the work.
 
 ### 3. Multi-item but short-lived
 
@@ -135,7 +142,7 @@ Use orchestration without a durable `.workflow/` run when the task is multi-step
 
 - follow the Director orchestrate workflow reference
 - create multiple Codex worker threads only for disjoint items
-- use available delegation runners only when they reduce risk or token load
+- use worker-internal sub-agents only when they reduce risk or token load
 - keep the Director ledger as the state
 
 ### 4. Complex, risky, long-running, or reusable
@@ -160,15 +167,15 @@ When optional context/delegation tools are also available, use them as implement
 2. Director uses the dynamic workflow plan/state as the task source of truth.
 3. For each packet, Director dispatches a Codex worker thread.
 4. The worker uses the relevant self-contained workflow playbook for its packet.
-5. For multi-packet execution inside one worker, use the orchestration workflow and available delegation runners only when useful.
+5. For packet-internal complexity, the worker may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that packet.
 6. Worker writes concise result evidence into `results/`.
-7. Director integrates, verifies, reconciles commits/worktrees, and writes final report.
+7. Director dispatches any integration, verification, or reconciliation work to workers, records accepted evidence, and writes final report.
 
-## How Optional Execution Tools Fit
+## How Recursive Helpers Fit
 
-Optional execution tools are implementation helpers. They are best when the current worker needs to decompose work, delegate a bounded subtask, verify items, or package context without bloating the main thread.
+Worker-internal helpers are implementation helpers. They are best when the current worker needs to decompose work, delegate a bounded subtask, verify items, or package context without bloating the owning worker thread.
 
-`codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, simulated or real delegated packet passes, integration, verification state, and a final audit trail.
+`codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, worker-thread packet passes, integration, verification state, and a final audit trail.
 
 Use both when the task is complex and optional tooling is available:
 
@@ -176,14 +183,14 @@ Use both when the task is complex and optional tooling is available:
 Director creates .workflow/<slug>/
 Director creates packet files
 Codex worker thread handles Packet 02
-Worker uses the orchestration workflow and available delegation runner only if the packet has real sub-items
+Worker uses nested workflow artifacts or native sub-agents only if the packet has real sub-items
 Worker writes results/02-*.md
-Director integrates all packet results
+Director records accepted packet evidence and coordinates any integration worker
 ```
 
-Do not let an optional execution tool create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans, but the dynamic workflow artifact remains the task source of truth.
+Do not let a worker-internal helper create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans under its packet, but the parent dynamic workflow artifact remains the task source of truth.
 
-If no real worker/thread adapter is available, run simulated packet passes serially. Simulated passes must still use packet briefs, result notes, review gates, and evidence; they just do not claim parallel execution.
+A runtime without a real worker/thread adapter is a blocker. Stop and record the blocker. Do not execute packet work in the Director thread.
 
 ## How Workflow Playbooks Fit
 
@@ -213,7 +220,7 @@ Worker Goals must name the outcome, verification surface, constraints, boundarie
 
 - If Director and dynamic workflow disagree, the Director updates the workflow artifact or pauses for user input.
 - If adapter, oracle, or review-lane findings conflict with the workflow plan, record the conflict in `results/` and update `plan.md` before implementation continues.
-- If worker threads disagree, inspect authoritative repo/source evidence before choosing.
+- If worker threads disagree, dispatch a focused investigation/review worker or require authoritative repo/source evidence before choosing.
 - If adapter output conflicts with authoritative repo/workflow evidence, trust the source evidence and rerun or revise the adapter pass.
 - If a packet grows beyond its scope, stop and re-plan rather than silently widening.
 
@@ -225,7 +232,7 @@ A task is complete only when all selected layers agree:
 - Workflow artifact, if used, passes completion audit.
 - Worker threads have reported evidence.
 - Review gates have passed or residual risk is accepted.
-- Required commits are made.
+- Authorized commits or PR evidence are complete, or `no-commit` evidence is ready for user/Director decision.
 - Worktrees are reconciled into the canonical repo/branch.
 - Runtime handles are collected, archived, canceled, or cleaned up.
 - Final user-facing status is concise and source-backed.

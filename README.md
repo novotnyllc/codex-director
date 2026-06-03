@@ -44,11 +44,12 @@ For a multi-repo workspace, name the scope directly:
 Start $codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
 ```
 
-If Codex can manage threads in the current runtime, the Director should title and pin the thread. If not, manually name the thread `Director: <project>` and keep using it as the coordination home.
+The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
 
 ## Structure
 
 - `plugins/codex-director/.codex-plugin/plugin.json` is the plugin manifest.
+- `plugins/codex-director/hooks/` contains scoped, advisory lifecycle hooks for Director-marked threads plus implementation notes.
 - `plugins/codex-director/skills/codex-director/SKILL.md` is the compact entrypoint Codex reads when selecting the skill.
 - `plugins/codex-director/skills/codex-director/REFERENCE.md` contains the full operating brief, worker templates, evidence rules, and status formats.
 - `plugins/codex-director/skills/codex-director/references/` contains workflow playbooks for build, review, research, dynamic workflow integration, Browser ChatGPT oracle, and related execution modes.

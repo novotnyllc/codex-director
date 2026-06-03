@@ -8,6 +8,8 @@ Separate evidence gathering from implementation. Research should feed planning, 
 
 ## Phase 0: Triage
 
+Confirm the launch contract first: model, thinking level, commit authority, required skills/workflows, repo/path, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+
 Classify the request:
 
 - Explanation: answer how something works.
@@ -57,9 +59,9 @@ Scout <lane>: Answer <specific question>. Return sources, confidence, conflicts,
 Possible implementations:
 
 - Codex research worker thread.
-- Local search/read/git.
+- Owning worker local search/read/git.
 - Web browsing for current external facts.
-- Any available context or delegation runner that can answer the narrow scout question without bloating the main thread.
+- Any available context engine or worker-internal sub-agent that can answer the narrow scout question without bloating the owning thread.
 
 Keep scout output brief. The coordinator synthesizes; scouts do not write the final voice.
 

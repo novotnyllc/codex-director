@@ -11,7 +11,7 @@ Create or operate one pinned Director thread for a single project scope. The Dir
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
-Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, or token economy. Do not wait for the user to say dynamic workflow, orchestrate, workers, swarm, or subagents before choosing the right mechanism.
+Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, or token economy. Do not wait for the user to say dynamic workflow, orchestrate, workers, swarm, or subagents before choosing the right mechanism. The Director coordinates only; project work always runs in Codex worker threads.
 
 Keep this file as the compact dispatcher. Load [REFERENCE.md](REFERENCE.md) for the full operating brief, then load only the focused workflow reference needed for the task.
 
@@ -21,7 +21,8 @@ When asked to set up a director thread:
 
 1. Identify project scope and instruction files such as `AGENTS.md`, `CLAUDE.md`, or repo-local guides.
 2. Create or continue the project Director thread, title it `Director: <project>`, and pin it.
-3. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
+3. Check whether the scoped Director hooks are installed, enabled, and trusted; treat them as reminders, not as the worker execution contract.
+4. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
 
 ## Director Triage
 
@@ -31,12 +32,14 @@ Before answering or dispatching, decide:
 - Shape: answer, research, investigate, deep-plan, dynamic-workflow, build, orchestrate, review, refactor, or optimize?
 - Evidence: what proof is required, and how concise can it be?
 - Risk: secrets, production, migrations, auth, security, destructive ops, or user-facing behavior?
-- Delegation: direct answer, worker thread, available delegation runner, oracle, or dynamic workflow?
+- Delegation: coordination-only answer, Codex worker thread, worker-internal sub-agent, oracle, or dynamic workflow?
+- Skill discovery: which Codex skills should the Director load now, and which should each worker consider/load/report?
+- Launch contract: what starting prompt, model, thinking level, skills/workflow references, context artifacts, commit authority, and evidence format should each worker receive?
 - Git/worktree: main checkout, isolated worktree, branch, commit cadence, and reconciliation path?
 - Goal fit: Director ledger only, worker Codex Goal, or both?
 
 ## Context Workflow Routing
-Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the Director brief must not depend on external workflow names or runner-specific parameters.
+Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Discover/load applicable Codex skills before dispatch, then require workers to re-run skill activation and report what they loaded or skipped. Native Codex thread tools own worker lifecycle; context, oracle, browser, and worker-internal sub-agent tools may implement lower-layer phases, but the Director brief must not depend on external workflow names or runner-specific parameters.
 
 - Research: repo/docs/memory/prior-art/external scout pass before planning.
 - Investigate: deep read-only diagnosis or "how does this work?"
@@ -48,7 +51,7 @@ Select the narrowest self-contained workflow that fits. Check dynamic workflow e
 - Refactor: behavior-preserving structural cleanup.
 - Optimize: performance or efficiency work.
 
-Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs worker-thread creation, context building, oracle review, Browser ChatGPT, worktrees, commits, or Codex Goals. The adapter implements the phase; the workflow contract remains self-contained.
+Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs worker-thread creation, context building, oracle review, Browser ChatGPT, worktrees, commits, Codex Goals, or runtime hook awareness. Native Codex thread tools are the first-class worker lifecycle adapter; context engines, hooks, and sub-agents live at lower layers. The adapter implements the phase; the workflow contract remains self-contained.
 
 ## Gates
 
@@ -62,13 +65,13 @@ Every worker returns concise evidence, not a transcript: files changed, commands
 
 ## Git And Worktrees
 
-Commit regularly in logical units when repository work is being changed. A single coherent workstream may use the main checkout/branch when that is safe and matches project practice. Use isolated worktrees for parallel, risky, long-running, or conflicting work. The director thread owns worktree creation, tracking, reconciliation, and cleanup; the user should see branch/task outcomes, not have to manage worktree mechanics. All work must ultimately reconcile into the canonical repo on an appropriate branch.
+Commit regularly in logical units only when the worker brief grants `commit-when-green` or `pr-only` authority. A single coherent workstream may use the main checkout/branch when that is safe and matches project practice. Use isolated worktrees for parallel, risky, long-running, or conflicting work. The director thread owns worktree policy, worker dispatch, tracking, reconciliation decisions, and cleanup coordination; workers perform repo-changing operations. The user should see branch/task outcomes, not have to manage worktree mechanics. All work must ultimately reconcile into the canonical repo on an appropriate branch.
 
 ## Worker Thread Rule
 
 Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope.
 
-Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md) to choose Spark for bounded throughput work, the main model for judgment/integration, and `xhigh` only for escalations.
+Before starting a worker thread, the Director must choose the starting prompt, exact model or inherited profile, thinking level, required skills or workflow references, context/artifact handoff, commit authority, done criteria, and evidence format. Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md) to choose Spark for bounded throughput work, the main model for judgment/integration, and `xhigh` only for escalations.
 
 ## Goals Policy
 

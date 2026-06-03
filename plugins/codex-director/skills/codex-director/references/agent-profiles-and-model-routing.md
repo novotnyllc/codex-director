@@ -10,6 +10,8 @@ Use `gpt-5.3-codex-spark` as a separate-bucket throughput model for bounded work
 
 `xhigh` is an escalation level, not a standing role.
 
+Native Codex thread tools accept these model override values: `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, and `gpt-5.3-codex-spark`. They accept these thinking levels: `low`, `medium`, `high`, and `xhigh`. Omit the model only when the launch contract intentionally inherits the current project/default profile; otherwise write the exact model id and thinking level into the worker brief.
+
 ## Agent Profiles
 
 | Profile | Purpose | Default model | Effort |

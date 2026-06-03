@@ -11,8 +11,11 @@ Refactoring preserves behavior. If behavior changes are needed, name them as bug
 1. Confirm target area and local instructions.
 2. Check git status and unrelated changes.
 3. Decide branch/worktree.
-4. Identify tests that prove behavior is preserved.
-5. Define "out of scope" explicitly.
+4. Confirm commit authority from the worker brief.
+5. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and unavailable in activation.
+6. Confirm model and thinking level from the launch contract.
+7. Identify tests that prove behavior is preserved.
+8. Define "out of scope" explicitly.
 
 Do not start broad cleanup from a vague request. Narrow the target first.
 

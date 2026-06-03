@@ -12,7 +12,10 @@ Do not jump from request to edits. Build enough context to produce a grounded pl
 2. Check git status before editing.
 3. Identify unrelated dirty changes and leave them alone.
 4. Decide git handling: main checkout/branch or an isolated worktree.
-5. Create a Codex goal if the task is multi-turn, interruption-prone, or requires repeated verification.
+5. Confirm commit authority from the worker brief.
+6. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and unavailable in activation.
+7. Confirm model and thinking level from the launch contract.
+8. Create a Codex goal if the task is multi-turn, interruption-prone, or requires repeated verification.
 
 ## Phase 1: Quick Orientation
 

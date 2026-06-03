@@ -8,6 +8,8 @@ Performance work only improves what can be measured. The loop is: map, measure, 
 
 ## Phase 0: Target And Stop Rule
 
+Confirm the worker launch contract first: model, thinking level, commit authority, required skills/workflows, repo/path, and evidence format. Record skills considered, loaded, skipped, and unavailable in activation.
+
 Translate the user request into:
 
 - metric name and unit

@@ -1,7 +1,7 @@
 {
   "name": "codex-director",
   "version": "0.1.0",
-  "description": "Project-scoped director workflow for Codex worker-thread coordination, research, oracle, review, goals, and evidence gates.",
+  "description": "Project-scoped director workflow for Codex worker-thread coordination, lifecycle hooks, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
     "url": "https://github.com/novotnyllc"
@@ -14,14 +14,15 @@
     "director",
     "workflow",
     "delegation",
+    "hooks",
     "review",
     "oracle"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Director",
-    "shortDescription": "Coordinate project work across Codex worker threads and review gates.",
-    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
+    "shortDescription": "Coordinate project work across Codex worker threads, hooks, and review gates.",
+    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, lifecycle hook reminders, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
     "developerName": "Claire Novotny LLC",
     "category": "Productivity",
     "capabilities": [

@@ -14,9 +14,14 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, p
 2. Check git status in each repo that may be touched.
 3. Decide whether this task needs `codex-dynamic-workflows` task orchestration.
 4. Decide main checkout vs worktree per workstream.
-5. Choose the runtime adapter from [Runtime adapters](runtime-adapters.md): native Codex worker threads, Agent Mode, another delegation runner, or simulated packet passes.
-6. Create or update the active work ledger:
+5. Choose the runtime adapter from [Runtime adapters](runtime-adapters.md): native Codex worker threads, worker-internal native sub-agents, or context engines.
+6. Discover/load applicable Codex skills for orchestration and record which skills each worker must consider.
+7. Create or update the active work ledger:
+   - task id
    - task
+   - shape
+   - adapter
+   - worker thread id/title
    - owner thread
    - repo/path
    - status
@@ -24,18 +29,23 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, p
    - blockers
    - done criteria
    - branch/worktree
+   - model/thinking
+   - required skills/workflows
+   - commit authority
+   - evidence required
+   - last poll/stale threshold
 
-If dynamic workflow mode is active, mirror this state into `.workflow/<slug>/state.json` and packet/result files.
+Escalate to `.workflow/<slug>/` and mirror this state into `state.json`, packet files, and result files once the task has multiple worker handles, worktrees, approvals, integration order, durable review/oracle artifacts, or stale/cancel state that must survive turns.
 
 Adapter examples:
 
 ```text
 Native thread tools: create worker thread -> send bounded brief -> read/poll -> steer -> archive.
-Agent Mode: start detached session -> wait/poll session IDs -> steer or respond -> cleanup session.
-Fallback: create packet note -> run simulated pass serially -> write result note -> integrate.
+Worker-internal sub-agents: spawn bounded helper -> wait/poll -> roll up evidence into owning worker.
+Unavailable thread runtime: record blocker -> ask for a worker-thread-capable runtime before executing work.
 ```
 
-Do not proceed until the ledger records worker handles or explicitly says `simulated`.
+Do not proceed until the ledger records worker handles for all project work.
 
 ## Phase 1: Contextualize
 
@@ -122,13 +132,19 @@ Every worker brief must include:
 
 - project scope and repo/path
 - exact item responsibility
+- starting prompt and required skills/workflow references
+- exact model or inherited profile
+- thinking level
 - sibling work and areas to avoid
 - done criteria
 - research/plan context
-- required skills/context workflow
+- Codex skills loaded/required/skipped
+- Director workflow/playbook
+- context/oracle/review tools
 - plan review and adversarial review gate
 - evidence and verbosity limits
-- git/worktree/commit expectations
+- git/worktree expectations
+- commit authority
 
 For parallel workers, explicitly name siblings:
 
@@ -146,10 +162,15 @@ Your item:
 Done when:
 Leave alone:
 Sibling work:
+Model:
+Thinking:
+Codex skills to consider:
+Required skills/workflows:
 Required workflow:
 Research/context required:
 Goal policy:
-Git/worktree authority:
+Git/worktree:
+Commit authority:
 Verification:
 Review gate:
 Evidence format:
@@ -157,7 +178,7 @@ Verbosity limit:
 Stop and report if:
 ```
 
-If using an adapter with wait/poll semantics, start parallel workers detached, then wait for the first completed/blocked worker and loop over remaining handles. Do not end a Director turn while worker handles are running or waiting for input.
+If using an adapter with wait/poll semantics, start parallel workers detached, then wait or poll for the first completed/blocked worker and loop over remaining handles. For native Codex thread tools, poll with thread reads. Do not send a final completion rollup while worker handles are running or waiting for input; send an active status and next check-in plan instead.
 
 ## Phase 6: Monitor
 
@@ -173,7 +194,7 @@ Check:
 - evidence concise and sufficient
 - blockers surfaced early
 
-Do not duplicate in-flight work. Prepare next briefs, review completed output, or reconcile branches while workers run.
+Do not duplicate in-flight work. Prepare next briefs, update ledger state, and dispatch review, verification, integration, or cleanup workers as needed.
 
 If a worker asks for scope or authority:
 
@@ -189,12 +210,13 @@ If a worker silently broadens scope, steer once with the original boundary. If i
 For each completed worker:
 
 1. Read its summary and evidence.
-2. Spot-check key files/artifacts when needed.
-3. Confirm tests/checks.
-4. Run or request adversarial review.
-5. Mark item complete only when done criteria are met.
-6. Commit or confirm logical commit.
-7. Update the ledger.
+2. Compare claimed evidence to the done criteria.
+3. Dispatch a verification or review worker when file/artifact inspection is needed.
+4. Confirm tests/checks from worker evidence.
+5. Run or request adversarial review.
+6. Mark item complete only when done criteria are met.
+7. Confirm authorized commit/PR evidence or dispatch an integration worker.
+8. Update the ledger.
 
 If gaps exist, steer the same worker to fix them before starting dependent work.
 
@@ -204,11 +226,11 @@ Update the plan, ledger, or `.workflow/<slug>/state.json` immediately after each
 
 When items are complete:
 
-- Merge/cherry-pick/PR worktree output into the canonical repo/branch according to project practice.
-- Resolve conflicts deliberately.
-- Run final verification.
+- Dispatch or steer an integration worker to merge/cherry-pick/PR worktree output into the canonical repo/branch according to project practice.
+- Ensure conflicts are resolved deliberately by the owning integration worker.
+- Dispatch final verification.
 - Run final adversarial review if multiple items interacted.
-- Clean up completed worktrees and stale branches when safe.
+- Dispatch cleanup for completed worktrees and stale branches when safe.
 - Archive completed worker threads after evidence is recorded.
 
 ## Final Rollup
@@ -231,7 +253,7 @@ After evidence is captured:
 - Delete stale prompt/context exports that no worker or review still needs.
 - Keep durable artifacts: plans, workflow state, final reports, commits, review reports.
 - Cancel stale workers before final status.
-- Remove temporary worktrees only after their branch/commit/PR is recoverable and no conflict resolution is in progress.
+- Remove temporary worktrees only through an authorized cleanup worker after their branch/commit/PR is recoverable and no conflict resolution is in progress.
 
 ## Anti-Patterns
 
