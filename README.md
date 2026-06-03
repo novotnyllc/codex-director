@@ -11,8 +11,6 @@ codex plugin marketplace add novotnyllc/codex-director
 codex plugin add codex-director --marketplace codex-director
 ```
 
-The repository is private, so the installing environment must already have GitHub access to `novotnyllc/codex-director`.
-
 ## Structure
 
 - `.agents/plugins/marketplace.json` declares this repository as a Codex plugin marketplace.
