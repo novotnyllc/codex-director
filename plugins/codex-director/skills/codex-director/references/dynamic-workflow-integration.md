@@ -63,13 +63,23 @@ Do not let a worker's local workflow overwrite the `.workflow/` task source of t
 
 ## Setup
 
-If the `codex-dynamic-workflows` skill is installed, invoke it or use its scripts:
+Dynamic workflow mode is optional. Use the installed `codex-dynamic-workflows` skill when it is available, but never hard-code a user-local skill path. If a helper script exists, resolve it relative to the installed skill directory. If no helper exists, create the artifact tree manually.
 
-```bash
-python3 /Users/claire/.agents/skills/codex-dynamic-workflows/scripts/new_workflow.py "Task title"
+Minimum artifact tree:
+
+```text
+.workflow/<slug>/
+|-- plan.md
+|-- state.json
+|-- orchestration.md
+|-- packets/
+|-- results/
+`-- final-report.md
 ```
 
-Keep the run directory in a project-appropriate local location. Do not put sensitive raw data or bulky transcripts into workflow artifacts.
+`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. `state.json` must track packet status, owner, branch/worktree, blockers, verification, and accepted/rejected decisions. `orchestration.md` must define sequencing and parallelism rules.
+
+Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private exports into workflow artifacts.
 
 ## Packet Shape
 
@@ -106,13 +116,9 @@ Remaining risks:
 Verification still needed:
 ```
 
-Use the dynamic workflow `collect_results.py` helper when useful:
-
-```bash
-python3 /Users/claire/.agents/skills/codex-dynamic-workflows/scripts/collect_results.py .workflow/<slug>
-```
-
 If packets disagree, inspect authoritative sources before choosing.
+
+If a collection helper is available from an installed dynamic-workflow skill, use it as a convenience only after confirming it reads the current artifact shape. Otherwise synthesize results manually from `results/` and worker evidence.
 
 ## Completion Audit
 
@@ -126,11 +132,7 @@ Before marking the task complete:
 6. Confirm commits/worktrees reconciled into the canonical repo/branch.
 7. Confirm final report captures accepted/rejected results, conflicts, remaining risks, and next actions.
 
-Use the dynamic workflow verification helper when useful:
-
-```bash
-python3 /Users/claire/.agents/skills/codex-dynamic-workflows/scripts/verify_workflow.py .workflow/<slug>
-```
+If a verification helper is available from an installed dynamic-workflow skill, use it as a convenience only. The Director still owns the completion decision and must audit the evidence directly.
 
 ## Reusable Recipes
 

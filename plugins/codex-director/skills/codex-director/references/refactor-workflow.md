@@ -50,6 +50,13 @@ Rank opportunities by:
 
 Reject aesthetic-only rewrites unless the user asked for them.
 
+Use two passes for non-trivial refactors:
+
+1. Opportunity review: find duplication, complexity, ownership boundaries, and risk.
+2. Execution plan: choose ordered refactor items with done criteria and verification.
+
+Do not combine analysis and editing unless the change is tiny and mechanical.
+
 ## Phase 3: Refactor Plan
 
 The plan must include:
@@ -62,6 +69,8 @@ The plan must include:
 - rollback strategy
 
 Most refactors should be sequential. Later items often depend on earlier structure.
+
+Parallelize only when modules do not overlap and verification can prove behavior preservation independently.
 
 ## Phase 4: Plan Review
 
@@ -87,6 +96,8 @@ Implement one item at a time:
 
 If a behavior ambiguity appears, pause. Do not "fix" it inside a refactor unless re-scoped.
 
+If a refactor exposes a behavior bug, stop and reclassify the work. Either fix the bug under a build workflow item with tests, or keep the refactor behavior-preserving and file the bug separately.
+
 ## Phase 6: Final Review
 
 Reviewer checks:
@@ -109,3 +120,11 @@ Report:
 - commit hashes
 - review verdict
 - residual risk
+
+## Anti-Patterns
+
+- Refactoring and changing behavior without saying so.
+- Creating abstractions before proving duplication or complexity warrants them.
+- Parallelizing overlapping refactors.
+- Skipping tests because the change "should be mechanical."
+- Leaving the code in a half-migrated style.

@@ -64,6 +64,34 @@ Blocked stop: <condition and report format>
 
 If a previous Goal exists in the worker thread, inspect it before continuing. Clear or pause stale Goals before unrelated work.
 
+## Operations
+
+Goal operations are runtime-dependent, but the Director contract is stable:
+
+- Inspect: determine whether a current Goal exists and whether it matches this task.
+- Create: only after the fit test passes and the Goal text has all six strong components.
+- Continue: only when the current Goal's outcome and boundaries match the worker brief.
+- Pause or clear: before unrelated detours, stale resumed objectives, or changed task scope.
+- Audit: compare claimed completion against the named verification surface.
+- Complete: only when evidence satisfies outcome, constraints, and review gates.
+- Block: only when the blocked stop condition is met and no defensible next step remains.
+
+Do not create a Goal silently. A worker may propose one in its activation report, but the Director or user should accept the goal-shaped objective before it becomes the worker's persistent finish line.
+
+Strong operation record:
+
+```text
+Operation: inspect/create/continue/pause/clear/audit/complete/block
+Reason:
+Outcome:
+Verification surface:
+Evidence:
+Constraints checked:
+Next iteration rule:
+Blocked stop:
+Director decision:
+```
+
 ## Research Goals
 
 For research-heavy work, define the evidence standard before investigation.
@@ -93,6 +121,14 @@ Before the Director accepts a worker Goal as complete:
 6. Confirm commits/worktrees are reconciled when repo changes were made.
 
 Budget exhaustion, a plausible summary, or partial verification is not completion.
+
+Completion must answer:
+
+- Did the exact measurable outcome happen?
+- Was the named verification surface run or inspected?
+- Did constraints remain true?
+- Did the review/adversarial gate pass or record accepted residual risk?
+- Is remaining uncertainty explicitly named?
 
 ## Blocked Handling
 
@@ -126,3 +162,4 @@ When dynamic workflow mode is active:
 - Hiding uncertainty in research Goals.
 - Continuing an old Goal during an unrelated detour.
 - Using a Goal to bypass approval gates.
+- Marking blocked because the task is hard rather than because the blocked stop condition is met.

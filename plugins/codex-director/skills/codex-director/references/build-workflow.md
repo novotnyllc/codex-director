@@ -43,6 +43,8 @@ Build context with the lightest adequate path:
 - Read only files needed to understand the implementation boundary.
 - Draft the plan, then send it to an oracle/review lane when non-trivial.
 
+When a context engine is available, prefer a plan pass before editing. Use the adapter's "build context and propose a plan" operation, then keep the selected context narrow enough for the task. For no engine, write a compact local plan after targeted reads.
+
 The plan must include:
 
 - Work item or single implementation step.
@@ -51,6 +53,19 @@ The plan must include:
 - Verification commands.
 - Risks and rollback considerations.
 - Commit boundary.
+
+Plan format:
+
+```text
+Implementation boundary:
+Files likely to change:
+Steps:
+Done when:
+Verification:
+Review gate:
+Commit authority:
+Fallback if assumption breaks:
+```
 
 ## Phase 3: Plan Review Gate
 
@@ -82,6 +97,8 @@ Rules:
 
 If a task becomes multi-item or cross-domain, escalate to the orchestration workflow.
 
+If using a delegated worker, the worker may make tactical implementation decisions inside the reviewed boundary. It must report before changing public API shape, schema, auth/security behavior, production config, data migration strategy, or branch/worktree plan.
+
 ## Phase 5: Verification
 
 Run the strongest practical verification:
@@ -93,6 +110,8 @@ Run the strongest practical verification:
 - Manual command output only as a concise pass/fail summary.
 
 If verification is blocked, report the exact blocker and what remains unverified.
+
+Verification evidence should name commands and outcomes, not paste full logs. If a command failed because of environment state, distinguish environment blocker from code failure.
 
 ## Phase 6: Adversarial Review
 
@@ -112,3 +131,11 @@ Return 5-10 bullets:
 - Review gate used and verdict.
 - Done criteria satisfied.
 - Known gaps, skipped checks, or blockers.
+
+## Anti-Patterns
+
+- Editing before a plan exists for non-trivial work.
+- Reading the whole repo manually before using a context engine or scout.
+- Committing without named authority mode.
+- Treating partial tests as complete verification without saying what is unverified.
+- Expanding a single-worker task into orchestration without updating the Director.

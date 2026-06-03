@@ -13,6 +13,14 @@ Plan only. The output is a polished, executable plan that future implementation 
 3. Ask the user for input only when an ambiguity would change architecture, order, scope, or risk.
 4. If the user asks to be involved at a checkpoint, honor that promise. Do not silently continue past a chosen checkpoint.
 
+Involvement modes:
+
+- Hands-off: do the research and return the polished plan.
+- Up-front: run a small ambiguity scan, then ask focused questions before broad research.
+- Mid-flow: draft the plan, then ask only questions that would change order, scope, or risk before critique.
+
+If the user explicitly chose a checkpoint and then does not answer, stop rather than silently proceeding with guessed answers.
+
 ## Phase 1: Grounded Ambiguity Scan
 
 Before asking detailed questions, do a small evidence scan so questions are concrete.
@@ -42,6 +50,17 @@ Each scout gets one narrow question and returns sources, conflicts, confidence, 
 
 Curate findings into the plan's background. Do not paste raw scout transcripts.
 
+Scout result format:
+
+```text
+Question:
+Evidence:
+Confidence:
+Conflicts:
+Plan implication:
+References:
+```
+
 ## Phase 3: Plan Scaffold
 
 Create or prepare the plan file with:
@@ -52,6 +71,14 @@ Create or prepare the plan file with:
 - References.
 
 Do not write the detailed approach before context planning unless it is already dictated by the user or project.
+
+Default path when the project has no convention:
+
+```text
+docs/plans/<topic>-<YYYY-MM-DD>.md
+```
+
+If the repo forbids durable docs or the task is projectless, use a local artifact such as `prompt-exports/<timestamp>-plan-<slug>.md` and say it is local/non-durable.
 
 ## Phase 4: Context Plan Pass
 
@@ -72,6 +99,8 @@ The draft must include:
 - Verification strategy.
 - Review stop points.
 - Risks and rollback notes.
+
+If the context engine returns an export, treat it as the draft source, not a disposable hint. Read it, copy the useful approach/work items into the plan, then keep the export until critique is complete.
 
 ## Phase 5: Work Item Shaping
 
@@ -103,6 +132,8 @@ Ask the critic to check:
 
 The critic should not rewrite the plan. Fold actionable findings into the plan yourself.
 
+Give the critic both the plan and any context-builder/oracle export that shaped it. Ask for top gaps, over-specified tactics, missing dependencies, sequencing risks, and questions that would change implementation order.
+
 ## Phase 7: Polish And Handoff
 
 Final plan should be tight and executable:
@@ -118,3 +149,12 @@ Final plan should be tight and executable:
 ## Evidence
 
 Return plan path, summary, reviewed status, open questions, and suggested next workflow.
+
+## Anti-Patterns
+
+- Implementing while in plan mode.
+- Asking generic questions before doing any grounding.
+- Dumping raw scout transcripts into Background.
+- Deleting the draft/export before critique has used it.
+- Over-specifying tactical choices that implementation workers should own.
+- Leaving plan work items without done criteria, dependencies, or verification.

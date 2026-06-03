@@ -4,7 +4,7 @@ Use when the director thread or a Codex worker thread needs an external second-o
 
 ## Principle
 
-The browser oracle is an implementation of the oracle lane. It should package context, open `https://chatgpt.com/` with `@Browser`, start a new chat, select the Pro model when available, send the prompt, wait for the response to finish even when it takes a while, extract the answer, save it as an artifact, and feed the result back into the plan/review/build workflow. It should not become a manual copy/paste chore for the user.
+The browser oracle is an implementation of the oracle lane. It should package context, open `https://chatgpt.com/` with `@Browser`, start a new chat, select the highest-capability model available for the signed-in account unless the user named a specific model, send the prompt, wait for the response to finish even when it takes a while, extract the answer, save it as an artifact, and feed the result back into the plan/review/build workflow. It should not become a manual copy/paste chore for the user.
 
 The prompt export file is an intermediate payload and audit artifact, not the endpoint. When this workflow is selected, the worker must complete the Browser round trip unless blocked by sign-in, model availability, safety, or browser automation failure.
 
@@ -23,6 +23,8 @@ Use Browser ChatGPT oracle when:
 - The prompt benefits from ChatGPT's current web product context or model mix.
 - The user is already signed in and wants automatic round-trip results.
 - The user explicitly asks to use ChatGPT Pro, ChatGPT in Browser, or the signed-in `chatgpt.com` session.
+
+If the user did not explicitly request Browser/ChatGPT and a local oracle or review lane is sufficient, use the local lane. Browser is higher overhead and may send data outside the local environment.
 
 Do not use it for:
 
@@ -61,11 +63,19 @@ Use the `@Browser` plugin and its in-app browser session. Do not satisfy this wo
 1. Connect to the selected in-app Browser tab.
 2. Navigate to `https://chatgpt.com/` unless the selected tab is already there and safe to reuse.
 3. Start a new chat. Do not reuse the current chat unless the user explicitly asks to.
-4. Select the Pro model exposed by the ChatGPT model picker. If no Pro-labeled model is available or the selector is ambiguous, stop and report the blocker rather than silently falling back.
+4. Select the highest-capability model available for the signed-in account, or the exact model/tier the user named. Record the visible model label. If the user named a specific model/tier and it cannot be confirmed, stop and report the blocker rather than silently falling back.
 5. Read the prompt file locally.
 6. Paste or type the prompt into ChatGPT.
 7. If the prompt is too large for reliable paste, try file upload if available; otherwise split into labeled chunks and ask ChatGPT to wait until the final chunk before answering.
 8. Submit.
+
+If any required Browser step is unavailable:
+
+- Browser plugin unavailable: if Browser/ChatGPT was explicitly requested, report blocker and ask before substituting; otherwise use a local oracle/review lane and record the substitution.
+- Not signed in: report blocker; do not ask the user for credentials in chat.
+- Named model/tier unavailable or ambiguous when explicitly required: report blocker instead of silently falling back.
+- Prompt too sensitive: redact/summarize or ask explicit permission.
+- UI automation unreliable: stop with the prompt path and exact state reached.
 
 Browser automation should stay in the background by default. Do not reload or disrupt a user-visible in-progress chat unless necessary.
 
@@ -79,6 +89,17 @@ After submitting:
 2. Capture the final assistant response from the page.
 3. Save it to `prompt-exports/<timestamp>-browser-oracle-result-<slug>.md`.
 4. Include the source prompt path, selected ChatGPT model label, ChatGPT URL if available, timestamp, elapsed wait time, and any automation caveats.
+
+Capture metadata:
+
+```text
+Prompt artifact:
+Result artifact:
+Model/label selected:
+Submission time:
+Completion time:
+Blocked/fallback state:
+```
 
 If extraction is brittle, capture the visible response text and a screenshot reference if useful. Do not rely only on a screenshot when text extraction is possible.
 
@@ -120,11 +141,12 @@ Do not paste the full oracle response unless the user asks.
 
 ## Failure Modes
 
-- Not signed in: ask the user to sign in or fall back to local oracle/review.
-- Pro model unavailable or ambiguous: report the blocker and ask whether to use the best available model.
+- Not signed in: ask the user to sign in. Use a local oracle/review lane only with user approval or when Browser was selected opportunistically.
+- Named model/tier unavailable or ambiguous: report the blocker and ask whether to use the best available model.
 - ChatGPT refuses or truncates: reduce context, upload file if available, or ask a narrower question.
 - Browser automation cannot extract result: save what can be extracted, note the blocker, and keep the prompt export.
 - Sensitive payload detected: pause for permission or redact.
+- Page structure changes make capture unreliable.
 
 ## Evidence
 

@@ -54,6 +54,23 @@ Before any optimization:
 
 Preferred path: use a context/planning tool to design instrumentation and first candidates from scout findings.
 
+Create a scoreboard before changing behavior:
+
+```text
+Target:
+Baseline command:
+Baseline value:
+Budget / threshold:
+Constraints:
+Iteration:
+Change:
+Result:
+Verdict:
+Next decision:
+```
+
+If the metric cannot be measured, the first work item is instrumentation or benchmark setup. Do not optimize against vibes.
+
 ## Phase 3: Baseline
 
 Land instrumentation or benchmark harness first if needed. Then capture baseline.
@@ -65,6 +82,7 @@ Rules:
 - Record environment and command.
 - Commit instrumentation separately when it is worth preserving.
 - If variance hides likely gains, improve measurement before optimizing.
+- Prefer debug/test-only instrumentation. Do not add production overhead unless the task explicitly asks for observability.
 
 Maintain a scoreboard:
 
@@ -87,6 +105,8 @@ For each iteration:
 
 Do not combine multiple performance ideas in one iteration unless they cannot be separated.
 
+Use one worker for a full optimize-and-harden iteration when possible: implement, verify correctness, measure, and report. Use separate workers only when measurement and implementation can be cleanly isolated.
+
 ## Phase 5: Oracle / Adversarial Decision
 
 Use an oracle or review lane at decision points:
@@ -99,6 +119,8 @@ Use an oracle or review lane at decision points:
 - Which candidate is next?
 
 Respect stop signals: target met, plateau, risk too high, measurement unreliable, or iteration cap reached.
+
+The oracle/review lane should see the scoreboard and evidence, not the whole transcript. Ask for a stop/continue verdict and the one next experiment that would most likely matter.
 
 ## Phase 6: Finalization
 
@@ -121,3 +143,11 @@ Report:
 - tests/checks
 - review verdict
 - reason for stopping
+
+## Anti-Patterns
+
+- Optimizing without a baseline.
+- Reporting relative terms like "faster" without numbers.
+- Shipping temporary instrumentation accidentally.
+- Combining unrelated performance ideas in one iteration.
+- Continuing iterations after stop criteria are met.

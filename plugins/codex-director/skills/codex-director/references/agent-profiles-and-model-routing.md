@@ -17,12 +17,28 @@ Use `gpt-5.3-codex-spark` as a separate-bucket throughput model for bounded work
 | `research-scout` | Narrow repo/docs/web/prior-art question, no edits | Spark | low/medium |
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `prompt-exporter` | Package context for oracle/review lanes | Spark | medium |
-| `browser-oracle-runner` | Open chatgpt.com with Browser, start a new ChatGPT Pro chat, submit prompt, wait, and capture result | Spark | medium |
+| `browser-oracle-runner` | Open chatgpt.com with Browser, start a new chat, select the highest-capability available or requested model, record the visible model label, submit prompt, wait, and capture result | Spark | medium |
 | `implementation-worker` | Bounded build/refactor/test packet with clear instructions | Spark or main | high |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | Spark first pass, main for final/high-risk | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | main | high |
 | `integration-auditor` | Integrate packet results, reconcile commits/worktrees, audit evidence | main | high/xhigh |
 | `security-data-reviewer` | Auth, data, migration, secrets, production-risk review | main | xhigh |
+
+## Runtime Role Labels
+
+When a delegation adapter exposes generic role labels, map Director profiles this way:
+
+| Director profile | Generic role |
+| --- | --- |
+| `research-scout` / `context-scout` | `explore` |
+| `prompt-exporter` / `browser-oracle-runner` | `engineer` or `explore` for read-only prep |
+| `implementation-worker` | `engineer` for clear packets, `pair` for ambiguous packets |
+| `adversarial-reviewer` | `pair` or `design` depending on runtime support |
+| `planner` | `pair` or `design` |
+| `integration-auditor` | `pair` |
+| `security-data-reviewer` | strongest available main-model review role |
+
+Fresh worker is the default for independent packets. Steer one existing worker only for tightly coupled sequential work, many tiny items, or when preserving working memory reduces risk.
 
 ## Spark Routing
 
@@ -131,3 +147,5 @@ Escalate from `high` to `xhigh` when:
 ## Token Economy
 
 Prefer many narrow Spark scouts over one giant context load when questions are independent. Prefer one main-model integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts.
+
+Clean up completed runtime sessions after their evidence is recorded. Keeping many stale sessions open increases monitoring cost and makes the Director ledger harder to trust.

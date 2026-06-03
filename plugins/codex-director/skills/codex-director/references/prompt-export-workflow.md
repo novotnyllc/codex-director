@@ -20,6 +20,8 @@ Examples:
 
 Use the extracted task for intent classification and context building.
 
+The export should let the receiver do the real task directly. Do not ask another model to "write a better prompt" unless prompt design itself is the actual task.
+
 ## Phase 1: Classify Intent
 
 Choose one:
@@ -29,6 +31,13 @@ Choose one:
 - Review: git diff, PR, branch comparison, worker output, or plan/result critique.
 
 When in doubt, default to Plan. It produces a more useful structured prompt for broad or ambiguous work.
+
+Rules:
+
+- Review exports for code must include the words "code review", comparison scope, changed files, and expected findings-first output.
+- Plan exports must include goal, background, constraints, open questions, and requested work item shape.
+- Question exports must include exact question, evidence boundaries, and uncertainty/reporting expectations.
+- Browser ChatGPT exports must include a concise requested response shape and a sensitive-data note.
 
 ## Phase 2: Confirm Scope
 
@@ -55,6 +64,8 @@ Build context with the lightest adequate method:
 
 Do not spend many exploratory calls just proving a broad task needs context building.
 
+If a context engine is available, use its export/prompt packaging function. If not, write the prompt file manually with links or file references instead of pasting large source dumps. Include source excerpts only when necessary for the receiver to reason correctly.
+
 ## Phase 4: Export Artifact
 
 Write a unique repo-local file, normally under `prompt-exports/`.
@@ -64,6 +75,7 @@ Suggested names:
 - `prompt-exports/<timestamp>-question-<slug>.md`
 - `prompt-exports/<timestamp>-plan-<slug>.md`
 - `prompt-exports/<timestamp>-review-<slug>.md`
+- `prompt-exports/<timestamp>-browser-oracle-<slug>.md`
 
 The prompt should contain:
 
@@ -87,6 +99,8 @@ Return or pass forward:
 
 If using Browser ChatGPT oracle, do not stop here. Pass the export path to [Browser ChatGPT oracle workflow](browser-chatgpt-oracle-workflow.md) and run the Browser round trip unless blocked.
 
+After the receiver consumes the export and the result is captured, delete stale exports unless they are durable evidence for the task.
+
 ## Anti-Patterns
 
 - Exporting a prompt about prompting rather than the actual task.
@@ -96,3 +110,4 @@ If using Browser ChatGPT oracle, do not stop here. Pass the export path to [Brow
 - Sending sensitive data externally without permission or redaction.
 - Rewriting a good exported prompt without a concrete defect.
 - Treating the export file as the final result when the selected lane is Browser ChatGPT oracle.
+- Forgetting comparison scope in review exports.

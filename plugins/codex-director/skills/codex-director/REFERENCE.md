@@ -135,10 +135,16 @@ Spend tokens when they buy correctness: architecture decisions, security/data ri
 
 The director thread should hide worktree mechanics from the user unless there is a decision or blocker. The user gets the branch, commit, PR, or final state; the director coordinates the temporary workspace.
 
+- Every worker brief must declare commit authority:
+  - `no-commit`: edit/verify only; Director or user commits.
+  - `commit-when-green`: worker may commit logical units after verification.
+  - `ask-before-commit`: worker stops before each commit.
+  - `pr-only`: worker prepares branch/commits but final merge is through PR/review.
+- If authority is unclear, default to `no-commit` and ask before committing.
 - Check git status before dispatch and before reconciliation.
 - If there is one coherent workstream and no meaningful conflict risk, it may run in the main checkout on the appropriate branch.
 - Use worktrees for parallel workstreams, speculative/risky changes, long-running tasks, or tasks likely to touch overlapping files.
-- Name branches and worktrees by project/task when possible.
+- Name branches and worktrees by project/task when possible. If project convention is absent, prefer `director/<task-slug>` and a sibling managed container such as `<repo-name>.worktrees/<task-slug>/`.
 - Commit regularly at logical boundaries: after a coherent work item passes verification, before handing to review, and after review fixes.
 - Never mix unrelated changes in a commit. Preserve unrelated user changes.
 - Reconcile worktree output into the canonical repo/branch through merge/cherry-pick/PR according to project practice.
@@ -205,11 +211,11 @@ Output: verdict, must-fix issues, should-fix issues, assumptions, confidence, an
 
 ### Browser ChatGPT Oracle
 
-Purpose: run an oracle prompt through the signed-in ChatGPT web app with `@Browser`, using ChatGPT Pro when available.
+Purpose: run an oracle prompt through the signed-in ChatGPT web app with `@Browser`, using the highest-capability available model or the specific model/tier the user requested.
 
 Use when: the user explicitly asks for ChatGPT Pro, ChatGPT web, the signed-in Browser session, or an external second opinion that should not be satisfied by a local review thread alone.
 
-Model/effort: runner uses Spark/medium for Browser automation. The ChatGPT web model must be the Pro model exposed by the ChatGPT model picker. If Pro is unavailable or ambiguous, stop and ask before falling back.
+Model/effort: runner uses Spark/medium for Browser automation. Record the visible ChatGPT model label. If the user named a specific model/tier and it is unavailable or ambiguous, stop and ask before falling back.
 
 Output: prompt export path, selected ChatGPT model label, result artifact path, elapsed wait time, verdict, must-fix findings, follow-up changes, and blockers. The worker must open `https://chatgpt.com/`, start a new chat, submit the prompt, wait for completion even if it takes a while, and capture the final response.
 
@@ -299,6 +305,7 @@ Use these workflow playbooks first. They are the source of truth. Optional exter
 - [Prompt export workflow](references/prompt-export-workflow.md)
 - [Review workflow](references/review-workflow.md)
 - [Refactor workflow](references/refactor-workflow.md)
+- [Runtime adapters](references/runtime-adapters.md)
 - [Optimize workflow](references/optimize-workflow.md)
 
 ## Dispatch Examples
@@ -348,7 +355,7 @@ Before implementation, produce a research-informed plan with work items, depende
 Adversarial review gate:
 
 ```text
-Before marking complete, run an adversarial review pass. Ask the reviewer to find bugs, missed requirements, unsafe assumptions, incomplete verification, and scope drift. The review can be a separate Codex worker thread, RepoPrompt Oracle, context_builder review mode, rp-review, or another stable review lane depending on the task.
+Before marking complete, run an adversarial review pass. Ask the reviewer to find bugs, missed requirements, unsafe assumptions, incomplete verification, and scope drift. The review can be a separate Codex worker thread, selected oracle adapter, context-engine review mode, or another stable review lane depending on the task.
 ```
 
 ## Anti-Patterns

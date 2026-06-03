@@ -14,7 +14,7 @@ codex plugin add codex-director --marketplace codex-director
 For local development from a checkout:
 
 ```bash
-codex plugin marketplace add /Users/claire/dev/codex-director
+codex plugin marketplace add "$PWD"
 codex plugin add codex-director --marketplace codex-director
 ```
 

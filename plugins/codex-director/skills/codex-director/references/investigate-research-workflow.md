@@ -37,6 +37,15 @@ Choose research lanes:
 
 For each lane, write one narrow question. Avoid broad prompts like "investigate everything."
 
+Classify each fact before relying on it:
+
+- Stable repo fact: verify from source files, tests, docs, or history.
+- Project decision: verify from plans, issues, commits, meeting notes, or user-provided context.
+- External current fact: verify from primary/current sources before relying on it.
+- Sensitive/private fact: inspect locally and report only summary or artifact path.
+
+For unstable external facts such as current APIs, package versions, laws, prices, product behavior, model availability, schedules, or security advisories, browse or use an available current-source adapter. Prefer primary sources and include dates.
+
 ## Phase 2: Scout
 
 Use independent scouts when lanes can run in parallel:
@@ -53,6 +62,18 @@ Possible implementations:
 - Any available context or delegation runner that can answer the narrow scout question without bloating the main thread.
 
 Keep scout output brief. The coordinator synthesizes; scouts do not write the final voice.
+
+Scout result format:
+
+```text
+Question:
+Sources:
+Finding:
+Confidence: confirmed / likely / plausible / unknown
+Conflicts:
+What this changes:
+Follow-up needed:
+```
 
 ## Phase 3: Context Synthesis
 
@@ -92,6 +113,21 @@ Report:
 
 For research before planning, include "Plan implications" as the most important section.
 
+For durable investigations, write a report with:
+
+```text
+Summary:
+Symptoms / question:
+Evidence ledger:
+Ruled out:
+Root cause or best current explanation:
+Confidence by claim:
+Recommendations:
+Remaining unknowns:
+```
+
+Do not collapse uncertain claims into a single confident conclusion. Preserve epistemic levels per claim.
+
 ## Anti-Patterns
 
 - Implementing from a research thread.
@@ -99,3 +135,4 @@ For research before planning, include "Plan implications" as the most important 
 - External research without dates/sources for unstable facts.
 - Treating inference as confirmed fact.
 - Running overlapping scouts on the same question.
+- Omitting contradictions because they make the answer less tidy.

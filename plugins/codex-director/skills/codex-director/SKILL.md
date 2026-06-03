@@ -1,80 +1,64 @@
 ---
 name: codex-director
-description: Set up and operate a project-scoped director Codex thread that routes, creates, monitors, steers, and archives Codex worker threads. Use when the user wants a coordinating thread, project task portfolio, thread routing policy, or Codex-native delegation across repos/workspaces with context-aware workers.
+description: Use when setting up or operating a project Codex Director thread for worker routing, research, oracle/review gates, worktrees, goals, and concise evidence.
 ---
 
 # Codex Director
 
 ## Quick Start
 
-Create or operate one pinned director Codex thread for a single project scope. The director thread coordinates; Codex worker threads implement, investigate, plan, or review.
+Create or operate one pinned Director thread for a single project scope. The Director coordinates; bounded Codex worker threads implement, investigate, plan, review, refactor, or optimize.
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
 Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, or token economy.
 
-Thread vocabulary:
-
-- Director thread: the pinned coordinating Codex thread.
-- Codex worker thread: a background Codex thread for one bounded task.
-- Context engine: tools/workflows used for planning, discovery, review, and verification.
-- Research lane: a scout pass that gathers repo, docs, memory, prior-art, and external facts before planning.
-- Oracle: a second-opinion reasoning lane for plan critique, review, ambiguity resolution, or risk checks.
-- Adversarial review: an independent challenge pass that looks for bugs, missed requirements, unsafe assumptions, and verification gaps.
-- Delegation runner: whatever worker-internal or external delegation mechanism is available in the current runtime. Do not require or describe a version-specific subagent API.
+Keep this file as the compact dispatcher. Load [REFERENCE.md](REFERENCE.md) for the full operating brief, then load only the focused workflow reference needed for the task.
 
 ## Setup Workflow
 
 When asked to set up a director thread:
 
-1. Identify the project scope and relevant instruction files such as `AGENTS.md`, `CLAUDE.md`, or repo-local guides.
-2. Create or continue the project director Codex thread.
-3. Title it clearly, for example `Director: <project>`.
-4. Pin it.
-5. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
+1. Identify project scope and instruction files such as `AGENTS.md`, `CLAUDE.md`, or repo-local guides.
+2. Create or continue the project Director thread, title it `Director: <project>`, and pin it.
+3. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
 
 ## Director Triage
 
-Before answering or dispatching, the director thread decides:
+Before answering or dispatching, decide:
 
 - Route: Which repo/path owns this?
-- Shape: answer, investigate, plan, build, review, refactor, optimize, or orchestrate?
-- Research: what local, memory, prior-art, or external facts must be scouted before planning?
-- Done criteria: What must be true when complete?
-- Evidence/token budget: what proof is required, and how concise should it be?
-- Agent/model profile: Spark throughput, main-model judgment, or `xhigh` escalation?
-- Risk: secrets, production, private data, destructive ops, migrations, auth, security, user-facing behavior?
-- Skill/context prediction: Which named skills, context tools, oracle lane, or review workflows should the worker use?
-- Delegation: direct answer, worker thread(s), available delegation runner, or dynamic workflow?
-- Work plan: What are the right work items, dependencies, and stop points?
-- Review gate: fast self-check, adversarial review thread, oracle critique, or full code review?
-- Git/worktree: main checkout or isolated worktree, branch name, commit cadence, reconciliation path?
-- Goal fit: director-ledger only, worker Codex Goal, or both with evidence finish line?
+- Shape: answer, research, investigate, deep-plan, build, orchestrate, review, refactor, or optimize?
+- Evidence: what proof is required, and how concise can it be?
+- Risk: secrets, production, migrations, auth, security, destructive ops, or user-facing behavior?
+- Delegation: direct answer, worker thread, available delegation runner, oracle, or dynamic workflow?
+- Git/worktree: main checkout, isolated worktree, branch, commit cadence, and reconciliation path?
+- Goal fit: Director ledger only, worker Codex Goal, or both?
 
 ## Context Workflow Routing
-Select the narrowest workflow that fits. The workflow playbooks in this skill are self-contained: they define triggers, phases, roles, model/effort routing, outputs, and evidence. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the Director brief must not depend on external workflow names or runner-specific parameters.
+Select the narrowest self-contained workflow that fits. Optional context, oracle, browser, or delegation tools may implement a phase when available, but the Director brief must not depend on external workflow names or runner-specific parameters.
 
-- Research: repo/docs/memory/prior-art/external scout pass before planning. Use a Codex research thread, local/web searches, or another available research lane as appropriate.
+- Research: repo/docs/memory/prior-art/external scout pass before planning.
 - Investigate: deep read-only diagnosis or "how does this work?"
 - Deep plan: durable implementation or architecture plan, no code.
 - Build: bounded implementation where one worker can plan, edit, verify, and summarize.
 - Orchestrate: multi-part work with dependencies, parallel lanes, or substantial ambiguity.
-- Dynamic workflow: complex task orchestration with planning, packets, approvals, integration, verification, and reusable artifacts. Invoke `codex-dynamic-workflows` when available and warranted.
+- Dynamic workflow: complex orchestration with planning, packets, approvals, integration, verification, and reusable artifacts.
 - Review: code review of diffs, PRs, worker output, or current changes.
 - Refactor: behavior-preserving structural cleanup.
 - Optimize: performance or efficiency work.
 
-Orchestration is the director thread's mental model always, but formal orchestration tools or delegation runners should be invoked only when decomposition or delegation is actually needed. Avoid teaching or depending on unstable runner-specific parameters in the Director brief.
+Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs worker-thread creation, context building, oracle review, Browser ChatGPT, worktrees, commits, or Codex Goals. The adapter implements the phase; the workflow contract remains self-contained.
 
 ## Gates
 
 For non-trivial work, require research-informed and reviewed planning before implementation. The plan must define work items, dependencies, done criteria, verification, and review stop points.
 
-Default to a research lane before planning and an adversarial review gate before marking worker-thread tasks complete. Use an oracle lane for independent critique, ambiguity resolution, cross-file reasoning, or risk checks; Browser ChatGPT can serve as an oracle when appropriate. Fast self-checks are acceptable only for trivial, mechanical, or clearly low-risk work. See [REFERENCE.md](REFERENCE.md) for detailed gate criteria and templates.
+Default to a research lane before planning and an adversarial review gate before marking worker work complete. Use an oracle lane for independent critique, ambiguity resolution, cross-file reasoning, or risk checks. Fast self-checks are only for trivial, mechanical, low-risk work.
 
 ## Evidence And Verbosity
 
-Every Codex worker thread should return concise evidence, not a transcript. Require only what proves the task: files changed, commands/tests, review verdicts, artifacts, risks, and blockers. Use summaries, slices, exports, and links to preserve quality while reducing tokens.
+Every worker returns concise evidence, not a transcript: files changed, commands/tests, review verdicts, artifacts, risks, and blockers. Use summaries, slices, exports, and links to preserve quality while reducing tokens.
 
 ## Git And Worktrees
 
@@ -82,7 +66,7 @@ Commit regularly in logical units when repository work is being changed. A singl
 
 ## Worker Thread Rule
 
-Every Codex worker thread gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and expected verification. Each worker must start with an activation report covering those fields. If scope expands beyond the brief, it reports back before widening.
+Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope.
 
 Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md) to choose Spark for bounded throughput work, the main model for judgment/integration, and `xhigh` only for escalations.
 
@@ -93,4 +77,4 @@ The director thread maintains a project goal ledger. Worker threads use Codex Go
 ## Monitoring
 
 When checking Codex worker threads, confirm activation, reviewed planning, done criteria, required evidence, appropriate review gates, concise reporting, and no silent scope expansion. Record status and archive completed threads after output is captured.
-Use [REFERENCE.md](REFERENCE.md) for the full operating brief, worker brief template, activation report, status format, and anti-patterns.
+Use [REFERENCE.md](REFERENCE.md) for templates, anti-patterns, and the full workflow contract.

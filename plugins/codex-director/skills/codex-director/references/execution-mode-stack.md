@@ -10,6 +10,10 @@ Everything else is an execution mode selected by the director thread for a speci
 
 ```text
 Director Codex thread
+|-- runtime adapter layer
+|   |-- native Codex thread tools
+|   |-- Agent Mode or another delegation runner
+|   `-- local/simulated packet passes
 |-- direct answer or small local action
 |-- one Codex worker thread using a selected workflow
 |-- dynamic workflow for complex task orchestration
@@ -61,19 +65,20 @@ Owns:
 
 Dynamic workflow is not a replacement for the Director. It is the Director's task-level orchestrator for one complex task. The Director still decides when to invoke it, how to staff packets with Codex worker threads, how to manage worktrees/commits, and how to reconcile the result into the larger project.
 
-### Context and execution tools
+### Runtime and context adapters
 
-Use optional context, oracle, browser, and delegation tools as implementations when they are available and fit the task. Do not make the Director operating model depend on any one tool family.
+Use optional thread, context, oracle, browser, and delegation tools as implementations when they are available and fit the task. Do not make the Director operating model depend on any one tool family.
 
 Owns:
 
+- worker/thread creation, steering, polling, archival, and cleanup when the runtime supports it
 - codebase context building
 - oracle reasoning over curated context
 - delegation/execution helpers when useful
 - exports for plan/review handoff
 - live implementation/review/investigation loops
 
-These tools are not the durable project ledger. They are interchangeable engines for the self-contained workflow phases.
+These tools are not the durable project ledger. They are interchangeable engines for the self-contained workflow phases. See [Runtime adapters](runtime-adapters.md) for the adapter contract and fallback rules.
 
 ### Codex worker threads
 
@@ -178,6 +183,8 @@ Director integrates all packet results
 
 Do not let an optional execution tool create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans, but the dynamic workflow artifact remains the task source of truth.
 
+If no real worker/thread adapter is available, run simulated packet passes serially. Simulated passes must still use packet briefs, result notes, review gates, and evidence; they just do not claim parallel execution.
+
 ## How Workflow Playbooks Fit
 
 Use the narrow self-contained workflow that matches each packet:
@@ -205,8 +212,9 @@ Worker Goals must name the outcome, verification surface, constraints, boundarie
 ## Conflict Rules
 
 - If Director and dynamic workflow disagree, the Director updates the workflow artifact or pauses for user input.
-- If RP findings conflict with workflow plan, record the conflict in `results/` and update `plan.md` before implementation continues.
+- If adapter, oracle, or review-lane findings conflict with the workflow plan, record the conflict in `results/` and update `plan.md` before implementation continues.
 - If worker threads disagree, inspect authoritative repo/source evidence before choosing.
+- If adapter output conflicts with authoritative repo/workflow evidence, trust the source evidence and rerun or revise the adapter pass.
 - If a packet grows beyond its scope, stop and re-plan rather than silently widening.
 
 ## Completion Rule
@@ -219,4 +227,5 @@ A task is complete only when all selected layers agree:
 - Review gates have passed or residual risk is accepted.
 - Required commits are made.
 - Worktrees are reconciled into the canonical repo/branch.
+- Runtime handles are collected, archived, canceled, or cleaned up.
 - Final user-facing status is concise and source-backed.

@@ -29,6 +29,9 @@
       "Read",
       "Write"
     ],
+    "websiteURL": "https://github.com/novotnyllc/codex-director",
+    "privacyPolicyURL": "https://github.com/novotnyllc/codex-director/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/novotnyllc/codex-director/blob/main/TERMS.md",
     "defaultPrompt": [
       "Set up a director thread for this project.",
       "Coordinate this task with workers and review gates.",
