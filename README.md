@@ -46,6 +46,10 @@ Start $codex-director for this workspace. Treat admin/, website/, and ops/ as se
 
 The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
 
+For status, checkup, and lookup requests, the Director answers only from its existing ledger or conversation state. If the answer would require repo/docs/code inspection, it must dispatch or continue a Codex worker thread instead of inspecting repo/docs/code directly in the Director thread.
+
+The Director is optimized for rapid-fire intake: each distinct ask should be routed to a bounded worker thread or workflow packet, recorded with its handle and expected evidence, then released so the Director can immediately accept the next instruction.
+
 ## Structure
 
 - `plugins/codex-director/.codex-plugin/plugin.json` is the plugin manifest.

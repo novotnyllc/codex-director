@@ -38,6 +38,10 @@ Before answering or dispatching, decide:
 - Git/worktree: main checkout, isolated worktree, branch, commit cadence, and reconciliation path?
 - Goal fit: Director ledger only, worker Codex Goal, or both?
 
+If a user asks for status, a checkup, a lookup, or any repo/doc/code-backed answer, the Director may only answer from its existing ledger or conversation state. If that is not enough, it must spawn or continue a Codex worker thread for the repo/doc/code/status lookup, research, investigation, verification, or implementation instead of inspecting repo/docs/code directly in the Director thread.
+
+Rapid-fire user asks are normal Director input. Route each distinct ask to a bounded worker thread or dynamic workflow packet, record the handle, callback policy, expected evidence, and next watchdog in the ledger, then release the Director turn so the user can immediately give the next instruction.
+
 ## Context Workflow Routing
 Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Discover/load applicable Codex skills before dispatch, then require workers to re-run skill activation and report what they loaded or skipped. The active `codex_app` thread tool schema owns worker lifecycle; context, oracle, browser, and worker-internal sub-agent tools may implement lower-layer phases, but the Director brief must not depend on external workflow names, runner-specific parameters, or unexposed thread APIs. RepoPrompt `agent_run` and RepoPrompt agents are lower-layer context/review/oracle helpers only; when `codex_app` thread tools are available and authorized by their active contract, never use them as Director worker-thread dispatch.
 

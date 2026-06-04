@@ -17,7 +17,9 @@ Never make a worker brief depend on a private path, a single vendor, or an unsta
 
 RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-layer helpers only. When `codex_app.create_thread`, `codex_app.send_message_to_thread`, `codex_app.read_thread`, `codex_app.list_threads`, `codex_app.set_thread_title`, `codex_app.set_thread_pinned`, or `codex_app.set_thread_archived` are available, do not use RepoPrompt agents as the Director worker-thread dispatch mechanism. If the `codex_app` thread tools are unavailable or their active schema does not authorize the needed operation, record that limitation, use `simulated-unavailable`, and ask or continue locally only for coordination work instead of silently swapping in RepoPrompt agents.
 
-The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If no real worker thread is available, report the runtime blocker instead of doing the work inline.
+The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If a status/checkup/lookup answer would require repo/docs/code inspection, the Director must spawn or continue a Codex worker thread instead of doing the work inline. If no real worker thread is available, report the runtime blocker instead of doing the work inline.
+
+The Director is a rapid-fire intake surface, not a single-task executor. For multiple user asks, dispatch or continue separate bounded worker threads or workflow packets, record handles and expected evidence in the ledger, and stop after the dispatch/checkpoint instead of waiting inline unless the user explicitly asks for live narration.
 
 ## Adapter Selection
 
@@ -26,7 +28,7 @@ Prefer this order:
 1. `codex_app` thread tools for real background worker threads, using the active tool schema as the source of truth.
 2. Native sub-agent tools, when allowed by the active workflow, for worker-internal decomposition, verification, or bounded helper tasks.
 3. Tool-specific context engines for context building, review, oracle, and durable prompt artifacts.
-4. Local shell/git/file tools only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread.
+4. Local shell/git/file tools only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread or to satisfy repo/doc/code-backed status, checkup, or lookup requests.
 5. Runtime blocker reporting when no separate worker thread is available.
 
 Use the first adapter that satisfies the workflow's layer, independence, evidence, and safety needs. Do not block context building merely because a preferred context engine is unavailable. Do block project execution when no real Codex worker thread can own the work.
@@ -208,7 +210,8 @@ Heartbeat hygiene:
 
 When a worker needs input:
 
-1. Answer from the brief, ledger, project instructions, or existing user authority when the answer is within scope.
+1. Answer from the brief, ledger, project instructions, or existing user authority when the answer is within scope and does not require repo/doc/code inspection.
+1. If the answer would require repo/doc/code inspection for a status, checkup, lookup, research, investigation, verification, or implementation request, spawn or continue a Codex worker thread instead of reading repo/docs/code directly in the Director thread.
 2. Choose the steering prompt's thinking level from the same policy: `low` for routine reminders/status, `medium` for continuing a reviewed plan, `high` for substantive judgment or implementation steering, and `xhigh` for risky or final decisions.
 3. Ask the user when the answer changes outcome, expands scope, exposes sensitive data, requires production/destructive action, or changes commit authority.
 4. Record the decision in the ledger or `.workflow/<slug>/state.json`.
