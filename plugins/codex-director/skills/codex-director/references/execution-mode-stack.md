@@ -67,9 +67,9 @@ Owns:
 
 Dynamic workflow is not a replacement for the Director. It is the Director's task-level orchestrator for one complex task. The Director still decides when to invoke it, how to staff packets with Codex worker threads, what worktree/commit policy applies, and which worker owns integration or reconciliation into the larger project.
 
-### Runtime and context adapters
+### Latest Codex Runtime And Context Tools
 
-Use exposed `codex_app` thread tools for worker-thread lifecycle, with the active tool schema as the source of truth. Use optional context, oracle, browser, and worker-internal sub-agent tools as implementations when they fit the task. Do not make the Director operating model depend on any non-`codex_app` thread runner or unexposed lifecycle API.
+Use exposed `codex_app` thread/project tools for worker-thread lifecycle, with the active tool schema as the source of truth. Use optional context, oracle, browser, and worker-internal sub-agent tools for evidence or helper phases when they fit the task. Do not make the Director operating model depend on any non-`codex_app` thread runner or unexposed lifecycle API.
 
 Owns:
 
@@ -81,7 +81,7 @@ Owns:
 - exports for plan/review handoff
 - live implementation/review/investigation loops inside the owning worker thread
 
-Context and helper tools are not the durable project ledger and are not the `codex_app` thread layer. They are interchangeable engines for self-contained workflow phases. See [Runtime adapters](runtime-adapters.md) for the adapter contract and fallback rules.
+Context and helper tools are not the durable project ledger and are not the `codex_app` thread/project layer. They can support self-contained workflow phases, but they do not replace latest-Codex worker lifecycle tooling. See [Latest Codex runtime tooling](runtime-adapters.md) for the concrete Codex tool contract and blocker rules.
 
 ### Codex worker threads
 
@@ -190,7 +190,7 @@ Director records accepted packet evidence and coordinates any integration worker
 
 Do not let a worker-internal helper create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans under its packet, but the parent dynamic workflow artifact remains the task source of truth.
 
-A runtime without an exposed and authorized `codex_app` worker/thread adapter is a blocker. Stop and record the blocker. Do not execute packet work in the Director thread.
+Latest Codex `codex_app` worker/thread/project tooling is the premise of this skill. Director setup confirms the contract before operating; do not document old-version or substitute-runner branches, and do not execute packet work in the Director thread.
 
 ## How Workflow Playbooks Fit
 
@@ -219,9 +219,9 @@ Worker Goals must name the outcome, verification surface, constraints, boundarie
 ## Conflict Rules
 
 - If Director and dynamic workflow disagree, the Director updates the workflow artifact or pauses for user input.
-- If adapter, oracle, or review-lane findings conflict with the workflow plan, record the conflict in `results/` and update `plan.md` before implementation continues.
+- If tooling, oracle, or review-lane findings conflict with the workflow plan, record the conflict in `results/` and update `plan.md` before implementation continues.
 - If worker threads disagree, dispatch a focused investigation/review worker or require authoritative repo/source evidence before choosing.
-- If adapter output conflicts with authoritative repo/workflow evidence, trust the source evidence and rerun or revise the adapter pass.
+- If helper-tool output conflicts with authoritative repo/workflow evidence, trust the source evidence and rerun or revise the helper pass.
 - If a packet grows beyond its scope, stop and re-plan rather than silently widening.
 
 ## Completion Rule

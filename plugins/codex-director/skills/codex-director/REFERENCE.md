@@ -11,9 +11,9 @@ Your job is to coordinate work across this project. Read and follow the project 
 
 You may create, title, monitor, steer, and archive Codex worker threads. You must not implement, investigate, edit, test, refactor, optimize, or review project work in the Director thread. Keep the Director available for new instructions, check-ins, steering, coordination, workflow-state updates, evidence integration, and final status.
 
-If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it as `<Project Display Name> Director`, applying any workspace status emoji convention when available. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized fallback. Avoid colon-prefixed or reversed title forms. Pin the Director when thread tools expose pinning. When creating a separate Director thread and the active schema supports thinking selection, launch it with `xhigh` reasoning. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
+If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it as `<Project Display Name> Director`, applying any workspace status emoji convention when available. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized default. Avoid colon-prefixed or reversed title forms. Pin the Director when thread tools expose pinning. When creating a separate Director thread and the active schema supports thinking selection, launch it with `xhigh` reasoning. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
 
-Before any tool use or answer, classify the next action as: allowed inline coordination; worker-only inspection; worker-only execution; or runtime blocker. Worker-thread lifecycle/status, ledger/conversation state, routing, briefing, reconciliation, and narrow coordination-metadata reads are allowed inline. Repo/docs/code-backed status, production smoke checks, deployment probes, service dashboard/API checks, env/token probing, tests/builds, file edits, schema/data hotfixes, deploys, rollback, repair, and external project/service writes are worker-owned. If no real worker adapter is available or authorized, report a runtime blocker instead of doing that work inline.
+Before any tool use or answer, classify the next action as: allowed inline coordination; worker-only inspection; or worker-only execution. Worker-thread lifecycle/status, ledger/conversation state, routing, briefing, reconciliation, and narrow coordination-metadata reads are allowed inline. Repo/docs/code-backed status, production smoke checks, deployment probes, service dashboard/API checks, env/token probing, tests/builds, file edits, schema/data hotfixes, deploys, rollback, repair, and external project/service writes are worker-owned. Latest-Codex worker/thread/project tooling is the premise of this skill and is confirmed during Director setup.
 
 Default to proactive delegation when it is beneficial. A user request to set up or use the Director authorizes bounded Codex worker threads in the named project scope, but it does not imply creating a separate Director thread unless the user clearly asks for one. Do not wait for the user to say subagents, oracle, or Pro; choose those lanes when task shape, risk, context pressure, or review value warrants them.
 
@@ -24,7 +24,7 @@ For each request:
 4. Discover applicable Codex skills and workflow playbooks for the Director-level routing decision.
 5. Define the launch contract for each worker: starting prompt, resolved project target, model, thinking level plus rationale, required skills/workflow references, context artifacts, commit authority, evidence requirements, git/worktree handling, helper/sub-agent policy, and done criteria.
 6. Predict required research lane, skills, context tools, worker-internal helper lanes, oracle lane, Browser ChatGPT Pro suitability, plan review gate, adversarial review gate, and review workflows before dispatch.
-7. Require each worker thread to re-run skill activation and report exact skills considered, loaded, skipped, and unavailable.
+7. Require each worker thread to re-run skill activation and report exact skills considered, loaded, skipped, and not loaded.
 8. Require research-informed and reviewed plans before non-trivial implementation continues.
 9. Maintain the Director ledger with `codex_app` thread handles, status, stale/cancel state, worktree policy, and evidence.
 10. Monitor worker status, check in, steer, verify done criteria, record results, reconcile evidence, record cleanup state, and archive completed workers after final evidence is captured.
@@ -70,7 +70,7 @@ Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
-- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/unavailable, Director workflow/playbook, resolved project target and repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, topic/packet coordinator policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
+- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, Director workflow/playbook, resolved project target and repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, topic/packet coordinator policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
@@ -100,7 +100,7 @@ Evidence: <artifact paths, files, diffs, tests, logs, screenshots>
 Summary: <concise facts the oracle needs before reading artifacts>
 Constraints: <scope boundaries, privacy, no-commit/no-edit, product/security constraints>
 Requested output: <verdict/must-fix/should-fix/questions/confidence>
-Fallback tolerance: <built-in latest-main/xhigh ok|ChatGPT Pro only|other>
+Alternative lane tolerance: <built-in latest-main/xhigh ok|ChatGPT Pro only|other>
 ```
 
 The Director sends this packet to the selected oracle lane, reads the result, reconciles it against local evidence, and routes findings back to the worker or task artifact.
@@ -112,7 +112,7 @@ Instructions read: <files>
 Task shape: <answer/research/investigate/deep-plan/dynamic-workflow/build/orchestrate/review/refactor/optimize>
 Codex skills considered: <names and why>
 Codex skills loaded: <names>
-Codex skills skipped/unavailable: <names and reason>
+Codex skills skipped/not loaded: <names and reason>
 Director workflow/playbook: <workflow reference and why>
 Context/oracle/review tools: <tools selected and why>
 Research lane: <none/local/thread/context engine/web/other available lane and why>
@@ -130,7 +130,7 @@ Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification su
 Delegation: <coordination-only/Codex worker thread/worker-internal sub-agent/dynamic workflow and why>
 Launch contract: <starting prompt/model/thinking plus rationale/skills/context artifacts/commit authority/evidence format>
 Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; cleanup worker needed/none and why; worker pinning state>
-Activation complete: <yes/no plus missing items>
+Activation complete: <yes/no plus unresolved items>
 Done criteria: <short list>
 Plan review: <completed/not needed and why>
 ```
@@ -167,7 +167,7 @@ Task id:
 Task:
 Shape: coordination-only | worker | dynamic-workflow
 Status: queued | dispatching | running | needs_user | blocked | cancel_requested | stale | completed | archived
-Adapter: codex_app | simulated-unavailable
+Codex thread/project tooling: confirmed
 Worker thread id:
 Worker title:
 Project id / target:
@@ -191,7 +191,7 @@ Updated:
 Last poll:
 Next wake:
 Monitor interval:
-Monitor adapter: heartbeat | cron | manual | none
+Monitor mechanism: heartbeat | cron | manual | none
 Monitor id/status:
 Callback policy:
 Director callback thread id:
@@ -225,7 +225,7 @@ After dispatch:
 2. Record `thread_id`, `read_cursor` or last turn seen, `last_poll_at`, `callback_policy`, `next_wake`, `monitor_interval`, and stale threshold.
 3. If completion is likely within about a minute, use one short quiet polling burst.
 4. If callback signaling is available, stop the Director turn and use heartbeat only as a watchdog.
-5. If callback signaling is unavailable, stop the Director turn and use the lightest available wake mechanism. Prefer a thread heartbeat attached to the Director thread for near-term follow-up; use a detached cron/workspace automation only for genuinely detached long-running monitoring.
+5. If callback signaling is not active for a worker, stop the Director turn and use the lightest wake mechanism. Prefer a thread heartbeat attached to the Director thread for near-term follow-up; use a detached cron/workspace automation only for genuinely detached long-running monitoring.
 6. On callback or wake, poll privately, update the ledger, surface only visible-gate output, then reschedule or clear the wake mechanism.
 
 Cadence is adaptive and should optimize throughput, not quietness alone:
@@ -276,7 +276,7 @@ When enabled, trusted, and running in a Director-marked thread, the hooks reinfo
 - Activation, review/oracle, cleanup, and archive closeout.
 - Final status must account for stale/cancel state, cleanup, and archives.
 
-Hooks are not worker execution or completion enforcement. Worker execution remains the `codex_app` thread adapter in [Runtime adapters](references/runtime-adapters.md).
+Hooks are not worker execution or completion enforcement. Worker execution remains the concrete latest-Codex `codex_app` thread/project tooling documented in [Latest Codex runtime tooling](references/runtime-adapters.md).
 
 ## Verbosity Budget
 
@@ -366,7 +366,7 @@ Use an oracle lane when a plan or result needs independent critique, cross-file 
 
 Choose the oracle implementation by task shape, not by whether the user used the word "oracle" or "Pro". Prefer a local Codex oracle/review lane for sensitive payloads, source-backed code reasoning, normal diffs, and fast review loops. Prefer Browser ChatGPT Pro when a stronger external second opinion is materially valuable, the payload is safe or approved for external submission, and Pro is available or worth attempting: high-ambiguity plans, product/UX/content judgment, broad architecture tradeoffs, conflicting internal reviews, or final critique where model diversity is worth the Browser round trip.
 
-The Director mediates oracle traffic. Worker threads do not message oracle threads as peers; they return an Oracle Request Packet to the Director. The Director curates context, chooses the adapter/model/thinking level, sends the packet to the oracle lane, reads the result, reconciles conflicts, and routes findings back to the worker or plan.
+The Director mediates oracle traffic. Worker threads do not message oracle threads as peers; they return an Oracle Request Packet to the Director. The Director curates context, chooses the concrete oracle lane/model/thinking level, sends the packet to that lane, reads the result, reconciles conflicts, and routes findings back to the worker or plan.
 
 Default to an adversarial review gate for any task important enough to dispatch to a Codex worker thread. The review may be a separate review-oriented Codex worker thread, browser oracle, self-contained review workflow, or another stable review lane exposed by the current runtime. The reviewer should challenge correctness, scope, risks, tests, and done criteria.
 
@@ -493,7 +493,7 @@ Check execution mode and dynamic workflow eligibility early for non-trivial work
 - [Prompt export workflow](references/prompt-export-workflow.md)
 - [Codex Goals integration](references/goals-integration.md)
 - [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
-- [Runtime adapters](references/runtime-adapters.md)
+- [Latest Codex runtime tooling](references/runtime-adapters.md)
 
 ## Dispatch Examples
 

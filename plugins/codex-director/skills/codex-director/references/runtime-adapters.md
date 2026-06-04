@@ -1,52 +1,50 @@
-# Runtime Adapters
+# Latest Codex Runtime Tooling
 
-Use this reference whenever a Director workflow says to create a Codex worker thread, build context, invoke an oracle, manage a worktree, commit, or use a Codex Goal. The workflow contract is stable; adapters are interchangeable implementations, but they do not all live at the same layer.
+Use this reference whenever a Director workflow says to create a Codex worker thread, choose a project target, title/pin/archive/read/steer a thread, build context, invoke an oracle, manage a worktree, commit, or use a Codex Goal. Latest Codex native thread and project tooling is the contract for Director worker lifecycle. Required Codex definitions and native schemas are assumed present by definition; this skill is not a portable workflow engine with interchangeable worker engines.
 
 ## Core Rule
 
-Name the role and outcome first, then choose the best available implementation:
+Name the role and outcome first, then use the concrete latest-Codex thread/project operation that owns it:
 
 ```text
 Need: independent worker for Packet 02
 Role: implementation worker using build workflow
-Adapter: `codex_app` thread tool
+Codex tool: `codex_app.create_thread` with resolved project target
 Evidence: activation report in ledger, changed files, tests, review verdict
 ```
 
-Never make a worker brief depend on a private path, a single vendor, or an unstable API name. Codex worker thread lifecycle belongs to the active `codex_app` thread tool contracts. Sub-agent APIs are worker-internal execution helpers, not substitutes for Director-managed Codex worker threads. Context engines are context builders, reviewers, or oracle helpers, not thread adapters.
+Codex worker thread lifecycle belongs to the active `codex_app` thread and project tool contracts. Sub-agent APIs are worker-internal execution helpers, not substitutes for Director-managed Codex worker threads. Context engines are context builders, reviewers, or oracle helpers, not worker-thread lifecycle tools.
 
-RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-layer helpers only. When `codex_app.create_thread`, `codex_app.send_message_to_thread`, `codex_app.read_thread`, `codex_app.list_threads`, `codex_app.set_thread_title`, `codex_app.set_thread_pinned`, or `codex_app.set_thread_archived` are available, do not use RepoPrompt agents as the Director worker-thread dispatch mechanism. If the `codex_app` thread tools are unavailable or their active schema does not authorize the needed operation, record that limitation, use `simulated-unavailable`, and ask or continue locally only for coordination work instead of silently swapping in RepoPrompt agents.
+RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-layer helpers only. Do not use them as the Director worker-thread dispatch mechanism. Director setup confirms the required latest-Codex `codex_app` thread/project tools and schema before operating, and the skill assumes those native definitions are present. Do not swap in RepoPrompt agents for Codex worker threads.
 
-The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If a status/checkup/lookup answer would require repo/docs/code inspection, the Director must spawn or continue a Codex worker thread instead of doing the work inline. If no real worker thread is available, report the runtime blocker instead of doing the work inline.
+The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If a status/checkup/lookup answer would require repo/docs/code inspection, the Director must spawn or continue a Codex worker thread instead of doing the work inline. Latest-Codex thread/project tooling is the assumed execution surface for that worker-thread path.
 
 The Director is a rapid-fire intake surface, not a single-task executor. For multiple user asks, dispatch or continue separate bounded worker threads or workflow packets, record handles and expected evidence in the ledger, and stop after the dispatch/checkpoint instead of waiting inline unless the user explicitly asks for live narration.
 
-## Adapter Selection
+## Tooling Boundaries
 
-Prefer this order:
+Use these layers:
 
-1. `codex_app` thread tools for real background worker threads, using the active tool schema as the source of truth.
-2. Native sub-agent tools, when allowed by the active workflow, for worker-internal decomposition, verification, or bounded helper tasks.
-3. Tool-specific context engines for context building, review, oracle, and durable prompt artifacts.
-4. Local shell/git/file tools only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread or to satisfy repo/doc/code-backed status, checkup, or lookup requests.
-5. Runtime blocker reporting when no separate worker thread is available.
+1. `codex_app` thread/project tools are required for Director-owned worker lifecycle: create, target, title, pin, read, steer, archive, and callback signaling when authorized.
+2. Native sub-agent tools are worker-internal helpers for decomposition, verification, or bounded helper tasks when the owning worker chooses them.
+3. Context, oracle, and Browser tools provide evidence, review, and durable artifacts; they do not own Codex worker lifecycle.
+4. Local shell/git/file tools are only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread or to satisfy repo/doc/code-backed status, checkup, or lookup requests.
+5. Director setup/activation confirms the required latest-Codex worker/thread/project tooling before any Director operation. The skill assumes these native definitions are present; do not add old-version or simulation branches for Codex worker lifecycle.
 
-Use the first adapter that satisfies the workflow's layer, independence, evidence, and safety needs. Do not block context building merely because a preferred context engine is unavailable. Do block project execution when no real Codex worker thread can own the work.
+## Setup Contract Confirmation
 
-## Capability Detection
-
-At Director setup and before the first worker dispatch in a session, inspect the active tool metadata for `codex_app` thread tools. Record the result in the ledger:
+At Director setup and before the first worker dispatch in a session, confirm the active latest-Codex `codex_app` thread/project tools and schema. Record the confirmed contract in the ledger:
 
 ```text
-Thread adapter: codex_app | simulated-unavailable
+Codex thread/project tooling: verified
 Capability source: active tool metadata
-Searched terms: thread, session, conversation, chat, tab, fork, pin, title, archive, create, switch, list, close, send, wait, poll
-Available ops:
-Missing ops:
+Searched terms: thread, session, conversation, chat, tab, fork, pin, title, archive, create, switch, list, close, send, wait, poll, project, target, worktree
+Required ops verified:
+Schema notes:
 Excluded hits:
 ```
 
-`simulated-unavailable` means a brief or ledger item exists without an executing worker. It is a blocked state, not permission for the Director to perform the work inline.
+Do not document old-version compatibility or simulation branches for these Codex-native tools. Latest Codex is the premise of the skill.
 
 Exclude these hits from `codex_app` thread detection:
 
@@ -57,7 +55,7 @@ Exclude these hits from `codex_app` thread detection:
 - `multi_agent_v1` sub-agents
 - Browser or Chrome tabs
 
-## Thread Management Adapter
+## Thread And Project Tooling
 
 The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. Title the Director as `<Project Display Name> Director`, applying any workspace status emoji convention when available, and keep it pinned when pinning is exposed. Prefer explicit project/workspace names over the cwd basename. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
 
@@ -158,7 +156,7 @@ Every running or queued worker needs a ledger handle:
 worker_id:
 thread_id:
 thread_title:
-adapter: codex_app | simulated-unavailable
+codex_thread_project_tooling: verified
 status: queued | running | needs_input | blocked | cancel_requested | stale | completed | archived
 project_id:
 target: local | worktree | projectless
@@ -180,7 +178,7 @@ created_at:
 last_poll_at:
 next_wake_at:
 monitor_interval:
-monitor_adapter: heartbeat | cron | manual | none
+monitor_mechanism: heartbeat | cron | manual | none
 monitor_id:
 stale_after:
 callback_policy: none | director-thread-signal
@@ -204,7 +202,7 @@ Read a newly created worker once after creation to confirm activation when pract
 
 Prefer signal-first monitoring when the worker runtime exposes `codex_app.send_message_to_thread` and the Director brief explicitly authorizes callback use. The worker may send a single callback to the Director thread for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`; it must not send routine progress, poll, rerun, or "no blocker" callbacks. The Director treats the callback as a wake signal, then reads the worker thread before accepting evidence.
 
-Use a short quiet polling burst only when the worker is likely to finish within about a minute or an immediate dependent decision is expected. Otherwise prefer callback signaling plus a watchdog heartbeat. If callback signaling is unavailable, prefer a thread heartbeat attached to the Director thread for near-term follow-up when the runtime exposes one. Use a detached cron/workspace automation only for genuinely detached monitoring. If no wake mechanism is exposed, record `monitor_adapter: manual`, `next_wake_at`, and the next action rather than leaving the Director spinning.
+Use a short quiet polling burst only when the worker is likely to finish within about a minute or an immediate dependent decision is expected. Otherwise prefer callback signaling plus a watchdog heartbeat. If callback signaling is not active for the worker, prefer a thread heartbeat attached to the Director thread for near-term follow-up when appropriate. Use a detached cron/workspace automation only for genuinely detached monitoring. If no wake mechanism is exposed, record `monitor_mechanism: manual`, `next_wake_at`, and the next action rather than leaving the Director spinning.
 
 Default cadence should keep overall work fast:
 
@@ -261,7 +259,7 @@ The Director plugin bundles hooks as an optional, scoped advisory layer. Impleme
 | `Stop` | Emit a structured non-blocking closeout warning for Director-marked turns |
 | `SubagentStart` / `SubagentStop` | Remind Director-marked nested helpers to stay worker-internal and roll evidence up |
 
-Hooks do not create threads and are not a substitute for `codex_app.create_thread`. They are lifecycle reminders around the `codex_app` thread adapter: role context, scoped warnings, and state hygiene prompts. Worker briefs, activation reports, monitoring, review gates, and ledger state remain the enforcement surface.
+Hooks do not create threads and are not a substitute for `codex_app.create_thread`. They are lifecycle reminders around the `codex_app` thread tooling: role context, scoped warnings, and state hygiene prompts. Worker briefs, activation reports, monitoring, review gates, and ledger state remain the enforcement surface.
 
 ## Worker-Internal Sub-Agent Adapter
 
@@ -325,7 +323,7 @@ Use this to replicate RepoPrompt-style oracle behavior with Codex threads when B
 
 ## Browser ChatGPT Pro Oracle Adapter
 
-Browser ChatGPT Pro is an oracle adapter, not the oracle role itself.
+Browser ChatGPT Pro is a concrete oracle lane, not the oracle role itself.
 
 Use it when a Pro web-model second opinion is materially valuable, whether or not the user explicitly said Pro: high-ambiguity planning, product/UX/content judgment, broad architecture tradeoffs, conflicting local reviews, final external critique before high-cost work, or user requests for ChatGPT Pro/web. Prefer the local Codex oracle/review lane for sensitive payloads, routine source-backed code review, normal diffs, and fast review loops. Do not open or navigate an in-app Browser just to check whether Pro is available; inspect Pro availability only during a selected Browser Pro oracle run, or in an already-open ChatGPT tab when safe and non-disruptive.
 

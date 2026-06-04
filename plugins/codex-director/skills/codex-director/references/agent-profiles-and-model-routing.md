@@ -33,7 +33,7 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 
 ## Runtime Role Labels
 
-When a delegation adapter exposes generic role labels, map Director profiles this way:
+When a concrete helper/delegation tool exposes generic role labels, map Director profiles this way:
 
 | Director profile | Generic role |
 | --- | --- |

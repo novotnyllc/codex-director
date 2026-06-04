@@ -14,13 +14,13 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, p
 2. Check git status in each repo that may be touched.
 3. Decide whether this task needs `codex-dynamic-workflows` task orchestration.
 4. Decide main checkout vs worktree per workstream.
-5. Choose the runtime adapter from [Runtime adapters](runtime-adapters.md): `codex_app` worker threads, worker-internal sub-agents, or context engines.
+5. Use [Latest Codex runtime tooling](runtime-adapters.md): `codex_app` worker threads with resolved project targets own worker lifecycle; worker-internal sub-agents and context engines are helper layers only.
 6. Discover/load applicable Codex skills for orchestration and record which skills each worker must consider.
 7. Create or update the active work ledger:
    - task id
    - task
    - shape
-   - adapter
+   - Codex thread/project tooling
    - worker thread id/title
    - owner thread
    - repo/path
@@ -43,7 +43,7 @@ Adapter examples:
 `codex_app` thread tools: create worker thread when authorized -> send bounded brief -> poll with `read_thread` -> steer with `send_message_to_thread` -> archive with `set_thread_archived`.
 Worker callback signal: when explicitly authorized and exposed in the worker runtime, worker sends one Director-thread callback for final/blocker/needs-user/oracle-request/handoff.
 Heartbeat monitor: after dispatch, schedule or update a watchdog Director thread heartbeat instead of keeping the Director turn open solely to poll.
-Worker-internal sub-agents: spawn bounded helper -> wait/poll only if that helper adapter exposes it -> roll up evidence into owning worker.
+Worker-internal sub-agents: spawn bounded helper -> wait/poll according to that helper's concrete tool contract -> roll up evidence into owning worker.
 Unavailable or unauthorized thread runtime: record blocker -> ask for a worker-thread-capable runtime before executing work.
 ```
 
@@ -186,11 +186,11 @@ Verbosity limit: visible update gate; final evidence or blocker/decision only; n
 Stop and report if:
 ```
 
-If using an adapter with wait/poll semantics, start parallel workers according to that adapter's contract, then wait or poll for the first completed/blocked worker and loop over remaining handles only while the wait is short and useful. For `codex_app` thread tools, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. Use low/medium thinking for routine polling and steering, high for substantive implementation/review steering, and xhigh only for risky or final decisions. Do not send a final completion rollup while worker handles are running or waiting for input. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
+For `codex_app` worker threads, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. Use low/medium thinking for routine polling and steering, high for substantive implementation/review steering, and xhigh only for risky or final decisions. Do not send a final completion rollup while worker handles are running or waiting for input. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
 
 ## Phase 6: Monitor
 
-Poll or read workers regularly, but quietly. Do not hold the Director turn open for long waits. Use one short polling burst only when completion is likely within about a minute; otherwise use the resumable monitoring cadence from [Runtime adapters](runtime-adapters.md).
+Poll or read workers regularly, but quietly. Do not hold the Director turn open for long waits. Use one short polling burst only when completion is likely within about a minute; otherwise use the resumable monitoring cadence from [Latest Codex runtime tooling](runtime-adapters.md).
 
 Check:
 
@@ -257,7 +257,7 @@ Report:
 
 After evidence is captured:
 
-- Archive or clean up completed worker threads/sessions according to the runtime adapter.
+- Archive or clean up completed worker threads/sessions according to the latest-Codex thread tooling contract.
 - Delete stale prompt/context exports that no worker or review still needs.
 - Keep durable artifacts: plans, workflow state, final reports, commits, review reports.
 - Cancel stale workers before final status.
