@@ -185,7 +185,7 @@ Verbosity limit: visible update gate; final evidence or blocker/decision only; n
 Stop and report if:
 ```
 
-For `codex_app` worker threads, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. Use low/medium thinking for routine polling and steering, high for substantive implementation/review steering, and xhigh only for risky or final decisions. Do not send a final completion rollup while worker handles are running or waiting for input. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
+For `codex_app` worker threads, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. Use low/medium thinking only for routine polling and steering sent to worker/helper threads, high for substantive implementation/review steering, and xhigh for risky or final worker decisions. Any continuation, callback, or heartbeat that targets the Director thread itself must stay `xhigh`. Do not send a final completion rollup while worker handles are running or waiting for input. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
 
 ## Phase 6: Monitor
 
