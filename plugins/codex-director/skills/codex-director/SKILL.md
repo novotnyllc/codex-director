@@ -21,7 +21,7 @@ When asked to set up a director thread:
 
 1. Identify project scope and instruction files such as `AGENTS.md`, `CLAUDE.md`, or repo-local guides. The Director may read coordination metadata needed to establish the brief, including its own plugin docs, hook config, ledger/workflow artifacts, and top-level project instruction files; substantive repo/docs/code or production inspection remains worker-owned.
 2. Make the current thread the project Director unless the user clearly requested a separate/new thread or clearly asked to continue/reuse an existing active Director. Do not resurrect or unarchive an archived prior Director by default.
-3. Title the Director as `<Project Display Name> Director`, applying any workspace title/status emoji convention when available, for example `💼 Effervescenz Director`. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized fallback. Pin the Director when the active thread tools expose pinning.
+3. Title the Director as `<Project Display Name> Director`, applying any workspace title/status emoji convention when available. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized fallback. Pin the Director when the active thread tools expose pinning.
 4. Check whether the scoped Director hooks are installed, enabled, and trusted; treat them as reminders, not as the worker execution contract.
 5. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
 
