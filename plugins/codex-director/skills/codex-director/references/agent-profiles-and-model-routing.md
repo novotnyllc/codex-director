@@ -4,7 +4,9 @@ Use this when the director thread is choosing Codex worker thread roles, model f
 
 ## Core Policy
 
-Use delegation aggressively when it improves speed, coverage, review independence, risk control, context management, or token economy. Do not wait for the user to say "subagents" or "swarm".
+Use delegation aggressively when it improves speed, coverage, review independence, risk control, context management, or token economy. Do not wait for the user to say "subagents", "swarm", "oracle", or "Pro".
+
+Most Director-started worker threads should behave as packet coordinators: select the relevant functions/files/tests before reading broadly, choose helper models by task shape, delegate independent scouting or verification to narrow sub-agents, and return concise evidence instead of accumulating transcript mass.
 
 Use `gpt-5.3-codex-spark` as a separate-bucket throughput model for bounded work where volume, parallelism, or token economy matters. It is two generations behind the current main model family in this schema, so treat it as a scout/helper lane, not an authority lane. Use the main/default stronger model for Director judgment, planning authority, non-mechanical code, conflict resolution, integration, security/data decisions, and final completion audits.
 
@@ -22,6 +24,7 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `prompt-exporter` | Package durable context artifacts for oracle/review/upload/retry/handoff lanes | Spark | medium |
 | `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
+| `packet-coordinator` | Own a non-trivial packet, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | main | high |
 | `implementation-worker` | Bounded build/refactor/test packet with code-writing or verification | main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | Spark first pass, main for final/high-risk | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | main | high |
@@ -36,6 +39,7 @@ When a delegation adapter exposes generic role labels, map Director profiles thi
 | --- | --- |
 | `research-scout` / `context-scout` | `explore` |
 | `prompt-exporter` / `chatgpt-pro-oracle-runner` | `engineer` or `explore` for read-only prep/automation |
+| `packet-coordinator` | `pair` for ambiguous/context-heavy packets, `engineer` for clear implementation packets |
 | `implementation-worker` | `engineer` for clear packets, `pair` for ambiguous packets |
 | `adversarial-reviewer` | `pair` or `design` depending on runtime support |
 | `planner` | `pair` or `design` |
@@ -52,7 +56,7 @@ Use Spark for bounded, evidence-oriented throughput work:
 - status summaries
 - artifact/result collection
 - prompt export packaging when a durable artifact is needed
-- Browser ChatGPT Pro oracle automation with built-in main/`xhigh` fallback when Pro is unavailable
+- Browser ChatGPT Pro oracle automation with built-in main/`xhigh` fallback when Pro is unavailable, unsafe, or lower-value than local review
 - first-pass reconnaissance
 - mechanical edits with clear tests
 - very contained low-risk packet execution
@@ -74,6 +78,7 @@ Do not use Spark as final authority for:
 
 Use the main/default stronger model for:
 
+- packet coordinator workers that choose context/helper strategy
 - director top-level task decisions
 - dynamic workflow setup and packet design
 - final plan review
@@ -158,6 +163,6 @@ Escalate from `high` to `xhigh` when:
 
 ## Token Economy
 
-Prefer many narrow Spark scouts over one giant context load when questions are independent and the cost of a mediocre answer is low. Prefer one main-model integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts.
+Prefer many narrow Spark scouts over one giant context load when questions are independent and the cost of a mediocre answer is low. Prefer one main-model packet coordinator or integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts. For non-trivial packets, spend a small amount of reasoning up front deciding which context to load and which helpers to run; that is usually cheaper than letting the owning thread absorb the whole repo.
 
 Clean up completed runtime sessions after their evidence is recorded. Keeping many stale sessions open increases monitoring cost and makes the Director ledger harder to trust.

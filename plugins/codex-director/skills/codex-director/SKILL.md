@@ -11,7 +11,7 @@ Create or operate one pinned Director thread for a single project scope. The Dir
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
-Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, or token economy. Do not wait for the user to say dynamic workflow, orchestrate, workers, swarm, or subagents before choosing the right mechanism. The Director coordinates only; project work always runs in Codex worker threads.
+Default posture: delegate proactively when it improves speed, coverage, review independence, risk control, context management, or token economy. Do not wait for the user to say dynamic workflow, orchestrate, workers, swarm, subagents, oracle, or Pro before choosing the right mechanism. The Director coordinates only; project work always runs in Codex worker threads.
 
 Keep this file as the compact dispatcher. Load [REFERENCE.md](REFERENCE.md) for the full operating brief, then load only the focused workflow reference needed for the task.
 
@@ -32,7 +32,7 @@ Before answering or dispatching, decide:
 - Shape: answer, research, investigate, deep-plan, dynamic-workflow, build, orchestrate, review, refactor, or optimize?
 - Evidence: what proof is required, and how concise can it be?
 - Risk: secrets, production, migrations, auth, security, destructive ops, or user-facing behavior?
-- Delegation: coordination-only answer, Codex worker thread, worker-internal sub-agent, oracle, or dynamic workflow?
+- Delegation: coordination-only answer, Codex worker thread, worker-internal sub-agent, oracle, Browser ChatGPT Pro oracle, or dynamic workflow?
 - Skill discovery: which Codex skills should the Director load now, and which should each worker consider/load/report?
 - Launch contract: what starting prompt, model, thinking level plus rationale, skills/workflow references, context artifacts, commit authority, and evidence format should each worker receive?
 - Git/worktree: main checkout, isolated worktree, branch, commit cadence, and reconciliation path?
@@ -57,7 +57,7 @@ Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs
 
 For non-trivial work, require research-informed and reviewed planning before implementation. The plan must define work items, dependencies, done criteria, verification, and review stop points.
 
-Default to a research lane before planning and an adversarial review gate before marking worker work complete. Use an oracle lane for independent critique, ambiguity resolution, cross-file reasoning, or risk checks. Workers request oracle review by returning an Oracle Request Packet to the Director; the Director creates/continues/messages oracle threads and reconciles results. Fast self-checks are only for trivial, mechanical, low-risk work.
+Default to a research lane before planning and an adversarial review gate before marking worker work complete. Use an oracle lane for independent critique, ambiguity resolution, cross-file reasoning, or risk checks even when the user did not ask for one. Choose Browser ChatGPT Pro by task value and sensitivity, not only explicit user wording: use it when an external Pro-model critique is materially better than a local oracle lane and safe to submit. Workers request oracle review by returning an Oracle Request Packet to the Director; the Director creates/continues/messages oracle threads and reconciles results. Fast self-checks are only for trivial, mechanical, low-risk work.
 
 ## Evidence And Verbosity
 
@@ -73,7 +73,7 @@ Commit regularly in logical units only when the worker brief grants `commit-when
 
 Use `codex_app.create_thread`, `codex_app.send_message_to_thread`, `codex_app.read_thread`, `codex_app.list_threads`, `codex_app.set_thread_title`, `codex_app.set_thread_pinned`, and `codex_app.set_thread_archived` for Director worker lifecycle whenever the active tool schema exposes and authorizes them. If those tools are unavailable or the schema does not authorize the needed lifecycle operation, say so explicitly and mark the worker adapter `simulated-unavailable` or ask/continue locally for coordination-only work; do not silently substitute RepoPrompt agents or invent missing APIs.
 
-Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope. If a worker needs an oracle/review thread, it returns an Oracle Request Packet to the Director instead of creating or messaging that thread directly unless explicitly authorized.
+Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Treat most Director-started workers as packet coordinators: they should actively manage context, choose helper models/functions, and use worker-internal sub-agents for narrow scouting, context selection, verification, review, or contained implementation when that improves quality or token economy. Each worker starts with an activation report and reports back before widening scope. If a worker needs an oracle/review thread, it returns an Oracle Request Packet to the Director instead of creating or messaging that thread directly unless explicitly authorized.
 
 Before starting a worker thread, the Director must choose the starting prompt, exact model or inherited profile, thinking level plus rationale, required skills or workflow references, context/artifact handoff, commit authority, done criteria, and evidence format. Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md): Director judgment and code-writing workers default to `high`; use `medium` for mechanical edits or bounded research, `low` for status/probes, and `xhigh` only for high-risk or final-authority gates.
 

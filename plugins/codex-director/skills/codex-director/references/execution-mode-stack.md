@@ -102,7 +102,7 @@ The Director does not perform project work. It stays available for instructions,
 
 ## Selection Order
 
-Delegation is proactive. The user does not need to say "swarm", "parallel", or "dynamic workflow" for the Director to use available delegation mechanisms. Choose delegation when it improves speed, coverage, review independence, risk control, context management, or token economy.
+Delegation is proactive. The user does not need to say "swarm", "parallel", "dynamic workflow", "subagents", "oracle", or "Pro" for the Director to use available delegation mechanisms. Choose delegation when it improves speed, coverage, review independence, risk control, context management, model diversity, or token economy.
 
 ### 1. Coordination-only
 
@@ -142,7 +142,7 @@ Use orchestration without a durable `.workflow/` run when the task is multi-step
 
 - follow the Director orchestrate workflow reference
 - create multiple Codex worker threads only for disjoint items
-- use worker-internal sub-agents only when they reduce risk or token load
+- require each worker to choose a helper/context strategy and use worker-internal sub-agents for disjoint scouting, model/function selection, context mapping, verification, or review when they reduce risk, context load, or token cost
 - keep the Director ledger as the state
 
 ### 4. Complex, risky, long-running, or reusable
@@ -167,13 +167,13 @@ When optional context/delegation tools are also available, use them as implement
 2. Director uses the dynamic workflow plan/state as the task source of truth.
 3. For each packet, Director dispatches a Codex worker thread.
 4. The worker uses the relevant self-contained workflow playbook for its packet.
-5. For packet-internal complexity, the worker may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that packet.
+5. For packet-internal complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that packet.
 6. Worker writes concise result evidence into `results/`.
 7. Director dispatches any integration, verification, or reconciliation work to workers, records accepted evidence, and writes final report.
 
 ## How Recursive Helpers Fit
 
-Worker-internal helpers are implementation helpers. They are best when the current worker needs to decompose work, delegate a bounded subtask, verify items, or package context without bloating the owning worker thread.
+Worker-internal helpers are implementation helpers. They are best when the current worker needs to decompose work, select likely models/functions/files/tests, map context slices, delegate a bounded subtask, verify items, review a narrow surface, or package context without bloating the owning worker thread.
 
 `codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, worker-thread packet passes, integration, verification state, and a final audit trail.
 

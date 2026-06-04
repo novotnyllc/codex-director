@@ -141,7 +141,9 @@ Every worker brief must include:
 - Codex skills loaded/required/skipped
 - Director workflow/playbook
 - context/oracle/review tools
+- worker helper/context policy: sub-agents, context scouts, model/function selection helpers, or none plus why
 - oracle request policy: workers return Oracle Request Packets to the Director unless explicitly delegated oracle-runner authority
+- Browser Pro suitability: no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested
 - plan review and adversarial review gate
 - evidence and verbosity limits
 - git/worktree expectations
@@ -169,12 +171,14 @@ Codex skills to consider:
 Required skills/workflows:
 Required workflow:
 Research/context required:
+Worker helper/context policy:
 Goal policy:
 Git/worktree:
 Commit authority:
 Verification:
 Review gate:
 Oracle request policy:
+Browser Pro suitability:
 Evidence format:
 Verbosity limit:
 Stop and report if:

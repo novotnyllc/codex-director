@@ -212,24 +212,28 @@ Hooks do not create threads and are not a substitute for `codex_app.create_threa
 
 ## Worker-Internal Sub-Agent Adapter
 
-Sub-agents and other native delegation helpers sit below Codex worker threads. Use them only when the active workflow allows worker-internal decomposition and the helper can return concise evidence to the owning thread.
+Sub-agents and other native delegation helpers sit below Codex worker threads. Most non-trivial Director-started workers should consider themselves packet coordinators, not monolithic executors. Use worker-internal helpers when the active workflow allows packet-internal decomposition and the helper can return concise evidence to the owning thread.
 
 Allowed uses:
 
 - a worker thread decomposes one packet into narrow subtasks
 - a worker runs a bounded scout, verification, review, or implementation helper
+- a worker uses a helper to select likely models/functions/files/tests before loading broad context
+- a worker uses a helper to map context slices, call sites, ownership, or verification surfaces
 - a dynamic workflow packet recursively needs its own mini-orchestration
 - the helper's output can be rolled up into the worker's result file or evidence summary
 
 Rules:
 
-1. Only parallelize disjoint work.
-2. Tell each sub-agent what sibling helpers are doing and what files/modules to avoid.
-3. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, main/high for code-writing/review helpers, and main/xhigh only for risky or final-authority helper work.
-4. Wait or poll regularly; do not leave helpers unattended.
-5. Verify helper output before the owning worker claims its packet is complete.
-6. Roll up helper evidence into the worker summary; do not expose helper transcripts as the Director ledger.
-7. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning packet.
+1. Start non-trivial packets with a helper/context strategy: what can be scouted, what should stay in the owning worker, and what context should be excluded.
+2. Only parallelize disjoint work.
+3. Tell each sub-agent what sibling helpers are doing and what files/modules to avoid.
+4. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, main/high for code-writing/review helpers, and main/xhigh only for risky or final-authority helper work.
+5. Use helpers to reduce context load, not to create more transcript mass; ask for file paths, line refs, facts, commands, and confidence.
+6. Wait or poll regularly; do not leave helpers unattended.
+7. Verify helper output before the owning worker claims its packet is complete.
+8. Roll up helper evidence into the worker summary; do not expose helper transcripts as the Director ledger.
+9. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning packet.
 
 ## Context Engine Adapter
 
@@ -257,7 +261,7 @@ When no context engine is available:
 
 ## Codex Oracle Thread Adapter
 
-Use this to replicate RepoPrompt-style oracle behavior with Codex threads when Browser ChatGPT Pro is unavailable, ambiguous, unnecessary, or not requested.
+Use this to replicate RepoPrompt-style oracle behavior with Codex threads when Browser ChatGPT Pro is unavailable, ambiguous, unsafe for the payload, unnecessary, or lower-value than a local source-backed review.
 
 - The Director creates or continues a dedicated oracle/review Codex thread using `codex_app` thread tools and records the thread id in the ledger.
 - Default to main/high for ordinary independent critique and main/`xhigh` when this is the ChatGPT Pro-unavailable fallback, high-risk review, final-authority gate, or conflict resolution lane.
@@ -270,7 +274,7 @@ Use this to replicate RepoPrompt-style oracle behavior with Codex threads when B
 
 Browser ChatGPT Pro is an oracle adapter, not the oracle role itself.
 
-Use it when the user asks for ChatGPT Pro, when a Pro web-model second opinion is materially valuable, or when local oracle/context tools are unavailable and Pro access can be confirmed. Do not open or navigate an in-app Browser just to check whether Pro is available; inspect Pro availability only during a selected Browser Pro oracle run, or in an already-open ChatGPT tab when safe and non-disruptive.
+Use it when a Pro web-model second opinion is materially valuable, whether or not the user explicitly said Pro: high-ambiguity planning, product/UX/content judgment, broad architecture tradeoffs, conflicting local reviews, final external critique before high-cost work, or user requests for ChatGPT Pro/web. Prefer the local Codex oracle/review lane for sensitive payloads, routine source-backed code review, normal diffs, and fast review loops. Do not open or navigate an in-app Browser just to check whether Pro is available; inspect Pro availability only during a selected Browser Pro oracle run, or in an already-open ChatGPT tab when safe and non-disruptive.
 
 Before Browser work, read any existing local capability sentinel as a routing hint only. Preferred sentinel locations are user state (`$XDG_STATE_HOME/codex-director/chatgpt-pro-capability.json` or `~/.local/state/codex-director/chatgpt-pro-capability.json`), active `.workflow/<slug>/state.json`, repo-local untracked `.codex-director/local-state/`, then Director ledger/thread notes when sandboxed. Missing, stale, or inaccessible sentinel means `unknown` and must not trigger Browser navigation.
 

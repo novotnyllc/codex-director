@@ -41,8 +41,10 @@ Avoid deep reading before context building; it invites shallow confidence.
 
 Build context with the lightest adequate path:
 
+- Start by deciding the helper/context strategy from the worker brief: which facts/files/functions/tests can be scouted by narrow helpers, which context belongs in the owning thread, and what should be excluded.
 - Use a context engine when one can cheaply map files, patterns, edge cases, and verification.
 - Otherwise use targeted search/read/code-structure calls.
+- Use worker-internal sub-agents for independent context mapping, model/function selection, call-site discovery, verification surface discovery, or narrow review when that keeps the owning thread smaller and the work disjoint.
 - Read only files needed to understand the implementation boundary.
 - Draft the plan, then use the plan review gate when non-trivial. In a Director-managed worker, return an Oracle Request Packet to the Director instead of contacting an oracle/review thread directly.
 
@@ -98,7 +100,7 @@ Rules:
 - If a plan assumption breaks, pause and report before widening.
 - Commit after a coherent work item passes verification.
 
-If a task becomes multi-item or cross-domain, escalate to the orchestration workflow.
+If a task becomes multi-item or cross-domain, escalate to the orchestration workflow. If it remains one packet but has independent context/review/verification questions, keep ownership in this worker and use worker-internal helpers rather than bloating the owning thread.
 
 If using a delegated worker, the worker may make tactical implementation decisions inside the reviewed boundary. It must report before changing public API shape, schema, auth/security behavior, production config, data migration strategy, or branch/worktree plan.
 

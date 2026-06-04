@@ -18,15 +18,16 @@ Do not print sensitive payloads in chat. Prefer local files and concise status.
 
 Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
 
-Use Browser ChatGPT Pro oracle when:
+Use Browser ChatGPT Pro oracle when a Pro web-model second opinion is materially better than the local oracle/review lane, even if the user did not explicitly say Pro:
 
-- The normal local oracle lane is unavailable, insufficient, or the user specifically wants ChatGPT Pro/web.
-- A plan/result needs independent critique and the extra Browser round trip is justified.
-- The prompt benefits from ChatGPT's current web product context or model mix.
-- The user is already signed in and wants automatic round-trip results.
+- The normal local oracle lane is unavailable, insufficient, or likely to share the same blind spot as the worker/reviewer.
+- A high-ambiguity plan/result needs independent critique and the extra Browser round trip is justified.
+- The prompt benefits from ChatGPT's current web product context, product/UX/content judgment, or model diversity.
+- Broad architecture tradeoffs, conflicting local reviews, or final critique before high-cost work would benefit from an external Pro-model challenge.
+- The user is already signed in and the sentinel or current Browser state suggests Pro may be available.
 - The user explicitly asks to use ChatGPT Pro, ChatGPT in Browser, or the signed-in `chatgpt.com` session.
 
-If the user did not explicitly request Browser/ChatGPT Pro and a local oracle or review lane is sufficient, use the local lane. Browser is higher overhead and may send data outside the local environment.
+When a local oracle or review lane is sufficient, use the local lane. Browser is higher overhead and may send data outside the local environment. Prefer local oracle/review for sensitive payloads, routine source-backed code review, ordinary diffs, and fast review loops.
 
 Do not preflight Pro access by opening or navigating an in-app Browser just to inspect the account. Decide whether the Browser Pro adapter is warranted from the task, user request, sensitivity boundary, and available local lanes. Pro availability inspection happens only as part of executing the selected Browser Pro oracle lane, or in an already-open ChatGPT tab when that inspection is safe and non-disruptive.
 
@@ -96,7 +97,7 @@ Review this plan adversarially. Return:
 5. Verdict: proceed / revise / block
 ```
 
-Model/effort guidance: ChatGPT Pro oracle is normally a high-quality second-opinion lane. Use it only when the expected critique is worth the Browser round trip. Do not use it as a cheap first-pass scout.
+Model/effort guidance: ChatGPT Pro oracle is normally a high-quality second-opinion lane. Use it when the expected critique is worth the Browser round trip, whether or not the user named Pro. Do not use it as a cheap first-pass scout.
 
 ```text
 Review this implementation summary and evidence. Return only findings that could change whether this should ship.
