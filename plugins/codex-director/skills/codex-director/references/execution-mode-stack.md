@@ -12,9 +12,9 @@ Everything else is an execution mode selected by the director thread for a speci
 Director Codex thread
 |-- plugin-bundled hooks
 |   |-- reinforce role boundaries, routing, compaction recovery, closeout
-|-- Codex-native thread layer
-|   |-- create/title/pin/read/steer/archive worker threads
-|   `-- report a runtime blocker when no worker thread fits
+|-- `codex_app` thread layer
+|   |-- create/title/pin/read/steer/archive worker threads through exposed `codex_app` contracts
+|   `-- report a runtime blocker when the active schema is unavailable or does not authorize the needed worker operation
 |-- coordination and status answers only
 |-- one Codex worker thread using a selected workflow
 |-- dynamic workflow for complex task orchestration
@@ -69,11 +69,11 @@ Dynamic workflow is not a replacement for the Director. It is the Director's tas
 
 ### Runtime and context adapters
 
-Use native Codex thread tools for worker-thread lifecycle. Use optional context, oracle, browser, and worker-internal sub-agent tools as implementations when they fit the task. Do not make the Director operating model depend on any non-native thread runner.
+Use exposed `codex_app` thread tools for worker-thread lifecycle, with the active tool schema as the source of truth. Use optional context, oracle, browser, and worker-internal sub-agent tools as implementations when they fit the task. Do not make the Director operating model depend on any non-`codex_app` thread runner or unexposed lifecycle API.
 
 Owns:
 
-- Codex worker-thread creation, steering, polling, archival, and cleanup
+- Codex worker-thread creation, steering, polling, archival, and cleanup through exposed `codex_app` contracts
 - Director hook reminders for role boundaries, compaction recovery, nested helper evidence, and closeout
 - codebase context building
 - oracle reasoning over curated context
@@ -81,7 +81,7 @@ Owns:
 - exports for plan/review handoff
 - live implementation/review/investigation loops inside the owning worker thread
 
-Context and helper tools are not the durable project ledger and are not the native thread layer. They are interchangeable engines for self-contained workflow phases. See [Runtime adapters](runtime-adapters.md) for the adapter contract and fallback rules.
+Context and helper tools are not the durable project ledger and are not the `codex_app` thread layer. They are interchangeable engines for self-contained workflow phases. See [Runtime adapters](runtime-adapters.md) for the adapter contract and fallback rules.
 
 ### Codex worker threads
 
@@ -190,7 +190,7 @@ Director records accepted packet evidence and coordinates any integration worker
 
 Do not let a worker-internal helper create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans under its packet, but the parent dynamic workflow artifact remains the task source of truth.
 
-A runtime without a real worker/thread adapter is a blocker. Stop and record the blocker. Do not execute packet work in the Director thread.
+A runtime without an exposed and authorized `codex_app` worker/thread adapter is a blocker. Stop and record the blocker. Do not execute packet work in the Director thread.
 
 ## How Workflow Playbooks Fit
 

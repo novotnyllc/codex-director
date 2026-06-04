@@ -10,7 +10,7 @@ Plan only. The output is a polished, executable plan that future implementation 
 
 1. Verify project/repo/path scope and local instructions.
 2. Decide where the plan artifact belongs according to project conventions.
-3. Confirm model, thinking level, commit authority, required skills/workflows, and evidence format from the launch contract.
+3. Confirm model, thinking level plus rationale, commit authority, required skills/workflows, and evidence format from the launch contract.
 4. Discover applicable Codex skills; record skills considered, loaded, skipped, and unavailable in activation.
 5. Ask the user for input only when an ambiguity would change architecture, order, scope, or risk.
 6. If the user asks to be involved at a checkpoint, honor that promise. Do not silently continue past a chosen checkpoint.

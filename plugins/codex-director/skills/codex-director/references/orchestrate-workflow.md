@@ -14,7 +14,7 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, p
 2. Check git status in each repo that may be touched.
 3. Decide whether this task needs `codex-dynamic-workflows` task orchestration.
 4. Decide main checkout vs worktree per workstream.
-5. Choose the runtime adapter from [Runtime adapters](runtime-adapters.md): native Codex worker threads, worker-internal native sub-agents, or context engines.
+5. Choose the runtime adapter from [Runtime adapters](runtime-adapters.md): `codex_app` worker threads, worker-internal sub-agents, or context engines.
 6. Discover/load applicable Codex skills for orchestration and record which skills each worker must consider.
 7. Create or update the active work ledger:
    - task id
@@ -40,9 +40,9 @@ Escalate to `.workflow/<slug>/` and mirror this state into `state.json`, packet 
 Adapter examples:
 
 ```text
-Native thread tools: create worker thread -> send bounded brief -> read/poll -> steer -> archive.
-Worker-internal sub-agents: spawn bounded helper -> wait/poll -> roll up evidence into owning worker.
-Unavailable thread runtime: record blocker -> ask for a worker-thread-capable runtime before executing work.
+`codex_app` thread tools: create worker thread when authorized -> send bounded brief -> poll with `read_thread` -> steer with `send_message_to_thread` -> archive with `set_thread_archived`.
+Worker-internal sub-agents: spawn bounded helper -> wait/poll only if that helper adapter exposes it -> roll up evidence into owning worker.
+Unavailable or unauthorized thread runtime: record blocker -> ask for a worker-thread-capable runtime before executing work.
 ```
 
 Do not proceed until the ledger records worker handles for all project work.
@@ -120,7 +120,7 @@ Fix the plan before dispatch.
 
 ## Phase 5: Dispatch
 
-Default: one fresh Codex worker thread per independent item.
+Default: one fresh Codex worker thread per independent item when the active `codex_app` contract authorizes worker creation for the Director scope.
 
 Use one continuing worker when:
 
@@ -134,7 +134,7 @@ Every worker brief must include:
 - exact item responsibility
 - starting prompt and required skills/workflow references
 - exact model or inherited profile
-- thinking level
+- thinking level plus rationale
 - sibling work and areas to avoid
 - done criteria
 - research/plan context
@@ -163,7 +163,7 @@ Done when:
 Leave alone:
 Sibling work:
 Model:
-Thinking:
+Thinking plus rationale:
 Codex skills to consider:
 Required skills/workflows:
 Required workflow:
@@ -178,7 +178,7 @@ Verbosity limit:
 Stop and report if:
 ```
 
-If using an adapter with wait/poll semantics, start parallel workers detached, then wait or poll for the first completed/blocked worker and loop over remaining handles. For native Codex thread tools, poll with thread reads. Do not send a final completion rollup while worker handles are running or waiting for input; send an active status and next check-in plan instead.
+If using an adapter with wait/poll semantics, start parallel workers according to that adapter's contract, then wait or poll for the first completed/blocked worker and loop over remaining handles. For `codex_app` thread tools, there is no blocking wait operation; poll with `codex_app.read_thread`. Use low/medium thinking for routine polling and steering, high for substantive implementation/review steering, and xhigh only for risky or final decisions. Do not send a final completion rollup while worker handles are running or waiting for input; send an active status and next check-in plan instead.
 
 ## Phase 6: Monitor
 
@@ -203,7 +203,7 @@ If a worker asks for scope or authority:
 3. Update the ledger if the answer changes scope, branch, worktree, or done criteria.
 4. If the answer would change the user's requested outcome, pause for user input.
 
-If a worker silently broadens scope, steer once with the original boundary. If it continues, cancel/archive that worker and re-dispatch a clean brief.
+If a worker silently broadens scope, steer once with the original boundary. If it continues, request stop through the exposed thread contract, record `cancel_requested` or `stale`, archive only after capturing the last readable state, and re-dispatch a clean brief when authorized.
 
 ## Phase 7: Verify Each Item
 

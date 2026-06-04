@@ -6,11 +6,13 @@ Use this when the director thread is choosing Codex worker thread roles, model f
 
 Use delegation aggressively when it improves speed, coverage, review independence, risk control, context management, or token economy. Do not wait for the user to say "subagents" or "swarm".
 
-Use `gpt-5.3-codex-spark` as a separate-bucket throughput model for bounded work. It is older, so it should not be the final authority for high-stakes judgment. Use the main/default stronger model for planning authority, conflict resolution, integration, security/data decisions, and final completion audits.
+Use `gpt-5.3-codex-spark` as a separate-bucket throughput model for bounded work where volume, parallelism, or token economy matters. It is two generations behind the current main model family in this schema, so treat it as a scout/helper lane, not an authority lane. Use the main/default stronger model for Director judgment, planning authority, non-mechanical code, conflict resolution, integration, security/data decisions, and final completion audits.
 
-`xhigh` is an escalation level, not a standing role.
+Director-level judgment defaults to `high`: routing, decomposition, risk assessment, worker selection, evidence reconciliation, integration decisions, and completion/blocker calls are the Director's real work. Use `xhigh` only for high-risk or final-authority gates, not as a standing mode.
 
-Native Codex thread tools accept these model override values: `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, and `gpt-5.3-codex-spark`. They accept these thinking levels: `low`, `medium`, `high`, and `xhigh`. Omit the model only when the launch contract intentionally inherits the current project/default profile; otherwise write the exact model id and thinking level into the worker brief.
+Implementation and code-writing workers default to main/high. Downgrade to medium/Spark only for mechanical low-blast-radius edits with obvious verification, and use low/Spark only for status, lookup, or narrow read-only probes. Escalate implementation to main/xhigh for architecture, auth/security, data models/migrations, production config, concurrency, payments/permissions, cross-repo contracts, or hard-to-reverse decisions.
+
+Use only model and thinking overrides accepted by the active `codex_app` thread schema. The current schema lists model override values `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, and `gpt-5.3-codex-spark`, and thinking levels `low`, `medium`, `high`, and `xhigh`. Omit the model only when the launch contract intentionally inherits the current project/default profile; otherwise write the exact active-schema model id and thinking level into the worker brief.
 
 ## Agent Profiles
 
@@ -20,7 +22,7 @@ Native Codex thread tools accept these model override values: `gpt-5.5`, `gpt-5.
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `prompt-exporter` | Package context for oracle/review lanes | Spark | medium |
 | `browser-oracle-runner` | Open chatgpt.com with Browser, start a new chat, select the highest-capability available or requested model, record the visible model label, submit prompt, wait, and capture result | Spark | medium |
-| `implementation-worker` | Bounded build/refactor/test packet with clear instructions | Spark or main | high |
+| `implementation-worker` | Bounded build/refactor/test packet with code-writing or verification | main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | Spark first pass, main for final/high-risk | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | main | high |
 | `integration-auditor` | Integrate packet results, reconcile commits/worktrees, audit evidence | main | high/xhigh |
@@ -44,7 +46,7 @@ Fresh worker is the default for independent packets. Steer one existing worker o
 
 ## Spark Routing
 
-Use Spark for bounded, evidence-oriented work:
+Use Spark for bounded, evidence-oriented throughput work:
 
 - research scouts
 - status summaries
@@ -53,13 +55,14 @@ Use Spark for bounded, evidence-oriented work:
 - Browser ChatGPT oracle automation
 - first-pass reconnaissance
 - mechanical edits with clear tests
-- low-risk packet execution
-- first-pass adversarial review
+- very contained low-risk packet execution
+- first-pass adversarial review where a main-model final verdict will follow if findings matter
 - "find evidence for/against this one claim"
 
 Do not use Spark as final authority for:
 
 - architecture choices with long-term consequences
+- non-mechanical implementation
 - subtle code review
 - security/auth/data/migration decisions
 - conflicting worker output integration
@@ -76,6 +79,7 @@ Use the main/default stronger model for:
 - final plan review
 - cross-repo integration
 - conflict resolution
+- ordinary implementation with design judgment
 - high-stakes review
 - security/auth/data/migration judgment
 - deciding whether work is complete or blocked
@@ -89,33 +93,39 @@ Use `low` for:
 - command discovery
 - file-location probes
 - narrow "find this" scouts
+- routine poll/read/steer prompts that do not require judgment
 
 Use `medium` for:
 
-- Browser oracle round trips
+- Browser oracle automation
 - prompt export
 - ordinary research scouts
 - simple bounded reviews
-- small implementation packets
+- mechanical docs/config/test-data edits with obvious verification
+- worker follow-ups that continue an already-reviewed plan without changing scope
 
 Use `high` for:
 
+- Director routing, decomposition, staffing, evidence reconciliation, and completion judgment
 - bounded implementation with real code changes
 - planning from research
 - ordinary adversarial review
 - refactors
 - optimization iterations
 - dynamic workflow packet execution
+- code-writing workers unless the edit is purely mechanical
 
 Use `xhigh` for:
 
 - final plan review before complex implementation
 - auth/security/data/migration review
+- architecture, concurrency, payments, permissions, production config, or cross-repo contract changes
 - conflicting evidence resolution
 - cross-repo reconciliation
 - root-cause analysis with contradictory evidence
 - deciding whether a complex Goal is complete or blocked
 - production-risk decisions
+- final authority when worker outputs disagree or verification is indirect
 
 ## Spark `xhigh`
 
@@ -148,6 +158,6 @@ Escalate from `high` to `xhigh` when:
 
 ## Token Economy
 
-Prefer many narrow Spark scouts over one giant context load when questions are independent. Prefer one main-model integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts.
+Prefer many narrow Spark scouts over one giant context load when questions are independent and the cost of a mediocre answer is low. Prefer one main-model integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts.
 
 Clean up completed runtime sessions after their evidence is recorded. Keeping many stale sessions open increases monitoring cost and makes the Director ledger harder to trust.

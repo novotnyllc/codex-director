@@ -8,7 +8,7 @@ Separate evidence gathering from implementation. Research should feed planning, 
 
 ## Phase 0: Triage
 
-Confirm the launch contract first: model, thinking level, commit authority, required skills/workflows, repo/path, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
 
 Classify the request:
 

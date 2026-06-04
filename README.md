@@ -44,7 +44,7 @@ For a multi-repo workspace, name the scope directly:
 Start $codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
 ```
 
-The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
+The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
 
 ## Structure
 

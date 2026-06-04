@@ -7,7 +7,7 @@ description: Use when setting up or operating a project Codex Director thread fo
 
 ## Quick Start
 
-Create or operate one pinned Director thread for a single project scope. The Director coordinates; bounded Codex worker threads implement, investigate, plan, review, refactor, or optimize.
+Create or operate one pinned Director thread for a single project scope. The Director coordinates; bounded Codex worker threads implement, investigate, plan, review, refactor, or optimize. A user request to set up or use the Director is the explicit separate-thread authorization for worker threads inside that project scope; outside that authorization, follow the active `codex_app` tool contract.
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
@@ -34,12 +34,12 @@ Before answering or dispatching, decide:
 - Risk: secrets, production, migrations, auth, security, destructive ops, or user-facing behavior?
 - Delegation: coordination-only answer, Codex worker thread, worker-internal sub-agent, oracle, or dynamic workflow?
 - Skill discovery: which Codex skills should the Director load now, and which should each worker consider/load/report?
-- Launch contract: what starting prompt, model, thinking level, skills/workflow references, context artifacts, commit authority, and evidence format should each worker receive?
+- Launch contract: what starting prompt, model, thinking level plus rationale, skills/workflow references, context artifacts, commit authority, and evidence format should each worker receive?
 - Git/worktree: main checkout, isolated worktree, branch, commit cadence, and reconciliation path?
 - Goal fit: Director ledger only, worker Codex Goal, or both?
 
 ## Context Workflow Routing
-Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Discover/load applicable Codex skills before dispatch, then require workers to re-run skill activation and report what they loaded or skipped. Native Codex thread tools own worker lifecycle; context, oracle, browser, and worker-internal sub-agent tools may implement lower-layer phases, but the Director brief must not depend on external workflow names or runner-specific parameters. RepoPrompt `agent_run` and RepoPrompt agents are lower-layer context/review/oracle helpers only; when native Codex thread tools are available, never use them as Director worker-thread dispatch.
+Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Discover/load applicable Codex skills before dispatch, then require workers to re-run skill activation and report what they loaded or skipped. The active `codex_app` thread tool schema owns worker lifecycle; context, oracle, browser, and worker-internal sub-agent tools may implement lower-layer phases, but the Director brief must not depend on external workflow names, runner-specific parameters, or unexposed thread APIs. RepoPrompt `agent_run` and RepoPrompt agents are lower-layer context/review/oracle helpers only; when `codex_app` thread tools are available and authorized by their active contract, never use them as Director worker-thread dispatch.
 
 - Research: repo/docs/memory/prior-art/external scout pass before planning.
 - Investigate: deep read-only diagnosis or "how does this work?"
@@ -51,7 +51,7 @@ Select the narrowest self-contained workflow that fits. Check dynamic workflow e
 - Refactor: behavior-preserving structural cleanup.
 - Optimize: performance or efficiency work.
 
-Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs worker-thread creation, context building, oracle review, Browser ChatGPT, worktrees, commits, Codex Goals, or runtime hook awareness. Native Codex thread tools are the first-class worker lifecycle adapter; context engines, hooks, and sub-agents live at lower layers. The adapter implements the phase; the workflow contract remains self-contained.
+Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs worker-thread creation, context building, oracle review, Browser ChatGPT, worktrees, commits, Codex Goals, or runtime hook awareness. `codex_app` thread tools are the first-class worker lifecycle adapter when their active schema exposes and authorizes the needed operation; context engines, hooks, and sub-agents live at lower layers. The adapter implements the phase; the workflow contract remains self-contained.
 
 ## Gates
 
@@ -71,11 +71,11 @@ Commit regularly in logical units only when the worker brief grants `commit-when
 
 ## Worker Thread Rule
 
-Use native Codex thread tools such as `create_thread`, `send_message_to_thread`, `read_thread`, `list_threads`, `set_thread_title`, `set_thread_pinned`, and `set_thread_archived` for Director worker lifecycle whenever they are available. If those tools are unavailable, say so explicitly and mark the worker adapter `simulated-unavailable` or ask/continue locally for coordination-only work; do not silently substitute RepoPrompt agents.
+Use `codex_app.create_thread`, `codex_app.send_message_to_thread`, `codex_app.read_thread`, `codex_app.list_threads`, `codex_app.set_thread_title`, `codex_app.set_thread_pinned`, and `codex_app.set_thread_archived` for Director worker lifecycle whenever the active tool schema exposes and authorizes them. If those tools are unavailable or the schema does not authorize the needed lifecycle operation, say so explicitly and mark the worker adapter `simulated-unavailable` or ask/continue locally for coordination-only work; do not silently substitute RepoPrompt agents or invent missing APIs.
 
 Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope.
 
-Before starting a worker thread, the Director must choose the starting prompt, exact model or inherited profile, thinking level, required skills or workflow references, context/artifact handoff, commit authority, done criteria, and evidence format. Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md) to choose Spark for bounded throughput work, the main model for judgment/integration, and `xhigh` only for escalations.
+Before starting a worker thread, the Director must choose the starting prompt, exact model or inherited profile, thinking level plus rationale, required skills or workflow references, context/artifact handoff, commit authority, done criteria, and evidence format. Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md): Director judgment and code-writing workers default to `high`; use `medium` for mechanical edits or bounded research, `low` for status/probes, and `xhigh` only for high-risk or final-authority gates.
 
 ## Goals Policy
 

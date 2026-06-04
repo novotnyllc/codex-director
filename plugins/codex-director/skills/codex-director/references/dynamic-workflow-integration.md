@@ -57,15 +57,15 @@ Do not invoke it for small single-thread tasks. Start one Codex worker thread wi
 
 The Director creates real Codex worker threads for packets that benefit from isolation. The dynamic workflow packet plan defines what each worker owns. Packets too small for their own thread are combined with neighboring packets or handled by steering an existing worker; packet work is never executed in the Director thread.
 
-Workers should use the matching self-contained workflow inside their packet:
+Workers should use the matching self-contained workflow and thinking policy inside their packet:
 
-- investigate/research workflow for research or diagnosis packets
-- deep plan workflow for planning packets
-- build workflow for implementation packets
-- orchestration workflow for packet-internal decomposition
-- review workflow for review packets
-- refactor workflow for behavior-preserving cleanup packets
-- optimize workflow for performance packets
+- investigate/research workflow for research or diagnosis packets; use low/medium for narrow scouts and high for synthesis that affects the plan
+- deep plan workflow for planning packets; use high by default and xhigh for high-risk architecture/security/data plans
+- build workflow for implementation packets; use main/high by default, Spark only for mechanical or very contained low-risk code, medium only for mechanical edits, and xhigh for risky code
+- orchestration workflow for packet-internal decomposition; use main/high for decomposition/integration and medium/Spark for packet drafting/status
+- review workflow for review packets; use high by default and xhigh for risky final verdicts or conflicting evidence
+- refactor workflow for behavior-preserving cleanup packets; use main/high by default, Spark only for narrow mechanical refactors, xhigh for public contract or architecture-boundary changes
+- optimize workflow for performance packets; use medium/Spark for measurement, high for optimization code, and xhigh for concurrency/data/production-risk changes
 
 Do not let a worker's local workflow overwrite the `.workflow/` task source of truth. It may produce subplans and exports, but packet status and integration decisions belong in the dynamic workflow artifact.
 
@@ -87,9 +87,9 @@ Before creating packet briefs, record:
 
 - Codex skills loaded for Director-level routing
 - Codex skills each packet worker must consider
-- model and thinking level per packet
+- model and thinking level plus rationale per packet
 - commit authority per packet
-- native thread handle requirements
+- `codex_app` thread handle requirements
 - stale/cancel policy
 - evidence and artifact retention policy
 

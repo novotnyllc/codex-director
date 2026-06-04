@@ -13,7 +13,7 @@ Refactoring preserves behavior. If behavior changes are needed, name them as bug
 3. Decide branch/worktree.
 4. Confirm commit authority from the worker brief.
 5. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and unavailable in activation.
-6. Confirm model and thinking level from the launch contract.
+6. Confirm model and thinking level plus rationale from the launch contract.
 7. Identify tests that prove behavior is preserved.
 8. Define "out of scope" explicitly.
 
