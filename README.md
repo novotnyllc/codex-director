@@ -46,7 +46,31 @@ Start $codex-director for this workspace. Treat admin/, website/, and ops/ as se
 
 The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
 
-For status, checkup, and lookup requests, the Director answers only from its existing ledger or conversation state. If the answer would require repo/docs/code inspection, it must dispatch or continue a Codex worker thread instead of inspecting repo/docs/code directly in the Director thread.
+### Director boundary
+
+The Director thread coordinates only. It may answer from its existing ledger or conversation state, draft worker briefs, monitor and steer worker threads, reconcile evidence, and produce final status. It must delegate repo/docs/code inspection, tests, smoke checks, production/service checks, file edits, deploys, external project/service writes, migrations, schema/data fixes, rollback/repair, and reviews to Codex worker threads or dynamic workflow packets. If worker thread tools are unavailable for required project work, it reports a runtime blocker instead of doing the work inline.
+
+Status, checkup, and lookup requests follow the same rule: ledger-only status can be answered inline; repo/prod-backed status must be delegated.
+
+Examples:
+
+```text
+Coordinate this production incident.
+```
+
+Expected behavior: dispatch a read-only verifier worker, stop for any required safety/production authority, dispatch remediation through a bounded worker, route independent oracle/review, dispatch final verification, archive/cleanup after evidence capture, and return concise final evidence.
+
+```text
+Here are four outcomes I need this week: <list>.
+```
+
+Expected behavior: route each distinct topic to a bounded worker thread or dynamic workflow packet, record handles and expected evidence, stop for more instructions, and avoid live polling narration.
+
+```text
+What is blocked right now?
+```
+
+Expected behavior: answer from the Director ledger when possible; dispatch or continue workers for any repo/docs/code/prod-backed status.
 
 The Director is optimized for rapid-fire intake: each distinct ask should be routed to a bounded worker thread or workflow packet, recorded with its handle and expected evidence, then released so the Director can immediately accept the next instruction.
 

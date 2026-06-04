@@ -25,9 +25,10 @@ CONTEXT_MESSAGES = {
         "steer, reconcile evidence, and keep project work in Codex worker threads."
     ),
     "UserPromptSubmit": (
-        "[codex-director] Route before doing work: coordination answer, Codex "
-        "worker thread, or dynamic workflow packets. Keep the Director available "
-        "for instructions and check-ins."
+        "[codex-director] If this is the Director thread, route before doing work. "
+        "If this needs repo/docs/code/prod inspection, create or continue a worker; "
+        "do not inspect, test, edit, deploy, query production, or narrate polling "
+        "inline. Use dynamic workflow for production or external project/service writes."
     ),
     "SubagentStart": (
         "[codex-director] Nested helpers are worker-internal. Keep scope under "
@@ -37,8 +38,10 @@ CONTEXT_MESSAGES = {
 
 SYSTEM_MESSAGES = {
     "Stop": (
-        "[codex-director] Closeout reminder: capture worker evidence, blockers, "
-        "stale/cancel state, cleanup needs, and archive decisions."
+        "[codex-director] Closeout reminder: capture worker evidence; record "
+        "missing activation/review/oracle blockers; account for active, stale, "
+        "and cancelled workers; note cleanup needs and archive decisions; keep "
+        "routine progress narration out of chat."
     ),
     "SubagentStop": (
         "[codex-director] Nested helper closeout: record concise evidence in "

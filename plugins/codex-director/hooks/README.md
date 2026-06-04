@@ -2,7 +2,7 @@
 
 Codex Director bundles scoped advisory hooks through `hooks/hooks.json`.
 
-These hooks remind Director-marked threads about role boundaries and closeout hygiene. They keep runtime nudges close to the hook implementation while the skill docs define the Director workflow itself.
+These hooks remind Director-marked threads about role boundaries, no-inline repo/prod inspection, worker-only execution, dynamic workflow for production/external project/service writes, and activation/review/oracle/cleanup/archive closeout hygiene. They keep runtime nudges close to the hook implementation while the skill docs define the Director workflow itself.
 
 ## Files
 
@@ -14,8 +14,8 @@ These hooks remind Director-marked threads about role boundaries and closeout hy
 | Event | Purpose |
 |---|---|
 | `SessionStart` | Restore the role boundary on Director-marked starts and compact resumes |
-| `UserPromptSubmit` | Re-check routing before handling a Director-marked instruction |
-| `Stop` | Emit a structured closeout warning for Director-marked turns |
+| `UserPromptSubmit` | Re-check routing before handling a Director-marked instruction; repo/docs/code/prod inspection and project execution belong in workers |
+| `Stop` | Emit a structured closeout warning for evidence, activation/review/oracle blockers, stale/cancel state, cleanup, and archive decisions |
 | `SubagentStart` | Remind Director-marked nested helpers they are scoped under an owning worker or packet |
 | `SubagentStop` | Emit a structured warning to roll helper evidence back to the owning worker or packet |
 
@@ -29,7 +29,7 @@ The runner emits output only when the submitted prompt or recent transcript cont
 - `Stop` and `SubagentStop` emit structured `systemMessage` only; they do not block or force continuation.
 - Unmarked threads receive no hook output.
 
-Do not use Director hooks to block ordinary worker tools or routine turn completion. Rely on worker briefs, activation reports, monitoring, review gates, and ledger state for enforcement.
+Do not use Director hooks to block ordinary worker tools, force worker execution, or prevent routine turn completion. Rely on worker briefs, activation reports, monitoring, review gates, and ledger state for enforcement.
 
 ## Trust
 
