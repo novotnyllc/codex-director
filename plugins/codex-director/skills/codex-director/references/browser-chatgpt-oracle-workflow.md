@@ -4,9 +4,9 @@ Use when the Director needs an external second-opinion result from ChatGPT Pro t
 
 ## Principle
 
-The Browser ChatGPT Pro oracle is an implementation of the oracle lane. It should assemble the prompt payload from the current task, selected evidence, and existing plan/review/research artifacts, then use `@Browser` to complete the ChatGPT round trip only after the Director has selected this adapter for a real oracle request. It may open `https://chatgpt.com/`, start a new chat, inspect the model picker/account UI for Pro-capable availability, select ChatGPT Pro or the requested Pro-tier model when available, send the prompt, wait for the response to finish even when it takes a while, extract the answer, save the result as an artifact, and feed the result back into the plan/review/build workflow. It should not become a manual copy/paste chore for the user, and it should not open or navigate an in-app Browser merely to check whether Pro might be available.
+The Browser ChatGPT Pro oracle is an implementation of the oracle lane. It should assemble the prompt payload from the current task, selected evidence, and existing plan/review/research artifacts, then use `@Browser` to complete the ChatGPT round trip only after the Director has selected this lane for a real oracle request. It may open `https://chatgpt.com/`, start a new chat, inspect the model picker/account UI for Pro-capable availability, select ChatGPT Pro or the requested Pro-tier model when available, send the prompt, wait for the response to finish even when it takes a while, extract the answer, save the result as an artifact, and feed the result back into the plan/review/build workflow. It should not become a manual copy/paste chore for the user, and it should not open or navigate an in-app Browser merely to check whether Pro might be available.
 
-Do not require a prompt export file just because Browser ChatGPT Pro is the selected oracle adapter. Write a prompt artifact only when it adds real value: durable audit trail, large payload/upload, resumability after Browser failure, cross-thread handoff, or explicit user request. When this workflow is selected for a delegated oracle-runner worker, that runner must complete the Browser round trip unless blocked by sign-in, Pro availability, safety, or browser automation failure. Other workers should request this lane through the Director. Do not run a non-Pro ChatGPT model and report it as a Pro oracle; when Pro is unavailable, prefer the built-in Codex oracle/review lane with main/`xhigh`.
+Do not require a prompt export file just because Browser ChatGPT Pro is the selected oracle lane. Write a prompt artifact only when it adds real value: durable audit trail, large payload/upload, resumability after Browser failure, cross-thread handoff, or explicit user request. When this workflow is selected for a delegated oracle-runner worker, that runner must complete the Browser round trip unless blocked by sign-in, Pro availability, safety, or browser automation failure. Other workers should request this lane through the Director. Do not run a non-Pro ChatGPT model and report it as a Pro oracle; when Pro is unavailable, prefer the built-in Codex oracle/review lane with main/`xhigh`.
 
 ## Safety Gate
 
@@ -16,7 +16,7 @@ Do not print sensitive payloads in chat. Prefer local files and concise status.
 
 ## Phase 0: Decide Whether Browser ChatGPT Pro Oracle Is Appropriate
 
-Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
 
 Use Browser ChatGPT Pro oracle when a Pro web-model second opinion is materially better than the local oracle/review lane, even if the user did not explicitly say Pro:
 
@@ -29,7 +29,7 @@ Use Browser ChatGPT Pro oracle when a Pro web-model second opinion is materially
 
 When a local oracle or review lane is sufficient, use the local lane. Browser is higher overhead and may send data outside the local environment. Prefer local oracle/review for sensitive payloads, routine source-backed code review, ordinary diffs, and fast review loops.
 
-Do not preflight Pro access by opening or navigating an in-app Browser just to inspect the account. Decide whether the Browser Pro adapter is warranted from the task, user request, sensitivity boundary, and available local lanes. Pro availability inspection happens only as part of executing the selected Browser Pro oracle lane, or in an already-open ChatGPT tab when that inspection is safe and non-disruptive.
+Do not preflight Pro access by opening or navigating an in-app Browser just to inspect the account. Decide whether the Browser Pro lane is warranted from the task, user request, sensitivity boundary, and available local lanes. Pro availability inspection happens only as part of executing the selected Browser Pro oracle lane, or in an already-open ChatGPT tab when that inspection is safe and non-disruptive.
 
 ### Capability Sentinel
 
@@ -47,7 +47,7 @@ The sentinel is advisory and may be stale. A missing, unreadable, expired, or sa
 When the sentinel is expired and Browser Pro would materially affect routing, a non-invasive refresh is allowed only if one of these is already available:
 
 - An already-open ChatGPT tab in the in-app Browser that can be inspected without navigation, reload, chat submission, account-settings browsing, or disruption to an in-progress user chat.
-- Browser/tab metadata exposed by the active Browser adapter that can identify a safe existing ChatGPT surface without opening a new page.
+- Browser/tab metadata exposed by active Browser tooling that can identify a safe existing ChatGPT surface without opening a new page.
 - A just-completed selected Browser Pro oracle run, where the model picker was already inspected as part of the run.
 
 If none of those surfaces exists, leave the sentinel stale or record `pro_available: "unknown"` with `refresh_status: "deferred_no_safe_surface"`. Do not ask the user to log in or open Browser merely to refresh the sentinel. Ask for login only after a real Browser Pro oracle run has been selected and sign-in is required to complete that run.
@@ -105,7 +105,7 @@ Review this implementation summary and evidence. Return only findings that could
 
 ## Phase 2: Submit Through Browser
 
-Use the `@Browser` plugin and its in-app browser session after the Director has selected this adapter for an actual oracle request. Do not satisfy this workflow by only writing an export file, by using generic web browsing, or by asking the user to paste the prompt manually. Do not open or navigate Browser solely to test whether ChatGPT Pro is available.
+Use the `@Browser` plugin and its in-app browser session after the Director has selected this lane for an actual oracle request. Do not satisfy this workflow by only writing an export file, by using generic web browsing, or by asking the user to paste the prompt manually. Do not open or navigate Browser solely to test whether ChatGPT Pro is available.
 
 1. Connect to the selected in-app Browser tab, preferring an already-open ChatGPT tab when one exists and is safe to inspect.
 2. Navigate to `https://chatgpt.com/` only because this Browser Pro oracle run has been selected, not just for availability preflight.

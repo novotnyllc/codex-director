@@ -8,7 +8,7 @@ Review is an independent challenge pass. Findings lead. Summaries and praise are
 
 ## Phase 0: Confirm Scope
 
-Start by confirming the worker launch contract: model, thinking level plus rationale, commit authority, relevant Codex skills, and the required review workflow. Record skills considered, loaded, skipped, and unavailable in activation.
+Start by confirming the worker launch contract: model, thinking level plus rationale, commit authority, relevant Codex skills, and the required review workflow. Record skills considered, loaded, skipped, and not loaded in activation.
 
 Determine what is being reviewed:
 

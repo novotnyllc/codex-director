@@ -37,14 +37,13 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, p
 
 Escalate to `.workflow/<slug>/` and mirror this state into `state.json`, packet files, and result files once the task has multiple worker handles, worktrees, approvals, integration order, durable review/oracle artifacts, or stale/cancel state that must survive turns.
 
-Adapter examples:
+Codex lifecycle examples:
 
 ```text
 `codex_app` thread tools: create worker thread when authorized -> send bounded brief -> poll with `read_thread` -> steer with `send_message_to_thread` -> archive with `set_thread_archived`.
 Worker callback signal: when explicitly authorized and exposed in the worker runtime, worker sends one Director-thread callback for final/blocker/needs-user/oracle-request/handoff.
 Heartbeat monitor: after dispatch, schedule or update a watchdog Director thread heartbeat instead of keeping the Director turn open solely to poll.
 Worker-internal sub-agents: spawn bounded helper -> wait/poll according to that helper's concrete tool contract -> roll up evidence into owning worker.
-Unavailable or unauthorized thread runtime: record blocker -> ask for a worker-thread-capable runtime before executing work.
 ```
 
 Do not proceed until the ledger records worker handles for all project work.

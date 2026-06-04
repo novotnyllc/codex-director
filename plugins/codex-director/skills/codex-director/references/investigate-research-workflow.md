@@ -8,7 +8,7 @@ Separate evidence gathering from implementation. Research should feed planning, 
 
 ## Phase 0: Triage
 
-Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
 
 Classify the request:
 
@@ -46,7 +46,7 @@ Classify each fact before relying on it:
 - External current fact: verify from primary/current sources before relying on it.
 - Sensitive/private fact: inspect locally and report only summary or artifact path.
 
-For unstable external facts such as current APIs, package versions, laws, prices, product behavior, model availability, schedules, or security advisories, browse or use an available current-source adapter. Prefer primary sources and include dates.
+For unstable external facts such as current APIs, package versions, laws, prices, product behavior, model availability, schedules, or security advisories, browse or use an available current-source tool. Prefer primary sources and include dates.
 
 ## Phase 2: Scout
 

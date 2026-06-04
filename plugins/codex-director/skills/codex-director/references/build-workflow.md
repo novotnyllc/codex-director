@@ -13,7 +13,7 @@ Do not jump from request to edits. Build enough context to produce a grounded pl
 3. Identify unrelated dirty changes and leave them alone.
 4. Decide git handling: main checkout/branch or an isolated worktree.
 5. Confirm commit authority from the worker brief.
-6. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and unavailable in activation.
+6. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and not loaded in activation.
 7. Confirm model and thinking level plus rationale from the launch contract.
 8. Create a Codex goal if the task is multi-turn, interruption-prone, or requires repeated verification.
 
@@ -48,7 +48,7 @@ Build context with the lightest adequate path:
 - Read only files needed to understand the implementation boundary.
 - Draft the plan, then use the plan review gate when non-trivial. In a Director-managed worker, return an Oracle Request Packet to the Director instead of contacting an oracle/review thread directly.
 
-When a context engine is available, prefer a plan pass before editing. Use the adapter's "build context and propose a plan" operation, then keep the selected context narrow enough for the task. For no engine, write a compact local plan after targeted reads.
+When a context engine is available, prefer a plan pass before editing. Use that tool's "build context and propose a plan" operation, then keep the selected context narrow enough for the task. For no engine, write a compact local plan after targeted reads.
 
 The plan must include:
 

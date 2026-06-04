@@ -29,7 +29,7 @@ Use these layers:
 2. Native sub-agent tools are worker-internal helpers for decomposition, verification, or bounded helper tasks when the owning worker chooses them.
 3. Context, oracle, and Browser tools provide evidence, review, and durable artifacts; they do not own Codex worker lifecycle.
 4. Local shell/git/file tools are only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread or to satisfy repo/doc/code-backed status, checkup, or lookup requests.
-5. Director setup/activation confirms the required latest-Codex worker/thread/project tooling before any Director operation. The skill assumes these native definitions are present; do not add old-version or simulation branches for Codex worker lifecycle.
+5. Director setup/activation confirms the required latest-Codex worker/thread/project tooling before any Director operation. The skill assumes these native definitions are present and treats them as the Director worker lifecycle contract.
 
 ## Setup Contract Confirmation
 
@@ -44,7 +44,7 @@ Schema notes:
 Excluded hits:
 ```
 
-Do not document old-version compatibility or simulation branches for these Codex-native tools. Latest Codex is the premise of the skill.
+Latest Codex is the premise of the skill; keep this setup record focused on the active Codex-native thread/project contract.
 
 Exclude these hits from `codex_app` thread detection:
 
@@ -242,11 +242,11 @@ Cancellation is a state transition in the Director ledger:
 running -> cancel_requested -> stale | completed-cancelled -> archived
 ```
 
-Adapter discovery may add a hard-cancel operation in a later `codex_app` schema. The current `codex_app` thread schema does not expose hard cancel, so use `codex_app.send_message_to_thread` with a stop instruction, then poll with `codex_app.read_thread`. Do not archive a worker before recording its last known status, partial artifacts, branch/worktree, and cleanup needs.
+The current `codex_app` thread contract uses cooperative cancellation: send a stop instruction with `codex_app.send_message_to_thread`, then poll with `codex_app.read_thread`. Do not archive a worker before recording its last known status, partial artifacts, branch/worktree, and cleanup needs.
 
 Partial worktree cleanup is project work. The Director records the cleanup requirement and dispatches a cleanup/reconciliation worker. The Director does not resolve files, remove branches, or rewrite working trees inline.
 
-## Hooks Adapter
+## Hooks Tooling
 
 Codex supports lifecycle hooks and loads them from `hooks.json`, inline `[hooks]` config, and plugin-bundled `hooks/hooks.json`. Hooks are enabled by default under the canonical `features.hooks` key, but non-managed hooks still require trust review and can be disabled by runtime policy.
 
@@ -261,7 +261,7 @@ The Director plugin bundles hooks as an optional, scoped advisory layer. Impleme
 
 Hooks do not create threads and are not a substitute for `codex_app.create_thread`. They are lifecycle reminders around the `codex_app` thread tooling: role context, scoped warnings, and state hygiene prompts. Worker briefs, activation reports, monitoring, review gates, and ledger state remain the enforcement surface.
 
-## Worker-Internal Sub-Agent Adapter
+## Worker-Internal Sub-Agent Helper Layer
 
 Sub-agents and other native delegation helpers sit below Codex worker threads. Most non-trivial Director-started workers should consider themselves packet coordinators, not monolithic executors. Use worker-internal helpers when the active workflow allows packet-internal decomposition and the helper can return concise evidence to the owning thread.
 
@@ -286,7 +286,7 @@ Rules:
 8. Roll up helper evidence into the worker summary; do not expose helper transcripts as the Director ledger.
 9. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning packet.
 
-## Context Engine Adapter
+## Context Engine Helper Layer
 
 A context engine can implement research, planning, review, or oracle phases. The Director still owns the workflow contract.
 
@@ -299,7 +299,7 @@ Usual mapping:
 - Oracle: curate selection first, then oracle send in plan/review/chat mode.
 - Handoff: export plan/review/oracle responses only when workers need a stable artifact path.
 
-Context-engine oracle turns are worker-internal or Director-owned context helpers. When the oracle is a separate Codex thread, use the Codex Oracle Thread Adapter below; do not let ordinary worker threads message that oracle directly.
+Context-engine oracle turns are worker-internal or Director-owned context helpers. When the oracle is a separate Codex thread, use the Codex Oracle Thread Lane below; do not let ordinary worker threads message that oracle directly.
 
 Do not document a context engine as part of the Director's `codex_app` thread runtime. It may be adopted later when it is the best context builder, but the Codex Director skill remains Codex-app-native and the worker lifecycle remains `codex_app` threads.
 
@@ -310,7 +310,7 @@ When no context engine is available:
 - Write a short context note with files read, facts found, assumptions, and unknowns.
 - Use a Director-mediated separate worker/reviewer as the oracle lane when possible.
 
-## Codex Oracle Thread Adapter
+## Codex Oracle Thread Lane
 
 Use this to replicate RepoPrompt-style oracle behavior with Codex threads when Browser ChatGPT Pro is unavailable, ambiguous, unsafe for the payload, unnecessary, or lower-value than a local source-backed review.
 
@@ -321,7 +321,7 @@ Use this to replicate RepoPrompt-style oracle behavior with Codex threads when B
 - Continue the same oracle thread when follow-up depends on the same evidence lineage. Create a fresh oracle thread when the question, risk level, task, or independence boundary changes.
 - Oracle output remains advisory; local evidence, tests, and source-backed facts remain authoritative.
 
-## Browser ChatGPT Pro Oracle Adapter
+## Browser ChatGPT Pro Oracle Lane
 
 Browser ChatGPT Pro is a concrete oracle lane, not the oracle role itself.
 
@@ -422,7 +422,7 @@ Evidence:
 Residual uncertainty:
 ```
 
-## Installability Adapter
+## Installability Tooling
 
 For plugin-package checks:
 

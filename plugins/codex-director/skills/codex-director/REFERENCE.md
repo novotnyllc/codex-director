@@ -37,6 +37,7 @@ Ask the user before secrets, credentials, production config, destructive operati
 ```text
 Project scope: <scope>
 Project target: <explicit projectId, resolved saved Codex project target, or projectless target with rationale>
+Project resolution basis: <explicit-projectId|exact-root-match|closest-owning-root-match|projectless-no-saved-project|projectless-task|blocked-equally-specific|blocked-unclear-ownership|blocked-selected-project-mismatch>
 Repo/path: <repo or directory>
 Task: <one bounded task>
 Model: <latest main model id, inherited latest-main default, or `gpt-5.3-codex-spark` only for a Spark-fit lane>
@@ -70,7 +71,7 @@ Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
-- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, Director workflow/playbook, resolved project target and repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, topic/packet coordinator policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
+- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, Director workflow/playbook, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, topic/packet coordinator policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.

@@ -14,7 +14,7 @@ Director Codex thread
 |   |-- reinforce role boundaries, routing, compaction recovery, closeout
 |-- `codex_app` thread layer
 |   |-- create/title/pin/read/steer/archive worker threads through exposed `codex_app` contracts
-|   `-- report a runtime blocker when the active schema is unavailable or does not authorize the needed worker operation
+|   `-- resolve project targets and preserve worker lifecycle evidence through latest-Codex contracts
 |-- coordination and status answers only
 |-- one Codex worker thread using a selected workflow
 |-- dynamic workflow for complex task orchestration
@@ -81,7 +81,7 @@ Owns:
 - exports for plan/review handoff
 - live implementation/review/investigation loops inside the owning worker thread
 
-Context and helper tools are not the durable project ledger and are not the `codex_app` thread/project layer. They can support self-contained workflow phases, but they do not replace latest-Codex worker lifecycle tooling. See [Latest Codex runtime tooling](runtime-adapters.md) for the concrete Codex tool contract and blocker rules.
+Context and helper tools are not the durable project ledger and are not the `codex_app` thread/project layer. They can support self-contained workflow phases, but they do not replace latest-Codex worker lifecycle tooling. See [Latest Codex runtime tooling](runtime-adapters.md) for the concrete Codex tool contract and project-target rules.
 
 ### Codex worker threads
 
@@ -190,7 +190,7 @@ Director records accepted packet evidence and coordinates any integration worker
 
 Do not let a worker-internal helper create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans under its packet, but the parent dynamic workflow artifact remains the task source of truth.
 
-Latest Codex `codex_app` worker/thread/project tooling is the premise of this skill. Director setup confirms the contract before operating; do not document old-version or substitute-runner branches, and do not execute packet work in the Director thread.
+Latest Codex `codex_app` worker/thread/project tooling is the premise of this skill. Director setup confirms the contract before operating, and packet work must not execute in the Director thread.
 
 ## How Workflow Playbooks Fit
 

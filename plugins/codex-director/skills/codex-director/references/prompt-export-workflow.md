@@ -10,7 +10,7 @@ Browser ChatGPT Pro oracle does not normally need this workflow anymore: [Browse
 
 ## Phase 0: Extract The Real Task
 
-Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, receiver lane, sensitivity boundary, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
+Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, receiver lane, sensitivity boundary, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
 
 Strip prompt/export meta-framing.
 
