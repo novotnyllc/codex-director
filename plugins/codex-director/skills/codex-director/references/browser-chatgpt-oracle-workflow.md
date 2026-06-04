@@ -43,6 +43,14 @@ Preferred write locations, in order:
 
 The sentinel is advisory and may be stale. A missing, unreadable, expired, or sandbox-inaccessible sentinel means `unknown`; it must not trigger Browser navigation. Negative or ambiguous sentinel values should bias toward the built-in Codex oracle/review lane unless the user explicitly asks for Browser Pro.
 
+When the sentinel is expired and Browser Pro would materially affect routing, a non-invasive refresh is allowed only if one of these is already available:
+
+- An already-open ChatGPT tab in the in-app Browser that can be inspected without navigation, reload, chat submission, account-settings browsing, or disruption to an in-progress user chat.
+- Browser/tab metadata exposed by the active Browser adapter that can identify a safe existing ChatGPT surface without opening a new page.
+- A just-completed selected Browser Pro oracle run, where the model picker was already inspected as part of the run.
+
+If none of those surfaces exists, leave the sentinel stale or record `pro_available: "unknown"` with `refresh_status: "deferred_no_safe_surface"`. Do not ask the user to log in or open Browser merely to refresh the sentinel. Ask for login only after a real Browser Pro oracle run has been selected and sign-in is required to complete that run.
+
 Suggested fields:
 
 ```json
@@ -50,7 +58,10 @@ Suggested fields:
   "schema": 1,
   "checked_at": "2026-06-04T00:00:00Z",
   "expires_at": "2026-06-11T00:00:00Z",
-  "source": "selected_browser_pro_oracle_run|already_open_chatgpt_tab",
+  "next_noninvasive_refresh_after": "2026-06-11T00:00:00Z",
+  "last_noninvasive_refresh_attempt_at": "2026-06-11T00:00:00Z",
+  "source": "selected_browser_pro_oracle_run|already_open_chatgpt_tab|safe_browser_metadata|deferred_no_safe_surface",
+  "refresh_status": "fresh|stale|deferred_no_safe_surface|sandbox_inaccessible",
   "login_state": "signed_in|login_required|unknown",
   "pro_available": "yes|no|ambiguous|unknown",
   "selected_label": "ChatGPT Pro",
@@ -59,7 +70,7 @@ Suggested fields:
 }
 ```
 
-Keep TTLs short enough that stale account state does not become authority. Treat `yes` as a convenience hint, not proof; confirm Pro availability during the actual selected Browser Pro run before sending. Treat `no`, `ambiguous`, and `login_required` as routing hints only.
+Keep TTLs short enough that stale account state does not become authority. Treat `yes` as a convenience hint, not proof; confirm Pro availability during the actual selected Browser Pro run before sending. Treat `no`, `ambiguous`, `login_required`, `stale`, and `deferred_no_safe_surface` as routing hints only.
 
 Do not use it for:
 
