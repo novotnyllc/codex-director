@@ -55,11 +55,11 @@ Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitiv
 Plan review gate: <fast plan check/oracle/review thread/planning workflow>
 Adversarial review: <fast self-check/review thread/oracle/review workflow>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
-Verbosity limit: <brief status/no logs unless asked/max bullets>
+Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
-- Start with an activation report: instructions read, task shape, Codex skills considered/loaded/skipped/unavailable, Director workflow/playbook, model/thinking rationale, context/oracle/review tools, worker helper policy, research lane, evidence required, git/worktree handling, Goal fit, done criteria.
+- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/unavailable, Director workflow/playbook, model/thinking rationale, context/oracle/review tools, worker helper policy, research lane, evidence required, git/worktree handling, Goal fit, done criteria.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
@@ -110,7 +110,7 @@ Oracle lane: <none/tool/thread and why>
 Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested>
 Adversarial review: <fast self-check/review thread/oracle/review workflow and why>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
-Verbosity limit: <brief/no logs unless asked/max bullets>
+Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
@@ -121,6 +121,8 @@ Plan review: <completed/not needed and why>
 ```
 
 ## Status Format
+
+Use this format only for user-visible updates that pass the visible update gate. Routine active state, polling, activation confirmation, reruns, and "no blocker" checks stay in the ledger.
 
 ```text
 Active:
@@ -172,6 +174,13 @@ Next action:
 Created:
 Updated:
 Last poll:
+Next wake:
+Monitor interval:
+Monitor adapter: heartbeat | cron | manual | none
+Monitor id/status:
+Callback policy:
+Director callback thread id:
+Last callback:
 Archive/cleanup:
 ```
 
@@ -186,6 +195,30 @@ Use `.workflow/<slug>/` instead of only in-thread notes once any of these exist:
 - a user-visible task that will span turns or interruptions
 
 When escalated, mirror ledger state into `.workflow/<slug>/state.json`, worker briefs into `packets/`, accepted worker evidence into `results/`, and final status into `final-report.md`.
+
+## Signal-First Resumable Monitoring
+
+The Director should not stay active solely to wait for spawned workers. Worker threads are durable handles; monitoring is resumable state. Prefer callback signals over timer-only polling when the active worker runtime exposes `codex_app.send_message_to_thread` and the Director explicitly authorizes callback use in the worker brief.
+
+Worker callbacks are one-shot signals to the Director thread, not status streams. They are allowed only for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`. Callback messages must include task id, worker thread id, signal type, concise evidence or blocker, and whether the worker is done, paused, or still running. Workers must not send poll/progress chatter, repeated rerun notes, or messages directly to oracle/review threads unless explicitly delegated.
+
+After dispatch:
+
+1. Read a new worker once to confirm activation when practical.
+2. Record `thread_id`, `read_cursor` or last turn seen, `last_poll_at`, `callback_policy`, `next_wake`, `monitor_interval`, and stale threshold.
+3. If completion is likely within about a minute, use one short quiet polling burst.
+4. If callback signaling is available, stop the Director turn and use heartbeat only as a watchdog.
+5. If callback signaling is unavailable, stop the Director turn and use the lightest available wake mechanism. Prefer a thread heartbeat attached to the Director thread for near-term follow-up; use a detached cron/workspace automation only for genuinely detached long-running monitoring.
+6. On callback or wake, poll privately, update the ledger, surface only visible-gate output, then reschedule or clear the wake mechanism.
+
+Cadence is adaptive and should optimize throughput, not quietness alone:
+
+- Callback available: rely on the callback for terminal/blocking signals; set a watchdog heartbeat for 2-3 minutes only to catch lost callbacks or silent stalls.
+- No callback, user actively waiting, or unknown short work: first watchdog in 30-60 seconds.
+- Build/test/review without callback: 1-2 minutes while likely active, then 2-4 minutes after confirmed long-running execution.
+- Worker-reported long operation: 3-5 minutes, but return to 30-90 seconds once the worker reaches verification, finalization, or a likely completion point.
+- Do not set sleeps or timers longer than 3 minutes while the user is actively waiting unless callback signaling is available or the worker explicitly reported a longer ETA.
+- Do not create duplicate heartbeats for the same Director task. Update the existing monitor when possible, and pause/delete it once no active worker handles remain.
 
 ## Evidence Contract
 
@@ -228,6 +261,18 @@ Hooks are not worker execution or completion enforcement. Worker execution remai
 ## Verbosity Budget
 
 Default worker reports should fit in 5-10 bullets. Research scouts should return sources, conflicts, confidence, and plan implications, not a literature review. Reviewers should lead with findings and verdict, not process. The director thread should ask for more detail only when needed to verify or unblock; its own status updates should be concise signals about decisions, task state, evidence, blockers/choices, and next action, not poll/search/tool narration.
+
+### Visible Update Gate
+
+The Director maintains ledger state quietly. User-visible Director messages are allowed only when one of these is true:
+
+- Final evidence is ready: changed files, commands/tests, review verdicts, artifacts, unresolved risks, and merge/deploy/readiness state.
+- A real blocker needs a user choice or new authority.
+- A safety, production, destructive action, secret, privacy, data, or deployment decision is required.
+- Work changes ownership: a worker handoff, integration handoff, oracle/review routing decision, or scope boundary changes.
+- A worker becomes stale, cancel is requested or acknowledged, cleanup is needed, or a thread is archived after evidence capture.
+
+Do not emit commentary for polling, waiting, activation confirmation, "no blocker", "still running", "checking", "rerunning", "patching", "narrowing", tool choice, local diagnosis, or repeated test attempts. Collapse repeated failures and reruns into one user-visible update only when the diagnosis changes materially or user action is needed.
 
 ## Token Economy
 

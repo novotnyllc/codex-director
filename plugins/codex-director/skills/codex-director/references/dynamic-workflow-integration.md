@@ -91,6 +91,8 @@ Before creating packet briefs, record:
 - commit authority per packet
 - `codex_app` thread handle requirements
 - stale/cancel policy
+- worker callback signal policy
+- heartbeat/wake cadence for active packet workers
 - evidence and artifact retention policy
 
 Minimum artifact tree:
@@ -105,7 +107,7 @@ Minimum artifact tree:
 `-- final-report.md
 ```
 
-`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. `state.json` must track packet status, owner, branch/worktree, blockers, verification, and accepted/rejected decisions. `orchestration.md` must define sequencing and parallelism rules.
+`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. `state.json` must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, next wake time, monitor interval, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
 
 Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private exports into workflow artifacts.
 
@@ -124,7 +126,7 @@ Do not:
 Expected output:
 Verification:
 Evidence required:
-Verbosity limit:
+Verbosity limit: visible update gate; final evidence or blocker/decision only; no poll/wait/rerun narration
 Git/worktree:
 ```
 

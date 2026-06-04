@@ -10,7 +10,7 @@ Name the role and outcome first, then choose the best available implementation:
 Need: independent worker for Packet 02
 Role: implementation worker using build workflow
 Adapter: `codex_app` thread tool
-Evidence: activation report, changed files, tests, review verdict
+Evidence: activation report in ledger, changed files, tests, review verdict
 ```
 
 Never make a worker brief depend on a private path, a single vendor, or an unstable API name. Codex worker thread lifecycle belongs to the active `codex_app` thread tool contracts. Sub-agent APIs are worker-internal execution helpers, not substitutes for Director-managed Codex worker threads. Context engines are context builders, reviewers, or oracle helpers, not thread adapters.
@@ -65,6 +65,7 @@ Current `codex_app` thread contract:
 |---|---|---|
 | Create worker thread | `codex_app.create_thread` | `prompt`, `target`, optional `model`, optional `thinking`; use only when the active tool instructions authorize creating a new or separate thread |
 | Continue / steer worker | `codex_app.send_message_to_thread` | `threadId`, `prompt`, optional `model`, optional `thinking` |
+| Worker callback to Director | `codex_app.send_message_to_thread` from the worker runtime, only if exposed there and explicitly authorized in the worker brief | `threadId` is the Director thread id; signal only `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff` |
 | List threads | `codex_app.list_threads` | optional `query`, optional `limit` |
 | Read / poll worker | `codex_app.read_thread` | `threadId`, optional `cursor`, optional `turnLimit`, optional `includeOutputs`, optional `maxOutputCharsPerItem` |
 | Set title | `codex_app.set_thread_title` | `threadId`, `title` |
@@ -119,10 +120,11 @@ Before calling `codex_app.create_thread`, define:
 - git/worktree handling and commit authority
 - done criteria
 - evidence format and verbosity limit
+- Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
 Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema, such as `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, or `gpt-5.3-codex-spark`, when the selected worker profile calls for an override. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Thinking/model defaults: Director judgment and code-writing workers use main/high; Spark is a separate-budget scout/helper lane for status, probes, prompt export, bounded research, and mechanical low-risk work; high-risk or final-authority gates use main/xhigh. Otherwise mark the brief as inheriting the default runtime settings. After creation, title and pin important project/packet workers when useful.
 
-Every real worker must start with an activation report. If it does not, steer it once:
+Every real worker must start with an activation report. Record routine activation in the Director ledger; surface it to the user only when activation changes routing, exposes a blocker, or requires a decision. If the worker does not return activation, steer it once:
 
 ```text
 Before continuing, return the activation report required by the Director brief:
@@ -158,6 +160,15 @@ done_criteria:
 evidence_required:
 created_at:
 last_poll_at:
+next_wake_at:
+monitor_interval:
+monitor_adapter: heartbeat | cron | manual | none
+monitor_id:
+stale_after:
+callback_policy: none | director-thread-signal
+director_callback_thread_id:
+last_callback_at:
+last_callback_signal:
 last_turn_seen:
 read_cursor:
 next_action:
@@ -168,11 +179,32 @@ cleanup_required:
 
 For non-dynamic work, this ledger can live in the Director thread notes or a repo-local status artifact. Escalate to `.workflow/<slug>/` when the task needs persistent packet state, multiple worker handles, worktrees, approval checkpoints, integration state, or durable evidence files.
 
-### Polling, Input, And Staleness
+### Resumable Monitoring, Input, And Staleness
 
-Read a newly created worker once after creation to confirm activation. For active short tasks, poll every 30-60 seconds. For long-running tasks, poll every 2-5 minutes and immediately after user steering, suspected blockage, or a dependent worker finishing.
+Read a newly created worker once after creation to confirm activation when practical. Do not keep the Director turn running only to wait for spawned workers. After dispatch, record worker handles, cursor or last turn seen, `last_poll_at`, `callback_policy`, `next_wake_at`, `monitor_interval`, and `stale_after`; then stop the Director turn or schedule the lightest available wake mechanism.
 
-Polling cadence is not user-update cadence. Poll privately and update the ledger quietly between concise user-facing updates. Updates at appropriate intervals are fine, but they should emphasize decisions, task state changes, meaningful worker evidence, blockers/choices, and next action; avoid implementation narration, tool-by-tool detail, repeated polling notes, and long status prose.
+Prefer signal-first monitoring when the worker runtime exposes `codex_app.send_message_to_thread` and the Director brief explicitly authorizes callback use. The worker may send a single callback to the Director thread for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`; it must not send routine progress, poll, rerun, or "no blocker" callbacks. The Director treats the callback as a wake signal, then reads the worker thread before accepting evidence.
+
+Use a short quiet polling burst only when the worker is likely to finish within about a minute or an immediate dependent decision is expected. Otherwise prefer callback signaling plus a watchdog heartbeat. If callback signaling is unavailable, prefer a thread heartbeat attached to the Director thread for near-term follow-up when the runtime exposes one. Use a detached cron/workspace automation only for genuinely detached monitoring. If no wake mechanism is exposed, record `monitor_adapter: manual`, `next_wake_at`, and the next action rather than leaving the Director spinning.
+
+Default cadence should keep overall work fast:
+
+- Callback available: rely on the callback for terminal/blocking signals; set a watchdog heartbeat for 2-3 minutes only to catch lost callbacks or silent stalls.
+- No callback, user actively waiting, or unknown short work: first watchdog in 30-60 seconds.
+- Build/test/review without callback: 1-2 minutes while likely active, then 2-4 minutes after confirmed long-running execution.
+- Worker-reported long operation: 3-5 minutes, then shorten to 30-90 seconds near verification or expected completion.
+- Never choose a wake longer than 3 minutes while the user is actively waiting unless callback signaling is available or the worker explicitly gave a longer ETA.
+- Poll immediately after user steering, suspected blockage, a dependent worker finishing, or a worker-reported handoff.
+
+Polling cadence is not user-update cadence. Poll privately and update the ledger quietly. Do not emit user-facing messages for routine polls, waits, activation confirmations, reruns, local diagnosis, or "no blocker" checks. Surface only final evidence, real blockers or user decisions, safety/production/destructive choices, ownership-changing handoffs, and stale/cancel/archive state. Collapse repeated failures and reruns into one message only when the diagnosis changes materially or user action is needed.
+
+Heartbeat hygiene:
+
+- Keep at most one active heartbeat monitor per Director task unless the user explicitly asks for independent monitors.
+- Prefer updating an existing monitor over creating a duplicate.
+- Heartbeat prompt should be self-contained: read the Director ledger, poll recorded workers with `read_thread`, surface only visible-gate output, reschedule if active work remains, and pause/delete itself when no active worker handles remain.
+- If callback signaling is active, heartbeat is a watchdog only; do not use it as the primary progress mechanism.
+- Do not use heartbeat wakeups as a substitute for worker ownership; workers still own implementation, verification, and final evidence.
 
 When a worker needs input:
 

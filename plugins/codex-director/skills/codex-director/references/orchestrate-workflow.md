@@ -41,6 +41,8 @@ Adapter examples:
 
 ```text
 `codex_app` thread tools: create worker thread when authorized -> send bounded brief -> poll with `read_thread` -> steer with `send_message_to_thread` -> archive with `set_thread_archived`.
+Worker callback signal: when explicitly authorized and exposed in the worker runtime, worker sends one Director-thread callback for final/blocker/needs-user/oracle-request/handoff.
+Heartbeat monitor: after dispatch, schedule or update a watchdog Director thread heartbeat instead of keeping the Director turn open solely to poll.
 Worker-internal sub-agents: spawn bounded helper -> wait/poll only if that helper adapter exposes it -> roll up evidence into owning worker.
 Unavailable or unauthorized thread runtime: record blocker -> ask for a worker-thread-capable runtime before executing work.
 ```
@@ -180,15 +182,15 @@ Review gate:
 Oracle request policy:
 Browser Pro suitability:
 Evidence format:
-Verbosity limit:
+Verbosity limit: visible update gate; final evidence or blocker/decision only; no poll/wait/rerun narration
 Stop and report if:
 ```
 
-If using an adapter with wait/poll semantics, start parallel workers according to that adapter's contract, then wait or poll for the first completed/blocked worker and loop over remaining handles. For `codex_app` thread tools, there is no blocking wait operation; poll with `codex_app.read_thread`. Use low/medium thinking for routine polling and steering, high for substantive implementation/review steering, and xhigh only for risky or final decisions. Do not send a final completion rollup while worker handles are running or waiting for input; send an active status and next check-in plan instead.
+If using an adapter with wait/poll semantics, start parallel workers according to that adapter's contract, then wait or poll for the first completed/blocked worker and loop over remaining handles only while the wait is short and useful. For `codex_app` thread tools, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. Use low/medium thinking for routine polling and steering, high for substantive implementation/review steering, and xhigh only for risky or final decisions. Do not send a final completion rollup while worker handles are running or waiting for input. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
 
 ## Phase 6: Monitor
 
-Poll or read workers regularly.
+Poll or read workers regularly, but quietly. Do not hold the Director turn open for long waits. Use one short polling burst only when completion is likely within about a minute; otherwise use the resumable monitoring cadence from [Runtime adapters](runtime-adapters.md).
 
 Check:
 
