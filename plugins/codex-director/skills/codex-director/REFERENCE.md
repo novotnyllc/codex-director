@@ -36,7 +36,7 @@ Ask the user before secrets, credentials, production config, destructive operati
 Project scope: <scope>
 Repo/path: <repo or directory>
 Task: <one bounded task>
-Model: <exact model or inherited/default profile>
+Model: <latest main model id, inherited latest-main default, or `gpt-5.3-codex-spark` only for a Spark-fit lane>
 Thinking: <low|medium|high|xhigh>
 Thinking rationale: <why this level/model fits risk and task shape>
 Codex skills to consider: <exact skill names>
@@ -97,7 +97,7 @@ Evidence: <artifact paths, files, diffs, tests, logs, screenshots>
 Summary: <concise facts the oracle needs before reading artifacts>
 Constraints: <scope boundaries, privacy, no-commit/no-edit, product/security constraints>
 Requested output: <verdict/must-fix/should-fix/questions/confidence>
-Fallback tolerance: <built-in main/xhigh ok|ChatGPT Pro only|other>
+Fallback tolerance: <built-in latest-main/xhigh ok|ChatGPT Pro only|other>
 ```
 
 The Director sends this packet to the selected oracle lane, reads the result, reconciles it against local evidence, and routes findings back to the worker or task artifact.
@@ -377,7 +377,7 @@ Purpose: gather facts before planning so implementers do not rediscover basics m
 
 Use when: external/current facts may matter, ownership is unclear, repo patterns are unknown, prior decisions may exist, task spans multiple modules/repos, or the request is under-specified.
 
-Model/effort: use Spark/low for narrow repo or docs scouting; Spark/medium for web/current-fact research; main/high for synthesis that affects architecture, data, security, or product direction.
+Model/effort: use Spark/low for narrow repo or docs scouting; Spark/medium for web/current-fact research; latest-main/high for synthesis that affects architecture, data, auth, security, production, or the plan.
 
 Output: concise findings with sources, conflicts, confidence, and plan implications. No implementation.
 
@@ -387,7 +387,7 @@ Purpose: provide independent critique or synthesis over a plan, evidence packet,
 
 Use when: decisions are ambiguous, cross-file reasoning is needed, user-facing or security/data risk exists, review findings conflict, context has become too broad for one thread to hold safely, or the plan would be expensive to undo.
 
-Model/effort: use main/high by default. Use Spark/medium only for quick second-pass sanity checks. Use `xhigh` only for high-risk architecture, auth/data/security, irreversible migration, or repeated disagreement between lanes.
+Model/effort: use latest-main/high by default. Use Spark/medium only for quick second-pass sanity checks. Use latest-main/`xhigh` only for high-risk architecture, auth/data/security, production, or final authority work.
 
 Output: verdict, must-fix issues, should-fix issues, assumptions, confidence, and exact follow-up questions. The oracle is advisory; local evidence and tests remain authoritative. When the oracle is implemented as a Codex thread, the Director owns thread creation/continuation and passes curated packets; workers request oracle review through the Director instead of messaging the oracle directly.
 
@@ -407,7 +407,7 @@ Purpose: prevent non-trivial work from continuing with a vague or unreviewed pla
 
 Use when: task has multiple work items, dependencies, data/auth/security risk, user-facing behavior, cross-repo ownership, or unclear verification.
 
-Model/effort: use Spark/medium for low-risk plan challenge; main/high for normal Director plan judgment and broad user-facing work; `xhigh` for architecture, security/data, migrations, or hard-to-reverse plans.
+Model/effort: use Spark/medium for low-risk plan challenge; latest-main/high for normal Director plan judgment and broad user-facing work; latest-main/`xhigh` for architecture, security, data, production, or cross-repo plans.
 
 Output: approved/approved-with-fixes/rework verdict, missing work items, missing tests, scope risks, and revised stop points. If the gate needs an oracle/review thread from inside a worker, the worker returns an Oracle Request Packet to the Director rather than contacting that lane directly.
 
@@ -417,7 +417,7 @@ Purpose: challenge completed or near-complete work before the Director accepts i
 
 Use when: any worker thread changed code/docs/config, any dynamic workflow packet is ready to integrate, or any result affects users, data, auth, payments, deployments, or secrets.
 
-Model/effort: Spark/high for first-pass code/doc review; main/high for final verdict or ordinary risky changes; `xhigh` only for serious security/data/architecture concerns, conflicting evidence, or final acceptance when verification is indirect.
+Model/effort: Spark/high for first-pass code/doc review; latest-main/high for final verdict or ordinary risky changes; latest-main/`xhigh` only for serious security/data/architecture risk.
 
 Output: findings first, ordered by severity, with file/line or artifact references, verification gaps, and final accept/reject verdict. If the review gate needs an oracle/review thread from inside a worker, the worker returns an Oracle Request Packet to the Director rather than contacting that lane directly.
 
@@ -427,7 +427,7 @@ Purpose: break multi-part work into bounded items and keep progress auditable.
 
 Use when: work has parallel lanes, dependencies, multiple repos/modules, phased approvals, multiple workers, or long-running state.
 
-Model/effort: main/high for decomposition and integration decisions; Spark/medium for packet drafting/status summarization; `xhigh` for conflict resolution or high-risk integration.
+Model/effort: latest-main/high for decomposition and integration decisions; Spark/medium for packet drafting/status summarization; latest-main/`xhigh` for conflict resolution or hard-to-reverse integration decisions.
 
 Output: task map, packet briefs, dependencies, owner/thread mapping, approval gates, verification matrix, integration plan, and concise status ledger.
 
@@ -437,7 +437,7 @@ Purpose: implement a bounded change with enough context, plan review, verificati
 
 Use when: one worker can reasonably own the change or one dynamic workflow packet is ready for implementation.
 
-Model/effort: implementation workers default to main/high. Use Spark/high only for mechanical or very contained low-risk code with clear tests and low cost of rework. Use medium only for mechanical docs/config/test-data edits with obvious verification; use `xhigh` for architecture, auth/security, data/migration, production config, concurrency, payments/permissions, or cross-repo contract code.
+Model/effort: implementation workers default to latest-main/high. Use Spark/high only for mechanical or very contained low-risk code with clear tests and low cost of reversal. Use latest-main/`xhigh` for public API, auth/security, data, migration, production, or cross-repo contract changes.
 
 Output: changed files, commands/tests, review verdict, commit hash when applicable, risks, and blockers.
 
@@ -447,7 +447,7 @@ Purpose: improve structure while preserving behavior.
 
 Use when: duplication, naming, boundaries, testability, or architecture can improve without changing product behavior.
 
-Model/effort: refactor workers default to main/high. Use Spark/high only for narrow mechanical behavior-preserving refactors with clear tests; main/high for cross-module boundaries or API changes; `xhigh` when the refactor changes architecture boundaries or hard-to-reverse public contracts.
+Model/effort: refactor workers default to latest-main/high. Use Spark/high only for narrow mechanical behavior-preserving refactors with clear tests; latest-main/high for cross-module refactors; latest-main/`xhigh` for public contracts, data/auth/security, concurrency, or risky ownership boundaries.
 
 Output: behavior-preservation claim, changed files, before/after rationale, tests, review verdict, and rollback risk.
 
@@ -457,7 +457,7 @@ Purpose: improve performance, latency, memory, cost, or token usage with measure
 
 Use when: a bottleneck is reported, usage cost is high, a loop is slow, or a workflow is too verbose.
 
-Model/effort: Spark/medium for measurement collection; Spark/high only for local low-risk optimization code with clear before/after checks; main/high for algorithmic or architecture tradeoffs; `xhigh` when optimization touches concurrency, data integrity, production config, or cross-service behavior.
+Model/effort: Spark/medium for measurement collection; Spark/high only for local low-risk optimization code with clear before/after checks; latest-main/high for algorithmic or shared behavior changes; latest-main/`xhigh` for concurrency, data consistency, production, or cost-risk decisions.
 
 Output: baseline, change, after measurement, tradeoffs, tests, and residual risks.
 
@@ -503,31 +503,31 @@ Create one research-oriented Codex worker thread before planning. Use low/medium
 Small bounded build:
 
 ```text
-Create one Codex worker thread in <repo>. Use the main/default model with high thinking by default for code-writing; use Spark only for mechanical or very contained low-risk code with clear tests; use medium only for mechanical docs/config/test-data edits with obvious verification; use xhigh for architecture, auth/security, data/migration, production config, concurrency, payments/permissions, or cross-repo contract code. Use the build workflow: gather the minimum necessary context, produce a reviewed plan when non-trivial, implement, verify, and summarize concise evidence.
+Create one Codex worker thread in <repo>. Use the latest main model with high thinking by default for code-writing; use `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code with clear tests; use latest-main/xhigh for architecture, auth/security, data/migration, production config, concurrency, payments/permissions, or cross-repo contract code. Use the build workflow: gather the minimum necessary context, produce a reviewed plan when non-trivial, implement, verify, and summarize concise evidence.
 ```
 
 Deep planning:
 
 ```text
-Create one Codex worker thread in <repo or workspace>. Use main/high thinking by default for planning; use main/xhigh for high-risk architecture/security/data plans or hard-to-reverse implementation strategy. Use the deep planning workflow: gather context, draft a durable plan document, review it, and do not implement.
+Create one Codex worker thread in <repo or workspace>. Use latest-main/high thinking by default for planning; use latest-main/xhigh for high-risk architecture/security/data plans or hard-to-reverse implementation strategy. Use the deep planning workflow: gather context, draft a durable plan document, review it, and do not implement.
 ```
 
 Multi-part work:
 
 ```text
-Create one Codex worker thread to use the orchestration workflow. Use main/high for decomposition and integration decisions, medium/Spark for packet drafting/status-only passes, and main/xhigh for conflict resolution or high-risk integration. Decompose the work, staff packet work with Codex worker threads when packet ownership warrants it, verify each phase, and report back with completion evidence.
+Create one Codex worker thread to use the orchestration workflow. Use latest-main/high for decomposition and integration decisions, medium/`gpt-5.3-codex-spark` for packet drafting/status-only passes, and latest-main/xhigh for conflict resolution or high-risk integration. Decompose the work, staff packet work with Codex worker threads when packet ownership warrants it, verify each phase, and report back with completion evidence.
 ```
 
 Review:
 
 ```text
-Create one Codex worker thread in <repo>. Use main/high by default for code/doc review; use main/xhigh for serious security/data/architecture concerns, conflicting evidence, or final acceptance when verification is indirect. Use the review workflow. Return findings first, ordered by severity, with file:line references.
+Create one Codex worker thread in <repo>. Use latest-main/high by default for code/doc review; use latest-main/xhigh for serious security/data/architecture concerns, conflicting evidence, or final acceptance when verification is indirect. Use the review workflow. Return findings first, ordered by severity, with file:line references.
 ```
 
 Oracle check:
 
 ```text
-Use an oracle lane to critique the plan/result before finalizing. Use main/high by default for Director-level critique, medium/Spark only for quick sanity checks, and main/xhigh for high-risk or final-authority gates. Create a separate review-oriented Codex worker thread, browser oracle prompt, or other available second-opinion lane with the plan/result and exact questions to answer.
+Use an oracle lane to critique the plan/result before finalizing. Use latest-main/high by default for Director-level critique, medium/`gpt-5.3-codex-spark` only for quick sanity checks, and latest-main/xhigh for high-risk or final-authority gates. Create a separate review-oriented Codex worker thread, browser oracle prompt, or other available second-opinion lane with the plan/result and exact questions to answer.
 ```
 
 Plan review gate:

@@ -167,7 +167,7 @@ Your item:
 Done when:
 Leave alone:
 Sibling work:
-Model:
+Model: latest main id, inherited latest-main default, or `gpt-5.3-codex-spark` for a Spark-fit lane only
 Thinking plus rationale:
 Codex skills to consider:
 Required skills/workflows:

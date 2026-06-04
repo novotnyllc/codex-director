@@ -124,7 +124,7 @@ Before calling `codex_app.create_thread`, define:
 - evidence format and verbosity limit
 - Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
-Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. Director-created workers default to the current main model, for example `gpt-5.5`, with the selected thinking level; never choose older main-family model ids just because the schema exposes them. The only older-model exception is `gpt-5.3-codex-spark`, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Thinking defaults: Director judgment and code-writing workers use high; high-risk or final-authority gates use xhigh. Otherwise mark the brief as inheriting the default runtime settings. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
+Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with the selected thinking level; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Thinking defaults: Director judgment and code-writing workers use high; high-risk or final-authority gates use xhigh. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
 
 Every real worker must start with an activation report. Record routine activation in the Director ledger; surface it to the user only when activation changes routing, exposes a blocker, or requires a decision. If the worker does not return activation, steer it once:
 
@@ -151,7 +151,7 @@ repo_path:
 worktree_path:
 branch:
 base_ref:
-model:
+model: latest main id, inherited latest-main default, or `gpt-5.3-codex-spark` for a Spark-fit lane only
 thinking:
 thinking_rationale:
 starting_prompt_or_artifact:
@@ -265,7 +265,7 @@ Rules:
 1. Start non-trivial packets with a helper/context strategy: what can be scouted, what should stay in the owning worker, and what context should be excluded.
 2. Only parallelize disjoint work.
 3. Tell each sub-agent what sibling helpers are doing and what files/modules to avoid.
-4. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, main/high for code-writing/review helpers, and main/xhigh only for risky or final-authority helper work.
+4. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, latest-main/high for code-writing/review handoff, latest-main/xhigh for high-risk review or final authority. Spark means `gpt-5.3-codex-spark`; main means the latest non-Spark model exposed by the active schema.
 5. Use helpers to reduce context load, not to create more transcript mass; ask for file paths, line refs, facts, commands, and confidence.
 6. Wait or poll regularly; do not leave helpers unattended.
 7. Verify helper output before the owning worker claims its packet is complete.
@@ -301,7 +301,7 @@ When no context engine is available:
 Use this to replicate RepoPrompt-style oracle behavior with Codex threads when Browser ChatGPT Pro is unavailable, ambiguous, unsafe for the payload, unnecessary, or lower-value than a local source-backed review.
 
 - The Director creates or continues a dedicated oracle/review Codex thread using `codex_app` thread tools and records the thread id in the ledger.
-- Default to main/high for ordinary independent critique and main/`xhigh` when this is the ChatGPT Pro-unavailable fallback, high-risk review, final-authority gate, or conflict resolution lane.
+- Default to latest-main/high for ordinary independent critique and latest-main/`xhigh` when this is the ChatGPT Pro-unavailable fallback, high-risk review, final-authority gate, or conflict-resolution lane.
 - The Director sends curated Oracle Request Packets to the oracle thread: mode, exact question, evidence/artifact paths, concise summary, constraints, requested output, and fallback tolerance.
 - Worker threads do not send messages to the oracle thread directly. They return Oracle Request Packets to the Director, and the Director routes, monitors, reads, reconciles, and sends findings back.
 - Continue the same oracle thread when follow-up depends on the same evidence lineage. Create a fresh oracle thread when the question, risk level, task, or independence boundary changes.

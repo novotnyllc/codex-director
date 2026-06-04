@@ -61,11 +61,11 @@ Workers should use the matching self-contained workflow and thinking policy insi
 
 - investigate/research workflow for research or diagnosis packets; use low/medium for narrow scouts and high for synthesis that affects the plan
 - deep plan workflow for planning packets; use high by default and xhigh for high-risk architecture/security/data plans
-- build workflow for implementation packets; use main/high by default, Spark only for mechanical or very contained low-risk code, medium only for mechanical edits, and xhigh for risky code
-- orchestration workflow for packet-internal decomposition; use main/high for decomposition/integration and medium/Spark for packet drafting/status
-- review workflow for review packets; use high by default and xhigh for risky final verdicts or conflicting evidence
-- refactor workflow for behavior-preserving cleanup packets; use main/high by default, Spark only for narrow mechanical refactors, xhigh for public contract or architecture-boundary changes
-- optimize workflow for performance packets; use medium/Spark for measurement, high for optimization code, and xhigh for concurrency/data/production-risk changes
+- build workflow for implementation packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code, and latest-main/xhigh for risky architecture/security/data/production/cross-repo changes
+- orchestration workflow for packet-internal decomposition; use latest-main/high for decomposition/integration and medium/`gpt-5.3-codex-spark` for packet drafting/status
+- review workflow for review packets; use latest-main/high by default and latest-main/xhigh for risky final verdicts or conflicting evidence
+- refactor workflow for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
+- optimize workflow for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
 
 Do not let a worker's local workflow overwrite the `.workflow/` task source of truth. It may produce subplans and exports, but packet status and integration decisions belong in the dynamic workflow artifact.
 

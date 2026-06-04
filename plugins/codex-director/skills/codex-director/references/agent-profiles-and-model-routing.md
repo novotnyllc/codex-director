@@ -8,13 +8,13 @@ Use delegation aggressively when it improves speed, coverage, review independenc
 
 Most Director-started worker threads should behave as packet coordinators: select the relevant functions/files/tests before reading broadly, choose helper lanes by task shape, delegate independent scouting or verification to narrow sub-agents, and return concise evidence instead of accumulating transcript mass.
 
-Director-created workers use the current main model by default, for example `gpt-5.5` when the active schema exposes it. Never choose older main-family model ids just because they are listed by the runtime. The only older-model exception is `gpt-5.3-codex-spark`, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
+Director-created workers use the latest non-Spark main model exposed by the active schema by default, for example `gpt-5.5` when it is listed. Never choose older main-family model ids such as `gpt-5.4` when a newer main model is available. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
 
 Director-level judgment defaults to `high`: routing, decomposition, risk assessment, worker selection, evidence reconciliation, integration decisions, and completion/blocker calls are the Director's real work. Use `xhigh` only for high-risk or final-authority gates, not as a standing mode.
 
-Implementation and code-writing workers default to current-main/high. Use Spark only for mechanical low-blast-radius edits with obvious verification, and use low/Spark only for status, lookup, or narrow read-only probes. Escalate implementation to current-main/xhigh for architecture, auth/security, data models/migrations, production config, concurrency, payments/permissions, cross-repo contracts, or hard-to-reverse decisions.
+Implementation and code-writing workers default to latest-main/high. Use Spark only for mechanical low-blast-radius edits with obvious verification, and use low/Spark only for status, lookup, or narrow read-only probes. Escalate implementation to latest-main/xhigh for architecture, auth/security, data models/migrations, production config, concurrency, payments/permissions, cross-repo contracts, or hard-to-reverse decisions.
 
-Use only model and thinking overrides accepted by the active `codex_app` thread schema. Prefer the current main model id and do not use older main-family ids. Spark is the only exception, and only for true Spark-fit lanes. Omit the model only when the launch contract intentionally inherits the current project/default profile; otherwise write the exact active-schema model id and thinking level into the worker brief.
+Use only model and thinking overrides accepted by the active `codex_app` thread schema. Prefer the latest main model id and do not use older main-family ids. Spark is the only exception, and only for true Spark-fit lanes. If the Director passes `create_thread.model` or writes a `Model:` line in the worker brief, that value must be the latest main id unless the lane is explicitly Spark-fit. Omit the model only when the launch contract intentionally inherits a runtime default that is known to resolve to the latest main model; otherwise write the exact latest active-schema model id and thinking level into the worker brief.
 
 ## Agent Profiles
 
@@ -24,12 +24,12 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `prompt-exporter` | Package durable context artifacts for oracle/review/upload/retry/handoff lanes | Spark | medium |
 | `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
-| `packet-coordinator` | Own a non-trivial packet, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | main | high |
+| `packet-coordinator` | Own a non-trivial packet, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | latest main | high |
 | `implementation-worker` | Bounded build/refactor/test packet with code-writing or verification | current main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | current main by default; Spark only for quick low-risk first pass | high/xhigh |
-| `planner` | Turn research into work items, dependencies, gates | main | high |
-| `integration-auditor` | Integrate packet results, reconcile commits/worktrees, audit evidence | main | high/xhigh |
-| `security-data-reviewer` | Auth, data, migration, secrets, production-risk review | main | xhigh |
+| `planner` | Turn research into work items, dependencies, gates | latest main | high |
+| `integration-auditor` | Integrate packet results, reconcile commits/worktrees, audit evidence | latest main | high/xhigh |
+| `security-data-reviewer` | Auth, data, migration, secrets, production-risk review | latest main | xhigh |
 
 ## Runtime Role Labels
 
@@ -74,9 +74,9 @@ Do not use Spark as final authority for:
 - ambiguous UX/product judgment
 - current API/library freshness when browsing or primary sources are needed
 
-## Main Model Routing
+## Latest Main Model Routing
 
-Use the current main model for:
+Use the latest non-Spark main model exposed by the active schema for:
 
 - packet coordinator workers that choose context/helper strategy
 - director top-level task decisions
@@ -134,7 +134,7 @@ Use `xhigh` for:
 
 ## Escalation Rules
 
-Escalate from Spark to the current main model when:
+Escalate from Spark to the latest main model when:
 
 - evidence conflicts
 - risk crosses auth/security/data/migration/production boundaries
@@ -152,6 +152,6 @@ Escalate from `high` to `xhigh` when:
 
 ## Token Economy
 
-Prefer narrow Spark scouts only when the task is a true Spark fit and the cost of a weaker answer is low. Prefer one current-main packet coordinator or integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts. For non-trivial packets, spend a small amount of reasoning up front deciding which context to load and which helpers to run; that is usually cheaper than letting the owning thread absorb the whole repo.
+Prefer narrow Spark scouts only when the task is a true Spark fit and the cost of a weaker answer is low. Prefer one latest-main packet coordinator or integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts. For non-trivial packets, spend a small amount of reasoning up front deciding which context to load and which helpers to run; that is usually cheaper than letting the owning thread absorb the whole repo.
 
 Clean up completed runtime sessions after their evidence is recorded. Keeping many stale sessions open increases monitoring cost and makes the Director ledger harder to trust.
