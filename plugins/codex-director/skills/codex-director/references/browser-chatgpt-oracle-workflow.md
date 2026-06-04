@@ -1,12 +1,12 @@
-# Browser ChatGPT Oracle Workflow
+# Browser ChatGPT Pro Oracle Workflow
 
-Use when the director thread or a Codex worker thread needs an external second-opinion result from ChatGPT through the signed-in in-app Browser session, especially when the user wants the prompt run through ChatGPT Pro.
+Use when the Director needs an external second-opinion result from ChatGPT Pro through the signed-in in-app Browser session, or when a worker has been explicitly launched as a delegated Browser ChatGPT Pro oracle runner. Ordinary implementation/review workers that need this lane should return an Oracle Request Packet to the Director rather than opening or messaging ChatGPT themselves. The workflow must detect whether a Pro-capable ChatGPT model/tier is available before submitting; not every signed-in account has access.
 
 ## Principle
 
-The browser oracle is an implementation of the oracle lane. It should package context, open `https://chatgpt.com/` with `@Browser`, start a new chat, select the highest-capability model available for the signed-in account unless the user named a specific model, send the prompt, wait for the response to finish even when it takes a while, extract the answer, save it as an artifact, and feed the result back into the plan/review/build workflow. It should not become a manual copy/paste chore for the user.
+The Browser ChatGPT Pro oracle is an implementation of the oracle lane. It should assemble the prompt payload from the current task, selected evidence, and existing plan/review/research artifacts, then use `@Browser` to complete the ChatGPT round trip only after the Director has selected this adapter for a real oracle request. It may open `https://chatgpt.com/`, start a new chat, inspect the model picker/account UI for Pro-capable availability, select ChatGPT Pro or the requested Pro-tier model when available, send the prompt, wait for the response to finish even when it takes a while, extract the answer, save the result as an artifact, and feed the result back into the plan/review/build workflow. It should not become a manual copy/paste chore for the user, and it should not open or navigate an in-app Browser merely to check whether Pro might be available.
 
-The prompt export file is an intermediate payload and audit artifact, not the endpoint. When this workflow is selected, the worker must complete the Browser round trip unless blocked by sign-in, model availability, safety, or browser automation failure.
+Do not require a prompt export file just because Browser ChatGPT Pro is the selected oracle adapter. Write a prompt artifact only when it adds real value: durable audit trail, large payload/upload, resumability after Browser failure, cross-thread handoff, or explicit user request. When this workflow is selected for a delegated oracle-runner worker, that runner must complete the Browser round trip unless blocked by sign-in, Pro availability, safety, or browser automation failure. Other workers should request this lane through the Director. Do not run a non-Pro ChatGPT model and report it as a Pro oracle; when Pro is unavailable, prefer the built-in Codex oracle/review lane with main/`xhigh`.
 
 ## Safety Gate
 
@@ -14,19 +14,52 @@ Before sending content to ChatGPT through Browser, check whether the payload con
 
 Do not print sensitive payloads in chat. Prefer local files and concise status.
 
-## Phase 0: Decide Whether Browser Oracle Is Appropriate
+## Phase 0: Decide Whether Browser ChatGPT Pro Oracle Is Appropriate
 
 Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and unavailable in activation.
 
-Use Browser ChatGPT oracle when:
+Use Browser ChatGPT Pro oracle when:
 
-- The normal local oracle lane is unavailable, insufficient, or the user specifically wants ChatGPT web.
-- A plan/result needs independent critique.
+- The normal local oracle lane is unavailable, insufficient, or the user specifically wants ChatGPT Pro/web.
+- A plan/result needs independent critique and the extra Browser round trip is justified.
 - The prompt benefits from ChatGPT's current web product context or model mix.
 - The user is already signed in and wants automatic round-trip results.
 - The user explicitly asks to use ChatGPT Pro, ChatGPT in Browser, or the signed-in `chatgpt.com` session.
 
-If the user did not explicitly request Browser/ChatGPT and a local oracle or review lane is sufficient, use the local lane. Browser is higher overhead and may send data outside the local environment.
+If the user did not explicitly request Browser/ChatGPT Pro and a local oracle or review lane is sufficient, use the local lane. Browser is higher overhead and may send data outside the local environment.
+
+Do not preflight Pro access by opening or navigating an in-app Browser just to inspect the account. Decide whether the Browser Pro adapter is warranted from the task, user request, sensitivity boundary, and available local lanes. Pro availability inspection happens only as part of executing the selected Browser Pro oracle lane, or in an already-open ChatGPT tab when that inspection is safe and non-disruptive.
+
+### Capability Sentinel
+
+Use a local capability sentinel as a cache, not as a probe. Reading the sentinel is non-invasive; creating or refreshing it must happen only after a real Browser Pro oracle run or after inspecting an already-open ChatGPT tab that is safe to touch.
+
+Preferred write locations, in order:
+
+1. User state: `$XDG_STATE_HOME/codex-director/chatgpt-pro-capability.json`, or `~/.local/state/codex-director/chatgpt-pro-capability.json` when `XDG_STATE_HOME` is unset.
+2. Active workflow state: `.workflow/<slug>/state.json` under a `browser_chatgpt_pro_capability` key when the task already has a workflow artifact and user-state writes are unavailable.
+3. Repo-local untracked state: `.codex-director/local-state/chatgpt-pro-capability.json`, with `.codex-director/` added to `.git/info/exclude` when allowed. Do not edit tracked `.gitignore` just to store this cache.
+4. Director ledger/thread notes only, when filesystem writes are unavailable or sandboxed.
+
+The sentinel is advisory and may be stale. A missing, unreadable, expired, or sandbox-inaccessible sentinel means `unknown`; it must not trigger Browser navigation. Negative or ambiguous sentinel values should bias toward the built-in Codex oracle/review lane unless the user explicitly asks for Browser Pro.
+
+Suggested fields:
+
+```json
+{
+  "schema": 1,
+  "checked_at": "2026-06-04T00:00:00Z",
+  "expires_at": "2026-06-11T00:00:00Z",
+  "source": "selected_browser_pro_oracle_run|already_open_chatgpt_tab",
+  "login_state": "signed_in|login_required|unknown",
+  "pro_available": "yes|no|ambiguous|unknown",
+  "selected_label": "ChatGPT Pro",
+  "browser_context_hint": "default|unknown",
+  "notes": "no prompts, responses, credentials, raw account identifiers, or private payloads"
+}
+```
+
+Keep TTLs short enough that stale account state does not become authority. Treat `yes` as a convenience hint, not proof; confirm Pro availability during the actual selected Browser Pro run before sending. Treat `no`, `ambiguous`, and `login_required` as routing hints only.
 
 Do not use it for:
 
@@ -35,11 +68,11 @@ Do not use it for:
 - tasks where local review is enough
 - prompts too large to submit reliably without file upload or chunking
 
-## Phase 1: Package The Prompt
+## Phase 1: Assemble The Prompt Payload
 
-Use [Prompt Export workflow](prompt-export-workflow.md) to extract the real task, infer Question/Plan/Review, build context, and export a repo-local prompt file under `prompt-exports/`.
+Build the prompt directly from the current plan/review/research artifact, selected evidence, and exact question the oracle should answer. Include task, context, constraints, desired output format, sensitivity notes, and explicit review questions.
 
-If a full export is unnecessary, build the prompt from the current plan/review/research artifact and selected evidence. Include task, context, constraints, desired output format, and explicit review questions. Save it under `prompt-exports/<timestamp>-browser-oracle-<slug>.md`.
+Use [Prompt Export workflow](prompt-export-workflow.md) only when a durable prompt artifact is needed for audit, upload/chunking, cross-thread handoff, resumability, or explicit user request. The normal ChatGPT Pro oracle path should keep the prompt in memory and submit it directly through Browser.
 
 The prompt should ask for concise, actionable output. Examples:
 
@@ -52,7 +85,7 @@ Review this plan adversarially. Return:
 5. Verdict: proceed / revise / block
 ```
 
-Model/effort guidance: browser oracle is normally a main/high-quality second-opinion lane. Use it only when the expected critique is worth the browser round trip. Do not use it as a cheap first-pass scout.
+Model/effort guidance: ChatGPT Pro oracle is normally a high-quality second-opinion lane. Use it only when the expected critique is worth the Browser round trip. Do not use it as a cheap first-pass scout.
 
 ```text
 Review this implementation summary and evidence. Return only findings that could change whether this should ship.
@@ -60,24 +93,27 @@ Review this implementation summary and evidence. Return only findings that could
 
 ## Phase 2: Submit Through Browser
 
-Use the `@Browser` plugin and its in-app browser session. Do not satisfy this workflow by only writing an export file, by using generic web browsing, or by asking the user to paste the prompt manually.
+Use the `@Browser` plugin and its in-app browser session after the Director has selected this adapter for an actual oracle request. Do not satisfy this workflow by only writing an export file, by using generic web browsing, or by asking the user to paste the prompt manually. Do not open or navigate Browser solely to test whether ChatGPT Pro is available.
 
-1. Connect to the selected in-app Browser tab.
-2. Navigate to `https://chatgpt.com/` unless the selected tab is already there and safe to reuse.
-3. Start a new chat. Do not reuse the current chat unless the user explicitly asks to.
-4. Select the highest-capability model available for the signed-in account, or the exact model/tier the user named. Record the visible model label. If the user named a specific model/tier and it cannot be confirmed, stop and report the blocker rather than silently falling back.
-5. Read the prompt file locally.
-6. Paste or type the prompt into ChatGPT.
-7. If the prompt is too large for reliable paste, try file upload if available; otherwise split into labeled chunks and ask ChatGPT to wait until the final chunk before answering.
-8. Submit.
+1. Connect to the selected in-app Browser tab, preferring an already-open ChatGPT tab when one exists and is safe to inspect.
+2. Navigate to `https://chatgpt.com/` only because this Browser Pro oracle run has been selected, not just for availability preflight.
+3. If ChatGPT is not signed in, pause and ask the user to log in in the in-app Browser. Do not ask for credentials in chat. Resume the same run after the user confirms login, or use the built-in main/`xhigh` fallback only if the user declines/cannot log in and fallback is allowed.
+4. Start a new chat. Do not reuse the current chat unless the user explicitly asks to.
+5. Inspect the model picker/account UI enough to determine Pro availability. Keep inspection minimal and non-disruptive: do not change unrelated account settings, browse account pages, or disturb an in-progress user chat. Record `pro_available: yes/no/ambiguous`, the visible labels inspected, and the selected label.
+6. Select ChatGPT Pro or the requested Pro-tier model when available. If Pro availability is `no` or `ambiguous`, do not use a non-Pro web model by default; record the availability result and fall back to the built-in Codex oracle/review lane with main/`xhigh`, unless the user explicitly asked for Pro-only/no fallback or explicitly allowed a non-Pro web fallback.
+7. Paste or type the assembled prompt payload into ChatGPT.
+8. If the prompt is too large for reliable paste, create a prompt artifact and try file upload if available; otherwise split into labeled chunks and ask ChatGPT to wait until the final chunk before answering.
+9. Submit.
 
 If any required Browser step is unavailable:
 
-- Browser plugin unavailable: if Browser/ChatGPT was explicitly requested, report blocker and ask before substituting; otherwise use a local oracle/review lane and record the substitution.
-- Not signed in: report blocker; do not ask the user for credentials in chat.
-- Named model/tier unavailable or ambiguous when explicitly required: report blocker instead of silently falling back.
+- Browser plugin unavailable: use the built-in Codex oracle/review lane with main/`xhigh` unless the user explicitly required Browser/Pro-only/no fallback; otherwise record the substitution.
+- Not signed in: ask the user to log in through the in-app Browser and resume after confirmation. Do not ask for credentials in chat. If the user declines/cannot log in and fallback is allowed, use the built-in Codex oracle/review lane with main/`xhigh` and record the substitution.
+- Pro availability cannot be inspected after login: use the built-in Codex oracle/review lane with main/`xhigh` unless the user explicitly required Pro-only/no fallback.
+- Pro availability `no` or `ambiguous`: use the built-in Codex oracle/review lane with main/`xhigh` unless the user explicitly required Pro-only/no fallback; do not silently substitute a non-Pro web model.
+- Named Pro model/tier unavailable or ambiguous when explicitly required: use built-in main/`xhigh` unless the user explicitly required that exact model/tier only.
 - Prompt too sensitive: redact/summarize or ask explicit permission.
-- UI automation unreliable: stop with the prompt path and exact state reached.
+- UI automation unreliable: stop with the exact state reached and the prompt source, creating a prompt artifact only if needed for retry or handoff.
 
 Browser automation should stay in the background by default. Do not reload or disrupt a user-visible in-progress chat unless necessary.
 
@@ -89,18 +125,19 @@ After submitting:
 
 1. Wait for ChatGPT to finish generating. Pro responses can take a while; poll patiently until the stop/regenerate controls and page state indicate completion. Use a generous wait budget and report progress only if the wait becomes unusually long.
 2. Capture the final assistant response from the page.
-3. Save it to `prompt-exports/<timestamp>-browser-oracle-result-<slug>.md`.
-4. Include the source prompt path, selected ChatGPT model label, ChatGPT URL if available, timestamp, elapsed wait time, and any automation caveats.
+3. Save it to `prompt-exports/<timestamp>-browser-oracle-result-<slug>.md` or the active workflow's `results/` directory when packetized state exists.
+4. Include the prompt source (`direct` or artifact path), selected ChatGPT model label, ChatGPT URL if available, timestamp, elapsed wait time, and any automation caveats.
 
 Capture metadata:
 
 ```text
-Prompt artifact:
+Prompt source/artifact:
 Result artifact:
 Model/label selected:
 Submission time:
 Completion time:
-Blocked/fallback state:
+Pro availability:
+Built-in xhigh fallback used:
 ```
 
 If extraction is brittle, capture the visible response text and a screenshot reference if useful. Do not rely only on a screenshot when text extraction is possible.
@@ -109,7 +146,7 @@ If the response is long, save the full text to the result artifact and summarize
 
 ## Phase 4: Feed Back Into The Workflow
 
-Use the Browser oracle result as evidence, not as authority.
+Use the Browser ChatGPT Pro oracle result as evidence, not as authority.
 
 For plan review:
 
@@ -131,9 +168,9 @@ For research:
 
 Return:
 
-- prompt export path
+- prompt source or artifact path if one was created
 - result artifact path
-- selected ChatGPT model label
+- Pro availability result and selected ChatGPT model label, or built-in main/`xhigh` fallback note
 - verdict
 - must-fix findings count
 - whether the plan/work was updated
@@ -143,10 +180,10 @@ Do not paste the full oracle response unless the user asks.
 
 ## Failure Modes
 
-- Not signed in: ask the user to sign in. Use a local oracle/review lane only with user approval or when Browser was selected opportunistically.
-- Named model/tier unavailable or ambiguous: report the blocker and ask whether to use the best available model.
+- Not signed in: ask the user to log in through the in-app Browser, then resume after confirmation. Do not ask for credentials in chat. If the user declines/cannot log in and fallback is allowed, use the built-in Codex oracle/review lane with main/`xhigh` and record the substitution.
+- ChatGPT Pro unavailable or ambiguous: use the built-in Codex oracle/review lane with main/`xhigh` and record the substitution, unless the user explicitly required Pro-only/no fallback.
 - ChatGPT refuses or truncates: reduce context, upload file if available, or ask a narrower question.
-- Browser automation cannot extract result: save what can be extracted, note the blocker, and keep the prompt export.
+- Browser automation cannot extract result: save what can be extracted, note the blocker, and create or keep a prompt artifact only if needed for retry or handoff.
 - Sensitive payload detected: pause for permission or redact.
 - Page structure changes make capture unreliable.
 
@@ -154,9 +191,9 @@ Do not paste the full oracle response unless the user asks.
 
 The final evidence bundle should include:
 
-- exported prompt path
-- browser oracle result path
-- selected ChatGPT model label
+- prompt source or artifact path if one was created
+- Browser ChatGPT Pro oracle result path
+- Pro availability result and selected ChatGPT model label
 - verdict
 - follow-up edits or decisions made from the result
 - unresolved caveats

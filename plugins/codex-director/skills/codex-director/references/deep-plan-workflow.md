@@ -87,7 +87,7 @@ If the repo forbids durable docs or the task is projectless, use a local artifac
 Use the lightest adequate planning path:
 
 - Use a context engine when it can cheaply synthesize the plan file/background, likely files, risks, and verification strategy.
-- Ask an oracle/review thread to critique the evidence and propose an approach when independent judgment would reduce risk.
+- Ask for oracle/review critique when independent judgment would reduce risk. In a Director-managed worker, return an Oracle Request Packet to the Director rather than contacting the oracle/review thread directly.
 - Draft directly from research when the scope is narrow.
 - Export the response when it will be handed to implementers or reviewers.
 
@@ -134,7 +134,7 @@ Ask the critic to check:
 
 The critic should not rewrite the plan. Fold actionable findings into the plan yourself.
 
-Give the critic both the plan and any context-builder/oracle export that shaped it. Ask for top gaps, over-specified tactics, missing dependencies, sequencing risks, and questions that would change implementation order.
+Give the critic both the plan and any context-builder/oracle export that shaped it. Ask for top gaps, over-specified tactics, missing dependencies, sequencing risks, and questions that would change implementation order. If the critic is a separate Director-managed oracle/review thread, package this as an Oracle Request Packet for the Director to route.
 
 ## Phase 7: Polish And Handoff
 

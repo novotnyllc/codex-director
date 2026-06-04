@@ -25,7 +25,7 @@ Prefer this order:
 
 1. `codex_app` thread tools for real background worker threads, using the active tool schema as the source of truth.
 2. Native sub-agent tools, when allowed by the active workflow, for worker-internal decomposition, verification, or bounded helper tasks.
-3. Tool-specific context engines for context building, review, oracle, and prompt export.
+3. Tool-specific context engines for context building, review, oracle, and durable prompt artifacts.
 4. Local shell/git/file tools only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread.
 5. Runtime blocker reporting when no separate worker thread is available.
 
@@ -238,11 +238,13 @@ A context engine can implement research, planning, review, or oracle phases. The
 Usual mapping:
 
 - Verify workspace: bind to the project root first.
-- Broad planning: context builder in plan mode, optionally exported.
+- Broad planning: context builder in plan mode, optionally exported when a durable artifact or handoff is useful.
 - Investigation: context builder in question mode, then focused oracle/chat follow-up.
 - Review: git survey, then context builder in review mode with explicit comparison scope.
 - Oracle: curate selection first, then oracle send in plan/review/chat mode.
-- Handoff: export plan/review/oracle responses and pass the path to workers.
+- Handoff: export plan/review/oracle responses only when workers need a stable artifact path.
+
+Context-engine oracle turns are worker-internal or Director-owned context helpers. When the oracle is a separate Codex thread, use the Codex Oracle Thread Adapter below; do not let ordinary worker threads message that oracle directly.
 
 Do not document a context engine as part of the Director's `codex_app` thread runtime. It may be adopted later when it is the best context builder, but the Codex Director skill remains Codex-app-native and the worker lifecycle remains `codex_app` threads.
 
@@ -251,25 +253,44 @@ When no context engine is available:
 - Have the owning worker use local search and file reads sparingly.
 - Prefer structured parsers and repo-local commands over broad manual reading.
 - Write a short context note with files read, facts found, assumptions, and unknowns.
-- Use a separate worker/reviewer as the oracle lane when possible.
+- Use a Director-mediated separate worker/reviewer as the oracle lane when possible.
 
-## Browser Oracle Adapter
+## Codex Oracle Thread Adapter
 
-Browser ChatGPT is an oracle adapter, not the oracle role itself.
+Use this to replicate RepoPrompt-style oracle behavior with Codex threads when Browser ChatGPT Pro is unavailable, ambiguous, unnecessary, or not requested.
 
-Use it when the user asks for ChatGPT/Pro, when a web-model second opinion is materially valuable, or when local oracle/context tools are unavailable. Before sending anything:
+- The Director creates or continues a dedicated oracle/review Codex thread using `codex_app` thread tools and records the thread id in the ledger.
+- Default to main/high for ordinary independent critique and main/`xhigh` when this is the ChatGPT Pro-unavailable fallback, high-risk review, final-authority gate, or conflict resolution lane.
+- The Director sends curated Oracle Request Packets to the oracle thread: mode, exact question, evidence/artifact paths, concise summary, constraints, requested output, and fallback tolerance.
+- Worker threads do not send messages to the oracle thread directly. They return Oracle Request Packets to the Director, and the Director routes, monitors, reads, reconciles, and sends findings back.
+- Continue the same oracle thread when follow-up depends on the same evidence lineage. Create a fresh oracle thread when the question, risk level, task, or independence boundary changes.
+- Oracle output remains advisory; local evidence, tests, and source-backed facts remain authoritative.
+
+## Browser ChatGPT Pro Oracle Adapter
+
+Browser ChatGPT Pro is an oracle adapter, not the oracle role itself.
+
+Use it when the user asks for ChatGPT Pro, when a Pro web-model second opinion is materially valuable, or when local oracle/context tools are unavailable and Pro access can be confirmed. Do not open or navigate an in-app Browser just to check whether Pro is available; inspect Pro availability only during a selected Browser Pro oracle run, or in an already-open ChatGPT tab when safe and non-disruptive.
+
+Before Browser work, read any existing local capability sentinel as a routing hint only. Preferred sentinel locations are user state (`$XDG_STATE_HOME/codex-director/chatgpt-pro-capability.json` or `~/.local/state/codex-director/chatgpt-pro-capability.json`), active `.workflow/<slug>/state.json`, repo-local untracked `.codex-director/local-state/`, then Director ledger/thread notes when sandboxed. Missing, stale, or inaccessible sentinel means `unknown` and must not trigger Browser navigation. Write or refresh the sentinel only after a real Browser Pro oracle run or safe inspection of an already-open ChatGPT tab.
+
+Before sending anything:
 
 1. Check for secrets, credentials, raw private data, transcripts, tokens, invite links, regulated data, or proprietary exports.
 2. Redact or summarize sensitive payloads unless the user explicitly approves the exact external submission.
-3. Save the prompt and result as local artifacts.
-4. Report only verdict, must-fix findings, and artifact paths unless more detail is needed.
+3. If ChatGPT is not signed in, ask the user to log in through the in-app Browser and resume after confirmation. Do not ask for credentials in chat.
+4. Inspect the model picker/account UI enough to record Pro availability, visible labels inspected, and selected label; keep this inspection minimal and avoid account settings or in-progress user chats.
+5. Send the prompt directly through Browser only when ChatGPT Pro or the requested Pro-tier model is available, unless the user explicitly allowed a non-Pro web fallback.
+6. Save the result as a local artifact, and save the prompt only when needed.
+7. Report only verdict, must-fix findings, Pro availability result, selected label or fallback note, prompt source/artifact path if created, and result artifact path unless more detail is needed.
 
-If Browser, sign-in, upload, or model selection fails:
+If Browser, upload, Pro availability detection, or Pro model selection fails:
 
-- When the user explicitly requested Browser, ChatGPT, ChatGPT Pro, or a named web model, report the blocker and ask before substituting another oracle.
-- When Browser was selected opportunistically as one acceptable oracle adapter, fall back to a local oracle/review lane and record the substitution.
+- Use the built-in Codex oracle/review lane with main/`xhigh` and record the substitution, unless the user explicitly required Browser/Pro-only/no fallback.
+- If sign-in is missing, prompt the user to log in through the in-app Browser first; use fallback only if the user declines/cannot log in and fallback is allowed.
+- Use a non-Pro web model only when the user explicitly allows that fallback; record it as non-Pro and do not call it the Pro oracle.
 
-Never silently pretend ChatGPT reviewed the work.
+Never silently pretend ChatGPT Pro reviewed the work, and never report a non-Pro web fallback as the Pro oracle.
 
 ## Commit Authority Modes
 

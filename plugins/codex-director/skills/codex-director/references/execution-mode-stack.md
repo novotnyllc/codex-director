@@ -76,7 +76,7 @@ Owns:
 - Codex worker-thread creation, steering, polling, archival, and cleanup through exposed `codex_app` contracts
 - Director hook reminders for role boundaries, compaction recovery, nested helper evidence, and closeout
 - codebase context building
-- oracle reasoning over curated context
+- oracle reasoning over curated context, mediated by the Director when implemented as a separate Codex thread
 - worker-internal sub-agent or execution helpers when useful
 - exports for plan/review handoff
 - live implementation/review/investigation loops inside the owning worker thread
@@ -94,7 +94,7 @@ Own:
 - concise evidence
 - commits for their work when authorized
 
-Workers must report scope expansion, blockers, and verification gaps back to the Director.
+Workers must report scope expansion, blockers, and verification gaps back to the Director. Workers that need oracle review return an Oracle Request Packet to the Director; they do not create, continue, or message oracle threads directly unless explicitly delegated that authority.
 
 ### Director availability invariant
 
@@ -130,7 +130,7 @@ Use the selected workflow reference:
 - refactor
 - optimize
 - prompt export
-- Browser ChatGPT oracle
+- Browser ChatGPT Pro oracle
 
 Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
 
@@ -202,9 +202,9 @@ Use the narrow self-contained workflow that matches each packet:
 - Review packet -> review workflow
 - Refactor packet -> refactor workflow
 - Optimize packet -> optimize workflow
-- Browser/external oracle packet -> prompt export, then Browser ChatGPT oracle
+- Browser/external oracle packet -> Director-mediated Browser ChatGPT Pro oracle; use prompt export only for durable payload, upload/chunking, retry, audit, or handoff needs; if Pro is unavailable or ambiguous, route to built-in main/`xhigh` oracle/review fallback unless Pro-only was explicit
 
-The Director should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions.
+The Director should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions. Oracle packets flow through the Director: `worker -> Director -> oracle lane -> Director -> worker/result`.
 
 ## How Codex Goals Fit
 

@@ -57,7 +57,7 @@ Use [Runtime adapters](references/runtime-adapters.md) whenever a workflow needs
 
 For non-trivial work, require research-informed and reviewed planning before implementation. The plan must define work items, dependencies, done criteria, verification, and review stop points.
 
-Default to a research lane before planning and an adversarial review gate before marking worker work complete. Use an oracle lane for independent critique, ambiguity resolution, cross-file reasoning, or risk checks. Fast self-checks are only for trivial, mechanical, low-risk work.
+Default to a research lane before planning and an adversarial review gate before marking worker work complete. Use an oracle lane for independent critique, ambiguity resolution, cross-file reasoning, or risk checks. Workers request oracle review by returning an Oracle Request Packet to the Director; the Director creates/continues/messages oracle threads and reconciles results. Fast self-checks are only for trivial, mechanical, low-risk work.
 
 ## Evidence And Verbosity
 
@@ -73,7 +73,7 @@ Commit regularly in logical units only when the worker brief grants `commit-when
 
 Use `codex_app.create_thread`, `codex_app.send_message_to_thread`, `codex_app.read_thread`, `codex_app.list_threads`, `codex_app.set_thread_title`, `codex_app.set_thread_pinned`, and `codex_app.set_thread_archived` for Director worker lifecycle whenever the active tool schema exposes and authorizes them. If those tools are unavailable or the schema does not authorize the needed lifecycle operation, say so explicitly and mark the worker adapter `simulated-unavailable` or ask/continue locally for coordination-only work; do not silently substitute RepoPrompt agents or invent missing APIs.
 
-Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope.
+Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope. If a worker needs an oracle/review thread, it returns an Oracle Request Packet to the Director instead of creating or messaging that thread directly unless explicitly authorized.
 
 Before starting a worker thread, the Director must choose the starting prompt, exact model or inherited profile, thinking level plus rationale, required skills or workflow references, context/artifact handoff, commit authority, done criteria, and evidence format. Use [Agent profiles and model routing](references/agent-profiles-and-model-routing.md): Director judgment and code-writing workers default to `high`; use `medium` for mechanical edits or bounded research, `low` for status/probes, and `xhigh` only for high-risk or final-authority gates.
 

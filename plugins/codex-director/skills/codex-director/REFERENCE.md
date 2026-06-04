@@ -63,6 +63,7 @@ Worker expectations:
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
 - Use the best available context engine for the task, but keep the brief self-contained. Optional tools can implement the workflow; they should not define it.
 - Treat oracle as a role, not a vendor. Use a separate Codex worker thread, browser oracle, review workflow, or other second-opinion lane when available and useful.
+- If oracle input is needed, return an Oracle Request Packet to the Director with mode, exact question, evidence paths, diff/test summary, constraints, and why oracle judgment is needed. Do not create, continue, or message oracle threads directly unless the Director explicitly delegates that authority.
 - Default to adversarial review for worker-thread tasks. A worker may use a fast self-check only for trivial coordination answers, mechanical one-line edits, or clearly low-risk work.
 - Use worker-internal delegation when the selected workflow calls for packet-internal decomposition, and only when the task spans multiple domains, has unclear ownership, or needs deep investigation/review. Do not require or document unstable runner-specific parameters in the worker brief.
 - If using nested dynamic workflow, sub-agents, or additional worker threads inside a packet, keep them under this packet's ownership and roll concise evidence back into the packet result.
@@ -72,6 +73,23 @@ Worker expectations:
 - If scope expands beyond the brief, report back before widening.
 - Implement and verify unless explicitly assigned plan/review/investigation only.
 ```
+
+## Oracle Request Packet
+
+Workers use this packet when they need Director-mediated oracle review.
+
+```text
+Mode: <plan|review|chat>
+Question: <exact question for the oracle>
+Why oracle is needed: <ambiguity/risk/conflict/cross-file reasoning>
+Evidence: <artifact paths, files, diffs, tests, logs, screenshots>
+Summary: <concise facts the oracle needs before reading artifacts>
+Constraints: <scope boundaries, privacy, no-commit/no-edit, product/security constraints>
+Requested output: <verdict/must-fix/should-fix/questions/confidence>
+Fallback tolerance: <built-in main/xhigh ok|ChatGPT Pro only|other>
+```
+
+The Director sends this packet to the selected oracle lane, reads the result, reconciles it against local evidence, and routes findings back to the worker or task artifact.
 
 ## Activation Report
 
@@ -182,9 +200,9 @@ Keep evidence brief. Include exact error lines only when they explain a blocker.
 Treat artifacts as part of the evidence contract:
 
 - `.workflow/<slug>/` is durable task state. Commit it only when project policy wants reusable or auditable workflow records; otherwise keep it as local working evidence until the final report is captured.
-- `prompt-exports/` contains prompts, oracle inputs, and oracle outputs. Redact secrets and raw private data before external submission. Delete stale exports after the receiving lane consumes them unless they are needed as durable evidence.
+- `prompt-exports/` contains durable prompt payloads, oracle inputs, and oracle outputs when a file artifact is useful. Redact secrets and raw private data before external submission. Delete stale exports after the receiving lane consumes them unless they are needed as durable evidence.
 - Worker evidence should be concise ledger/result text with artifact paths. Keep raw logs, screenshots, transcripts, and full diffs in local artifacts, not chat.
-- Browser ChatGPT oracle outputs are external-review artifacts. Record the prompt path, visible model label, result path, and safety decision.
+- Browser ChatGPT Pro oracle outputs are external-review artifacts. Record the prompt source or artifact path when one was created, Pro availability result, visible model label or built-in main/`xhigh` fallback note, result path, and safety decision.
 - Do not commit private data, credentials, raw transcripts, bulky generated artifacts, or temporary worker scratch unless the project explicitly treats them as safe durable evidence.
 
 ## Hooks
@@ -276,6 +294,8 @@ Research should gather only what planning needs: existing repo patterns, docs/sp
 
 Use an oracle lane when a plan or result needs independent critique, cross-file reasoning, security/risk review, or ambiguity resolution. Use a separate Codex worker thread, browser oracle, review workflow, or other available second-opinion lane.
 
+The Director mediates oracle traffic. Worker threads do not message oracle threads as peers; they return an Oracle Request Packet to the Director. The Director curates context, chooses the adapter/model/thinking level, sends the packet to the oracle lane, reads the result, reconciles conflicts, and routes findings back to the worker or plan.
+
 Default to an adversarial review gate for any task important enough to dispatch to a Codex worker thread. The review may be a separate review-oriented Codex worker thread, browser oracle, self-contained review workflow, or another stable review lane exposed by the current runtime. The reviewer should challenge correctness, scope, risks, tests, and done criteria.
 
 ## Lane And Workflow Contracts
@@ -300,17 +320,17 @@ Use when: decisions are ambiguous, cross-file reasoning is needed, user-facing o
 
 Model/effort: use main/high by default. Use Spark/medium only for quick second-pass sanity checks. Use `xhigh` only for high-risk architecture, auth/data/security, irreversible migration, or repeated disagreement between lanes.
 
-Output: verdict, must-fix issues, should-fix issues, assumptions, confidence, and exact follow-up questions. The oracle is advisory; local evidence and tests remain authoritative.
+Output: verdict, must-fix issues, should-fix issues, assumptions, confidence, and exact follow-up questions. The oracle is advisory; local evidence and tests remain authoritative. When the oracle is implemented as a Codex thread, the Director owns thread creation/continuation and passes curated packets; workers request oracle review through the Director instead of messaging the oracle directly.
 
-### Browser ChatGPT Oracle
+### Browser ChatGPT Pro Oracle
 
-Purpose: run an oracle prompt through the signed-in ChatGPT web app with `@Browser`, using the highest-capability available model or the specific model/tier the user requested.
+Purpose: run an oracle prompt through the ChatGPT web app with `@Browser`, using ChatGPT Pro or the requested Pro-tier model when available. If ChatGPT is not signed in during an actual Browser Pro oracle run, pause and ask the user to log in through the in-app Browser; do not ask for credentials in chat.
 
 Use when: the user explicitly asks for ChatGPT Pro, ChatGPT web, the signed-in Browser session, or an external second opinion that should not be satisfied by a local review thread alone.
 
-Model/effort: runner uses Spark/medium for Browser automation. Record the visible ChatGPT model label. If the user named a specific model/tier and it is unavailable or ambiguous, stop and ask before falling back.
+Model/effort: runner uses Spark/medium for Browser automation. It must not open or navigate Browser merely to check whether Pro is available; inspect Pro availability only during a selected Browser Pro oracle run, or in an already-open ChatGPT tab when safe and non-disruptive. During the run, inspect the model picker/account UI enough to record Pro availability, visible labels inspected, and the selected label. If Pro is unavailable or ambiguous, use the built-in Codex oracle/review lane with main/`xhigh` unless the user explicitly required Pro-only/no fallback. Do not silently substitute a non-Pro web model.
 
-Output: prompt export path, selected ChatGPT model label, result artifact path, elapsed wait time, verdict, must-fix findings, follow-up changes, and blockers. The worker must open `https://chatgpt.com/`, start a new chat, submit the prompt, wait for completion even if it takes a while, and capture the final response.
+Output: prompt source or artifact path when one was created, Pro availability result, selected ChatGPT model label or built-in main/`xhigh` fallback note, result artifact path, elapsed wait time, verdict, must-fix findings, follow-up changes, and blockers. A delegated oracle-runner worker must assemble the prompt from the current task/evidence, open `https://chatgpt.com/` only because the Browser Pro oracle run has been selected, prompt for login if needed, start a new chat, submit the prompt directly through Browser when Pro is available, wait for completion even if it takes a while, and capture the final response.
 
 ### Plan Review Gate
 
@@ -320,7 +340,7 @@ Use when: task has multiple work items, dependencies, data/auth/security risk, u
 
 Model/effort: use Spark/medium for low-risk plan challenge; main/high for normal Director plan judgment and broad user-facing work; `xhigh` for architecture, security/data, migrations, or hard-to-reverse plans.
 
-Output: approved/approved-with-fixes/rework verdict, missing work items, missing tests, scope risks, and revised stop points.
+Output: approved/approved-with-fixes/rework verdict, missing work items, missing tests, scope risks, and revised stop points. If the gate needs an oracle/review thread from inside a worker, the worker returns an Oracle Request Packet to the Director rather than contacting that lane directly.
 
 ### Adversarial Review Gate
 
@@ -330,7 +350,7 @@ Use when: any worker thread changed code/docs/config, any dynamic workflow packe
 
 Model/effort: Spark/high for first-pass code/doc review; main/high for final verdict or ordinary risky changes; `xhigh` only for serious security/data/architecture concerns, conflicting evidence, or final acceptance when verification is indirect.
 
-Output: findings first, ordered by severity, with file/line or artifact references, verification gaps, and final accept/reject verdict.
+Output: findings first, ordered by severity, with file/line or artifact references, verification gaps, and final accept/reject verdict. If the review gate needs an oracle/review thread from inside a worker, the worker returns an Oracle Request Packet to the Director rather than contacting that lane directly.
 
 ### Orchestration Workflow
 
@@ -374,13 +394,13 @@ Output: baseline, change, after measurement, tradeoffs, tests, and residual risk
 
 ### Prompt Export Workflow
 
-Purpose: package just enough context for an oracle, browser, reviewer, or worker handoff without bloating chat.
+Purpose: package just enough context into a durable local artifact for an oracle, reviewer, Browser upload/retry, or worker handoff without bloating chat.
 
-Use when: another lane needs context, a browser oracle is needed, or a result must be preserved as an artifact.
+Use when: another lane needs a durable file artifact, a Browser ChatGPT Pro oracle payload is too large or must be resumable/auditable, cross-thread handoff needs a stable path, or a result must be preserved as an artifact.
 
 Model/effort: Spark/medium.
 
-Output: local export path, included sources, excluded sensitive material, exact questions, and expected response shape. If the receiver is Browser ChatGPT oracle, prompt export is not complete until the Browser ChatGPT oracle workflow has submitted the prompt and captured the result.
+Output: local export path, included sources, excluded sensitive material, exact questions, and expected response shape. If the receiver is Browser ChatGPT Pro oracle, the export is optional payload support; the Browser workflow still must submit the prompt and capture the result when Pro is available, or route to built-in main/`xhigh` fallback when Pro is unavailable or ambiguous.
 
 ## Adapted Workflow References
 
@@ -397,7 +417,7 @@ Check execution mode and dynamic workflow eligibility early for non-trivial work
 - [Review workflow](references/review-workflow.md)
 - [Refactor workflow](references/refactor-workflow.md)
 - [Optimize workflow](references/optimize-workflow.md)
-- [Browser ChatGPT oracle workflow](references/browser-chatgpt-oracle-workflow.md)
+- [Browser ChatGPT Pro oracle workflow](references/browser-chatgpt-oracle-workflow.md)
 - [Prompt export workflow](references/prompt-export-workflow.md)
 - [Codex Goals integration](references/goals-integration.md)
 - [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)

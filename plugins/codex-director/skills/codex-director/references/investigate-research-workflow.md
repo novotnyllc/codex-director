@@ -100,6 +100,8 @@ For diagnosis or root-cause work:
 4. Use an oracle lane for cross-file synthesis when evidence spans modules.
 5. Stop when root cause and counter-evidence are concrete.
 
+When this workflow runs inside a Director-managed worker and cross-file synthesis needs oracle judgment, return an Oracle Request Packet with the hypothesis, evidence paths, conflicts, and exact question. The Director routes that packet to the selected oracle lane and reconciles the result.
+
 Use a pair/investigation worker only when multi-step tracing is needed. It should append findings to a report or return concise evidence.
 
 ## Phase 5: Report

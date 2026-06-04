@@ -44,7 +44,7 @@ Build context with the lightest adequate path:
 - Use a context engine when one can cheaply map files, patterns, edge cases, and verification.
 - Otherwise use targeted search/read/code-structure calls.
 - Read only files needed to understand the implementation boundary.
-- Draft the plan, then send it to an oracle/review lane when non-trivial.
+- Draft the plan, then use the plan review gate when non-trivial. In a Director-managed worker, return an Oracle Request Packet to the Director instead of contacting an oracle/review thread directly.
 
 When a context engine is available, prefer a plan pass before editing. Use the adapter's "build context and propose a plan" operation, then keep the selected context narrow enough for the task. For no engine, write a compact local plan after targeted reads.
 
@@ -83,7 +83,7 @@ Review questions:
 - Are unrelated changes excluded?
 - Is the commit boundary coherent?
 
-Use the plan review gate from `REFERENCE.md`: fast self-check for tiny low-risk changes, a review Codex worker thread or oracle lane for non-trivial work, and main/high or `xhigh` escalation for risky architecture/data/auth/security decisions.
+Use the plan review gate from `REFERENCE.md`: fast self-check for tiny low-risk changes, a Director-mediated review Codex worker thread or oracle lane for non-trivial work, and main/high or `xhigh` escalation for risky architecture/data/auth/security decisions. If this worker needs that lane, return an Oracle Request Packet to the Director with the plan, evidence, risks, and exact questions.
 
 ## Phase 4: Implementation
 
@@ -121,6 +121,7 @@ Verification evidence should name commands and outcomes, not paste full logs. If
 Default review gate for worker-thread tasks:
 
 - Separate Codex review thread, oracle critique, self-contained review workflow, or worker-internal review lane.
+- In a Director-managed worker, request separate review/oracle lanes by returning an Oracle Request Packet to the Director; do not create or message oracle threads directly.
 - Ask the reviewer to find bugs, missed requirements, unsafe assumptions, insufficient tests, and scope drift.
 - Fix must-fix findings before reporting complete.
 

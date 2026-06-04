@@ -20,8 +20,8 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | --- | --- | --- | --- |
 | `research-scout` | Narrow repo/docs/web/prior-art question, no edits | Spark | low/medium |
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
-| `prompt-exporter` | Package context for oracle/review lanes | Spark | medium |
-| `browser-oracle-runner` | Open chatgpt.com with Browser, start a new chat, select the highest-capability available or requested model, record the visible model label, submit prompt, wait, and capture result | Spark | medium |
+| `prompt-exporter` | Package durable context artifacts for oracle/review/upload/retry/handoff lanes | Spark | medium |
+| `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
 | `implementation-worker` | Bounded build/refactor/test packet with code-writing or verification | main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | Spark first pass, main for final/high-risk | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | main | high |
@@ -35,7 +35,7 @@ When a delegation adapter exposes generic role labels, map Director profiles thi
 | Director profile | Generic role |
 | --- | --- |
 | `research-scout` / `context-scout` | `explore` |
-| `prompt-exporter` / `browser-oracle-runner` | `engineer` or `explore` for read-only prep |
+| `prompt-exporter` / `chatgpt-pro-oracle-runner` | `engineer` or `explore` for read-only prep/automation |
 | `implementation-worker` | `engineer` for clear packets, `pair` for ambiguous packets |
 | `adversarial-reviewer` | `pair` or `design` depending on runtime support |
 | `planner` | `pair` or `design` |
@@ -51,8 +51,8 @@ Use Spark for bounded, evidence-oriented throughput work:
 - research scouts
 - status summaries
 - artifact/result collection
-- prompt export packaging
-- Browser ChatGPT oracle automation
+- prompt export packaging when a durable artifact is needed
+- Browser ChatGPT Pro oracle automation with built-in main/`xhigh` fallback when Pro is unavailable
 - first-pass reconnaissance
 - mechanical edits with clear tests
 - very contained low-risk packet execution
@@ -97,8 +97,8 @@ Use `low` for:
 
 Use `medium` for:
 
-- Browser oracle automation
-- prompt export
+- Browser ChatGPT Pro oracle automation
+- prompt export when a durable artifact is needed
 - ordinary research scouts
 - simple bounded reviews
 - mechanical docs/config/test-data edits with obvious verification

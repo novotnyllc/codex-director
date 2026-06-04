@@ -124,6 +124,8 @@ Respect stop signals: target met, plateau, risk too high, measurement unreliable
 
 The oracle/review lane should see the scoreboard and evidence, not the whole transcript. Ask for a stop/continue verdict and the one next experiment that would most likely matter.
 
+When an optimization worker reaches this decision point, it returns an Oracle Request Packet with the scoreboard, measurement caveats, correctness evidence, candidate list, and requested stop/continue verdict. The Director chooses and messages the oracle/review lane, then routes the decision back.
+
 ## Phase 6: Finalization
 
 - Remove or gate temporary instrumentation.

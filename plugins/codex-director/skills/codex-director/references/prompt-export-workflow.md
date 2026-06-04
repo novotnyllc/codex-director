@@ -1,12 +1,12 @@
 # Prompt Export Workflow
 
-Use when a worker needs to package project context for an oracle, review model, Browser ChatGPT session, or another external reasoning lane.
+Use when the Director or a delegated worker needs to package project context into a durable local artifact for an oracle, review model, worker handoff, upload, retry, or another external reasoning lane. In a Director-managed worker, this exports evidence only; the worker still returns an Oracle Request Packet and artifact path to the Director unless explicitly delegated receiver-runner authority.
 
 ## Principle
 
 Extract the real task, select the right evidence, export a self-contained prompt artifact, and hand that artifact to the next reasoning lane. The export should make the receiver useful immediately without requiring the user to copy context manually.
 
-When the intended receiver is Browser ChatGPT oracle, prompt export is only Phase 1. The worker must continue into [Browser ChatGPT oracle workflow](browser-chatgpt-oracle-workflow.md), open `chatgpt.com` with `@Browser`, start a new chat, select the Pro model when available, submit the prompt, wait for completion, and capture the result artifact.
+Browser ChatGPT Pro oracle does not normally need this workflow anymore: [Browser ChatGPT Pro oracle workflow](browser-chatgpt-oracle-workflow.md) should assemble and submit the prompt directly through `@Browser` when Pro is available. Use prompt export for Browser only when a durable payload artifact is useful for audit, upload/chunking, retry after automation failure, cross-thread handoff, or explicit user request.
 
 ## Phase 0: Extract The Real Task
 
@@ -39,7 +39,7 @@ Rules:
 - Review exports for code must include the words "code review", comparison scope, changed files, and expected findings-first output.
 - Plan exports must include goal, background, constraints, open questions, and requested work item shape.
 - Question exports must include exact question, evidence boundaries, and uncertainty/reporting expectations.
-- Browser ChatGPT exports must include a concise requested response shape and a sensitive-data note.
+- Browser ChatGPT exports, when created, must include a concise requested response shape and a sensitive-data note.
 
 ## Phase 2: Confirm Scope
 
@@ -97,9 +97,9 @@ Return or pass forward:
 - prompt type
 - context path used
 - token/size caveat if known
-- intended receiver: Browser ChatGPT oracle, local oracle, review worker, etc.
+- intended receiver: local oracle, review worker, Browser ChatGPT Pro oracle, etc.
 
-If using Browser ChatGPT oracle, do not stop here. Pass the export path to [Browser ChatGPT oracle workflow](browser-chatgpt-oracle-workflow.md) and run the Browser round trip unless blocked.
+If the export is for Browser ChatGPT Pro oracle, treat it as an optional payload artifact for [Browser ChatGPT Pro oracle workflow](browser-chatgpt-oracle-workflow.md), not as a required phase. Run the Browser round trip when Pro is available; if Pro is unavailable or ambiguous, use the built-in main/`xhigh` oracle/review fallback unless the user explicitly required Pro-only/no fallback.
 
 After the receiver consumes the export and the result is captured, delete stale exports unless they are durable evidence for the task.
 
@@ -111,5 +111,6 @@ After the receiver consumes the export and the result is captured, delete stale 
 - Using fast path for broad review/plan tasks.
 - Sending sensitive data externally without permission or redaction.
 - Rewriting a good exported prompt without a concrete defect.
-- Treating the export file as the final result when the selected lane is Browser ChatGPT oracle.
+- Creating a prompt export solely because Browser ChatGPT Pro oracle was selected.
+- Treating the export file as the final result when the selected lane is Browser ChatGPT Pro oracle.
 - Forgetting comparison scope in review exports.

@@ -141,6 +141,7 @@ Every worker brief must include:
 - Codex skills loaded/required/skipped
 - Director workflow/playbook
 - context/oracle/review tools
+- oracle request policy: workers return Oracle Request Packets to the Director unless explicitly delegated oracle-runner authority
 - plan review and adversarial review gate
 - evidence and verbosity limits
 - git/worktree expectations
@@ -173,6 +174,7 @@ Git/worktree:
 Commit authority:
 Verification:
 Review gate:
+Oracle request policy:
 Evidence format:
 Verbosity limit:
 Stop and report if:
