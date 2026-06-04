@@ -59,7 +59,7 @@ Exclude these hits from `codex_app` thread detection:
 
 ## Thread Management Adapter
 
-The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A user request to set up or use a Director is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
+The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
 
 Current `codex_app` thread contract:
 
@@ -114,7 +114,7 @@ Before calling `codex_app.create_thread`, define:
 
 - worker title
 - starting prompt
-- explicit authorization basis for creating a new/separate thread under the active tool instructions, usually the user-requested Director scope
+- explicit authorization basis for creating a new/separate thread under the active tool instructions; for a Director thread itself, this requires a clear separate/new-thread request
 - target project/worktree or projectless directory
 - model and thinking level plus rationale
 - required skills or workflow references

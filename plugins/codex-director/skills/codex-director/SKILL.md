@@ -7,7 +7,7 @@ description: Use when setting up or operating a project Codex Director thread fo
 
 ## Quick Start
 
-Create or operate one pinned Director thread for a single project scope. The Director coordinates; bounded Codex worker threads implement, investigate, plan, review, refactor, or optimize. A user request to set up or use the Director is the explicit separate-thread authorization for worker threads inside that project scope; outside that authorization, follow the active `codex_app` tool contract.
+Create or operate one pinned Director thread for a single project scope. The Director coordinates; bounded Codex worker threads implement, investigate, plan, review, refactor, or optimize. A bare `$codex-director` or `codex-director` invocation in the current thread makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new thread, and continue an existing active Director only when the user clearly asks to continue or reuse it.
 
 Project scope is whichever boundary the user names or the current Codex project implies: saved project root, repo root, multi-repo workspace root, or projectless working directory. Do not require the project scope itself to be a git repo.
 
@@ -20,9 +20,10 @@ Keep this file as the compact dispatcher. Load [REFERENCE.md](REFERENCE.md) for 
 When asked to set up a director thread:
 
 1. Identify project scope and instruction files such as `AGENTS.md`, `CLAUDE.md`, or repo-local guides. The Director may read coordination metadata needed to establish the brief, including its own plugin docs, hook config, ledger/workflow artifacts, and top-level project instruction files; substantive repo/docs/code or production inspection remains worker-owned.
-2. Create or continue the project Director thread, title it `Director: <project>`, and pin it.
-3. Check whether the scoped Director hooks are installed, enabled, and trusted; treat them as reminders, not as the worker execution contract.
-4. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
+2. Make the current thread the project Director unless the user clearly requested a separate/new thread or clearly asked to continue/reuse an existing active Director. Do not resurrect or unarchive an archived prior Director by default.
+3. Title the Director with the workspace title convention when available; otherwise use `Director: <project>` or an equivalent project-specific title. Pin the Director when the active thread tools expose pinning.
+4. Check whether the scoped Director hooks are installed, enabled, and trusted; treat them as reminders, not as the worker execution contract.
+5. Give it the operating brief from [REFERENCE.md](REFERENCE.md), adapted to the project.
 
 ## Director Triage
 
