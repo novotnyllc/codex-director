@@ -1,6 +1,6 @@
 interface:
   display_name: "Codex Director"
-  short_description: "Coordinate project work across Codex worker threads, dynamic workflows, goals, reviews, and research lanes"
+  short_description: "Coordinate project work across Codex worker threads with quiet, signal-first monitoring"
   default_prompt: "Use $codex-director to coordinate this project task with appropriate worker threads, dynamic workflows, goals, reviews, and evidence gates."
 
 policy:
