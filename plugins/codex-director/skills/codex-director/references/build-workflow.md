@@ -100,7 +100,7 @@ Rules:
 - If a plan assumption breaks, pause and report before widening.
 - Commit after a coherent work item passes verification.
 
-If a task becomes multi-item or cross-domain, escalate to the orchestration workflow. If it remains one packet but has independent context/review/verification questions, keep ownership in this worker and use worker-internal helpers rather than bloating the owning thread.
+If a task becomes multi-item or cross-domain, escalate to the orchestration workflow. If it remains one bounded work item but has independent context/review/verification questions, keep ownership in this worker and use worker-internal helpers rather than bloating the owning thread.
 
 If using a delegated worker, the worker may make tactical implementation decisions inside the reviewed boundary. It must report before changing public API shape, schema, auth/security behavior, production config, data migration strategy, or branch/worktree plan.
 

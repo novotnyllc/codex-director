@@ -6,7 +6,7 @@ Use this when the Director thread is choosing Codex worker thread roles, model f
 
 Use delegation aggressively when it improves speed, coverage, review independence, risk control, context management, or token economy. Do not wait for the user to say "subagents", "swarm", "oracle", or "Pro".
 
-Most Director-started worker threads should behave as packet coordinators: select the relevant functions/files/tests before reading broadly, choose helper lanes by task shape, delegate independent scouting or verification to narrow sub-agents, and return concise evidence instead of accumulating transcript mass.
+Most non-trivial Director-started worker threads are work-item coordinators, not monolithic executors: use the defined workflow/playbook that matches the assigned work item, select the relevant functions/files/tests before reading broadly, choose helper lanes by task shape, delegate independent scouting or verification to narrow sub-agents, and return concise evidence instead of accumulating transcript mass. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
 
 Director-created workers use the latest non-Spark main model exposed by the active schema by default, for example `gpt-5.5` when it is listed. Never choose older main-family model ids such as `gpt-5.4` when a newer main model is available. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
 
@@ -24,8 +24,8 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `prompt-exporter` | Package durable context artifacts for oracle/review/upload/retry/handoff lanes | Spark | medium |
 | `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
-| `packet-coordinator` | Own a non-trivial packet, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | latest main | high |
-| `implementation-worker` | Bounded build/refactor/test packet with code-writing or verification | current main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
+| `work-item-coordinator` | Own a non-trivial assigned work item, run the matching workflow/playbook, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | latest main | high |
+| `implementation-worker` | Bounded build/refactor/test work item with code-writing or verification | current main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | current main by default; Spark only for quick low-risk first pass | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | latest main | high |
 | `integration-auditor` | Integrate packet results, reconcile commits/worktrees, audit evidence | latest main | high/xhigh |
@@ -39,14 +39,14 @@ When a concrete helper/delegation tool exposes generic role labels, map Director
 | --- | --- |
 | `research-scout` / `context-scout` | `explore` |
 | `prompt-exporter` / `chatgpt-pro-oracle-runner` | `engineer` or `explore` for read-only prep/automation |
-| `packet-coordinator` | `pair` for ambiguous/context-heavy packets, `engineer` for clear implementation packets |
-| `implementation-worker` | `engineer` for clear packets, `pair` for ambiguous packets |
+| `work-item-coordinator` | `pair` for ambiguous/context-heavy work items, `engineer` for clear implementation work items |
+| `implementation-worker` | `engineer` for clear work items, `pair` for ambiguous work items |
 | `adversarial-reviewer` | `pair` or `design` depending on runtime support |
 | `planner` | `pair` or `design` |
 | `integration-auditor` | `pair` |
 | `security-data-reviewer` | strongest available main-model review role |
 
-Fresh worker is the default for independent packets. Steer one existing worker only for tightly coupled sequential work, many tiny items, or when preserving working memory reduces risk.
+Fresh worker is the default for independent bounded work items. Steer one existing worker only for tightly coupled sequential work, many tiny items, or when preserving working memory reduces risk.
 
 ## Spark Routing
 
@@ -59,7 +59,7 @@ Use Spark for bounded, evidence-oriented throughput work:
 - Browser ChatGPT Pro oracle automation with built-in main/`xhigh` fallback when Pro is unavailable, unsafe, or lower-value than local review
 - first-pass reconnaissance
 - mechanical edits with clear tests
-- very contained low-risk packet execution
+- very contained low-risk work-item execution
 - first-pass adversarial review where a main-model final verdict will follow if findings matter
 - "find evidence for/against this one claim"
 
@@ -78,9 +78,9 @@ Do not use Spark as final authority for:
 
 Use the latest non-Spark main model exposed by the active schema for:
 
-- packet coordinator workers that choose context/helper strategy
+- work-item coordinator workers that choose context/helper strategy
 - director top-level task decisions
-- dynamic workflow setup and packet design
+- dynamic workflow setup and concrete packet design
 - final plan review
 - cross-repo integration
 - conflict resolution
@@ -111,13 +111,13 @@ Use `medium` for:
 
 Use `high` for:
 
-- worker packet coordination, ordinary plan judgment, and evidence synthesis before Director acceptance
+- worker work-item coordination, ordinary plan judgment, and evidence synthesis before Director acceptance
 - bounded implementation with real code changes
 - planning from research
 - ordinary adversarial review
 - refactors
 - optimization iterations
-- dynamic workflow packet execution
+- dynamic workflow work-item execution from concrete packet files
 - code-writing workers unless the edit is purely mechanical
 
 Use `xhigh` for:
@@ -139,7 +139,7 @@ Escalate from Spark to the latest main model when:
 
 - evidence conflicts
 - risk crosses auth/security/data/migration/production boundaries
-- packet outputs disagree
+- worker outputs or dynamic workflow packet outputs disagree
 - the result affects architecture
 - the worker cannot name a runnable verification surface
 - completion depends on judgment rather than simple evidence
@@ -153,6 +153,6 @@ Escalate worker or oracle lanes from `high` to `xhigh` when:
 
 ## Token Economy
 
-Prefer narrow Spark scouts only when the task is a true Spark fit and the cost of a weaker answer is low. Prefer one latest-main packet coordinator or integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts. For non-trivial packets, spend a small amount of reasoning up front deciding which context to load and which helpers to run; that is usually cheaper than letting the owning thread absorb the whole repo.
+Prefer narrow Spark scouts only when the task is a true Spark fit and the cost of a weaker answer is low. Prefer one latest-main work-item coordinator or integration pass after scouts finish. Pass artifact paths and concise summaries instead of full transcripts. For non-trivial work items, spend a small amount of reasoning up front deciding which workflow to run, which context to load, and which helpers to use; that is usually cheaper than letting the owning thread absorb the whole repo.
 
 Clean up completed runtime sessions after their evidence is recorded. Keeping many stale sessions open increases monitoring cost and makes the Director ledger harder to trust.

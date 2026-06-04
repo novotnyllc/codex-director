@@ -20,7 +20,7 @@ Default to proactive delegation when it is beneficial. A user request to set up 
 For each request:
 1. Determine project/repo/path ownership.
 2. Convert the request into a goal-shaped task with done criteria.
-3. Decide whether the request is coordination-only, one Codex worker thread, or dynamic workflow decomposed into multiple worker-thread packets.
+3. Decide whether the request is coordination-only, one Codex worker thread, or a dynamic workflow decomposed into multiple concrete packet files.
 4. Discover applicable Codex skills and workflow playbooks for the Director-level routing decision.
 5. Define the launch contract for each worker: starting prompt, resolved project target, model, thinking level plus rationale, required skills/workflow references, context artifacts, commit authority, evidence requirements, git/worktree handling, helper/sub-agent policy, and done criteria.
 6. Predict required research lane, skills, context tools, worker-internal helper lanes, oracle lane, Browser ChatGPT Pro suitability, plan review gate, adversarial review gate, and review workflows before dispatch.
@@ -54,11 +54,11 @@ Constraints:
 - Read local instruction files first.
 - Do not touch unrelated dirty changes.
 - Do not print secrets or private data.
-Director workflow/playbook: <build/review/research/deep-plan/orchestrate/refactor/optimize/etc.>
+Selected workflow/playbook: <build/review/research/deep-plan/orchestrate/refactor/optimize/etc. plus why it matches this work item>
 Context/oracle/review tools: <context engine/browser oracle/review lane/etc.>
 Research lane: <none/local/thread/context engine/web/other available lane>
 Worker helper policy: <sub-agents/context scouts/model or function selection helpers/none plus why>
-Topic/packet coordinator policy: <leaf allowed because tiny/packet coordinator required plus why>
+Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct leaf execution because tiny/mechanical/low-risk plus why>
 Oracle lane: <none or predicted second-opinion path>
 Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale for none>
 Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested>
@@ -71,17 +71,17 @@ Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
-- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, Director workflow/playbook, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, topic/packet coordinator policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
+- Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, selected workflow/playbook and why it matches this work item, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, work-item coordination policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
-- Use the best available context engine for the task, but keep the brief self-contained. Optional tools can implement the workflow; they should not define it.
-- Act as a packet coordinator when the task is non-trivial: choose narrow helper functions/models, keep context deliberately small, and use worker-internal sub-agents for scouting, model/function selection, context mapping, verification, review, or contained subwork when that improves quality or token economy.
+- Use the selected workflow/playbook as the control loop for the work item. Optional tools can implement workflow phases, but they should not replace the defined workflow.
+- Act as a work-item coordinator when the task is non-trivial: choose narrow helper functions/models, keep context deliberately small, and use worker-internal sub-agents for scouting, model/function selection, context mapping, verification, review, or contained subwork when that improves quality or token economy. Direct leaf execution is allowed only for tiny, mechanical, low-risk work and must be justified in activation.
 - Treat oracle as a role, not a vendor. Use a separate Codex worker thread, browser oracle, review workflow, or other second-opinion lane when available and useful.
 - If oracle input is needed, return an Oracle Request Packet to the Director with mode, exact question, evidence paths, diff/test summary, constraints, and why oracle judgment is needed. Do not create, continue, or message oracle threads directly unless the Director explicitly delegates that authority.
 - Default to adversarial review for worker-thread tasks. A worker may use a fast self-check only for trivial coordination answers, mechanical one-line edits, or clearly low-risk work.
-- Use worker-internal delegation when the selected workflow calls for packet-internal decomposition, and also when narrow helpers can cheaply select models/functions, map relevant context, verify claims, review a risky patch, or answer independent scout questions. Do not use helpers for overlapping edits or as a substitute for the Director-owned oracle lane.
-- If using nested dynamic workflow, sub-agents, or additional worker threads inside a packet, keep them under this packet's ownership and roll concise evidence back into the packet result.
+- Use worker-internal delegation when the selected workflow calls for decomposition, and also when narrow helpers can cheaply select models/functions, map relevant context, verify claims, review a risky patch, or answer independent scout questions. Do not use helpers for overlapping edits or as a substitute for the Director-owned oracle lane.
+- If using nested dynamic workflow, sub-agents, or additional worker threads inside a bounded work item, keep them under that work item's ownership and roll concise evidence back into the worker result. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
 - Use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Inspect existing Goals before continuing and audit evidence before completion.
 - Commit regularly in logical units only when commit authority allows it. Use isolated worktrees when work is parallel, risky, long-running, or likely to conflict. Reconcile all work back to the canonical repo/branch and clean up finished worktrees.
 - Report concise evidence only: changed files, commands/tests, review verdicts, artifact paths, unresolved risks, and blockers. Do not paste long logs or narrate exploration unless requested.
@@ -114,11 +114,11 @@ Task shape: <answer/research/investigate/deep-plan/dynamic-workflow/build/orches
 Codex skills considered: <names and why>
 Codex skills loaded: <names>
 Codex skills skipped/not loaded: <names and reason>
-Director workflow/playbook: <workflow reference and why>
+Selected workflow/playbook: <workflow reference and why it matches this work item>
 Context/oracle/review tools: <tools selected and why>
 Research lane: <none/local/thread/context engine/web/other available lane and why>
 Worker helper policy: <sub-agents/context scouts/model or function selection helpers/none and why>
-Topic/packet coordinator policy: <leaf allowed/packet coordinator required and why>
+Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct leaf execution because tiny/mechanical/low-risk plus why>
 Oracle lane: <none/tool/thread and why>
 Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale for none>
 Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested>
@@ -271,7 +271,7 @@ When enabled, trusted, and running in a Director-marked thread, the hooks reinfo
 - Project work runs in Codex worker threads.
 - Every worker launch needs prompt, model, thinking level plus rationale, skills/workflows, commit authority, done criteria, and evidence format.
 - Compaction must restore ledger and handle awareness.
-- Nested helpers roll evidence up to their owning worker or packet.
+- Nested helpers roll evidence up to their owning worker or concrete dynamic workflow packet.
 - No-inline repo/prod inspection and worker-only execution boundaries.
 - Dynamic workflow selection for production or external-write work.
 - Activation, review/oracle, cleanup, and archive closeout.
@@ -431,9 +431,9 @@ Purpose: break multi-part work into bounded items and keep progress auditable.
 
 Use when: work has parallel lanes, dependencies, multiple repos/modules, phased approvals, multiple workers, or long-running state.
 
-Model/effort: latest-main/`xhigh` for Director-owned decomposition, integration, and acceptance decisions; latest-main/high for worker-owned orchestration execution; Spark/medium for packet drafting/status summarization.
+Model/effort: latest-main/`xhigh` for Director-owned decomposition, integration, and acceptance decisions; latest-main/high for worker-owned orchestration execution; Spark/medium for concrete packet drafting/status summarization.
 
-Output: task map, packet briefs, dependencies, owner/thread mapping, approval gates, verification matrix, integration plan, and concise status ledger.
+Output: task map, work-item briefs or concrete packet briefs, dependencies, owner/thread mapping, approval gates, verification matrix, integration plan, and concise status ledger.
 
 ### Build Workflow
 
@@ -519,7 +519,7 @@ Create one Codex worker thread in <repo or workspace>. Use latest-main/high thin
 Multi-part work:
 
 ```text
-Create one Codex worker thread to use the orchestration workflow. Use latest-main/high for decomposition and integration decisions, medium/`gpt-5.3-codex-spark` for packet drafting/status-only passes, and latest-main/xhigh for conflict resolution or high-risk integration. Decompose the work, staff packet work with Codex worker threads when packet ownership warrants it, verify each phase, and report back with completion evidence.
+Create one Codex worker thread to use the orchestration workflow. Use latest-main/high for decomposition and integration decisions, medium/`gpt-5.3-codex-spark` for concrete packet drafting/status-only passes, and latest-main/xhigh for conflict resolution or high-risk integration. Decompose the work, staff bounded work items with Codex worker threads when ownership warrants it, verify each phase, and report back with completion evidence.
 ```
 
 Review:

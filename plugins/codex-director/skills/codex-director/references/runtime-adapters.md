@@ -138,7 +138,7 @@ Before calling `codex_app.create_thread`, define:
 - evidence format and verbosity limit
 - Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
-Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. A separate Director thread defaults to latest-main/`xhigh` when the active schema supports those choices. Existing Director thread continuations, heartbeat wakeups, and worker callbacks into the Director also use `xhigh` when thinking selection is exposed; do not inherit or pass low/medium/high worker thinking into the Director thread. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with thinking selected by worker task shape and risk; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Worker thinking defaults remain task-based: low/medium for routine probes or mechanical work, high for ordinary packet coordination and implementation, and xhigh for high-risk or final-authority worker gates. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
+Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. A separate Director thread defaults to latest-main/`xhigh` when the active schema supports those choices. Existing Director thread continuations, heartbeat wakeups, and worker callbacks into the Director also use `xhigh` when thinking selection is exposed; do not inherit or pass low/medium/high worker thinking into the Director thread. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with thinking selected by worker task shape and risk; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Worker thinking defaults remain task-based: low/medium for routine probes or mechanical work, high for ordinary work-item coordination and implementation, and xhigh for high-risk or final-authority worker gates. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
 
 Every real worker must start with an activation report. Record routine activation in the Director ledger; surface it to the user only when activation changes routing, exposes a blocker, or requires a decision. If the worker does not return activation, steer it once:
 
@@ -264,11 +264,11 @@ Hooks do not create threads and are not a substitute for `codex_app.create_threa
 
 ## Worker-Internal Sub-Agent Helper Layer
 
-Sub-agents and other native delegation helpers sit below Codex worker threads. Most non-trivial Director-started workers should consider themselves packet coordinators, not monolithic executors. Use worker-internal helpers when the active workflow allows packet-internal decomposition and the helper can return concise evidence to the owning thread.
+Sub-agents and other native delegation helpers sit below Codex worker threads. Most non-trivial Director-started workers are work-item coordinators, not monolithic executors. They must use the defined workflow/playbook that matches the assigned work item, then use worker-internal helpers when that workflow benefits from decomposition and the helper can return concise evidence to the owning thread. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
 
 Allowed uses:
 
-- a worker thread decomposes one packet into narrow subtasks
+- a worker thread decomposes one assigned work item into narrow subtasks
 - a worker runs a bounded scout, verification, review, or implementation helper
 - a worker uses a helper to select likely models/functions/files/tests before loading broad context
 - a worker uses a helper to map context slices, call sites, ownership, or verification surfaces
@@ -277,15 +277,15 @@ Allowed uses:
 
 Rules:
 
-1. Start non-trivial packets with a helper/context strategy: what can be scouted, what should stay in the owning worker, and what context should be excluded.
+1. Start non-trivial work items with the selected workflow/playbook and a helper/context strategy: what can be scouted, what should stay in the owning worker, and what context should be excluded. Direct leaf execution is allowed only for tiny, mechanical, low-risk work and needs a brief activation rationale.
 2. Only parallelize disjoint work.
 3. Tell each sub-agent what sibling helpers are doing and what files/modules to avoid.
 4. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, latest-main/high for code-writing/review handoff, latest-main/xhigh for high-risk review or final authority. Spark means `gpt-5.3-codex-spark`; main means the latest non-Spark model exposed by the active schema.
 5. Use helpers to reduce context load, not to create more transcript mass; ask for file paths, line refs, facts, commands, and confidence.
 6. Wait or poll regularly; do not leave helpers unattended.
-7. Verify helper output before the owning worker claims its packet is complete.
+7. Verify helper output before the owning worker claims its work item is complete.
 8. Roll up helper evidence into the worker summary; do not expose helper transcripts as the Director ledger.
-9. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning packet.
+9. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning work item or dynamic workflow packet.
 
 ## Context Engine Helper Layer
 

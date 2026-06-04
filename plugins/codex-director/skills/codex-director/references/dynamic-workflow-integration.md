@@ -6,7 +6,7 @@ Use when a project director thread needs task-level orchestration for a complex 
 
 The director thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktree/commit policy, reconciliation decisions, worker check-ins, and final user-facing status. Workers perform project work and repo-changing operations.
 
-The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, Codex worker-thread packet work, integration, verification, reusable recipes, and the run artifact:
+The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, Codex worker-thread packet work, integration, verification, reusable recipes, and the run artifact. In this reference, `packet` means a concrete work-item file under `.workflow/<slug>/packets/`:
 
 ```text
 .workflow/<slug>/

@@ -165,9 +165,9 @@ When optional context/delegation tools are also available, use them as implement
 
 1. Director invokes `codex-dynamic-workflows` to create the task orchestration run.
 2. Director uses the dynamic workflow plan/state as the task source of truth.
-3. For each packet, Director dispatches a Codex worker thread.
-4. The worker uses the relevant self-contained workflow playbook for its packet.
-5. For packet-internal complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that packet.
+3. For each dynamic workflow packet, Director dispatches a Codex worker thread.
+4. The worker uses the relevant self-contained workflow playbook for its assigned work item.
+5. For work-item complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that work item.
 6. Worker writes concise result evidence into `results/`.
 7. Director dispatches any integration, verification, or reconciliation work to workers, records accepted evidence, and writes final report.
 
@@ -190,11 +190,11 @@ Director records accepted packet evidence and coordinates any integration worker
 
 Do not let a worker-internal helper create a second top-level plan that conflicts with `.workflow/plan.md`. It may create implementation subplans under its packet, but the parent dynamic workflow artifact remains the task source of truth.
 
-Latest Codex `codex_app` worker/thread/project tooling is the premise of this skill. Director setup confirms the contract before operating, and packet work must not execute in the Director thread.
+Latest Codex `codex_app` worker/thread/project tooling is the premise of this skill. Director setup confirms the contract before operating, and dynamic workflow packet work must not execute in the Director thread.
 
 ## How Workflow Playbooks Fit
 
-Use the narrow self-contained workflow that matches each packet:
+Use the narrow self-contained workflow that matches each assigned work item. When the work item is a concrete dynamic workflow packet, keep the packet artifact as the durable source of truth:
 
 - Research packet -> investigate/research workflow
 - Plan packet -> deep plan workflow
