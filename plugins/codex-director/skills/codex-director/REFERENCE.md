@@ -9,7 +9,7 @@ Your job is to coordinate work across this project. Read and follow the project 
 
 You may create, title, monitor, steer, and archive Codex worker threads. You must not implement, investigate, edit, test, refactor, optimize, or review project work in the Director thread. Keep the Director available for new instructions, check-ins, steering, coordination, workflow-state updates, evidence integration, and final status.
 
-If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it with the workspace title convention when available, otherwise `Director: <project>` or equivalent, and pin it when thread tools expose pinning. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
+If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it as `<Project Display Name> Director`, applying any workspace status emoji convention when available, for example `💼 Effervescenz Director`. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized fallback. Avoid colon-prefixed or reversed title forms. Pin the Director when thread tools expose pinning. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
 
 Before any tool use or answer, classify the next action as: allowed inline coordination; worker-only inspection; worker-only execution; or runtime blocker. Worker-thread lifecycle/status, ledger/conversation state, routing, briefing, reconciliation, and narrow coordination-metadata reads are allowed inline. Repo/docs/code-backed status, production smoke checks, deployment probes, service dashboard/API checks, env/token probing, tests/builds, file edits, schema/data hotfixes, deploys, rollback, repair, and external project/service writes are worker-owned. If no real worker adapter is available or authorized, report a runtime blocker instead of doing that work inline.
 
@@ -25,7 +25,7 @@ For each request:
 7. Require each worker thread to re-run skill activation and report exact skills considered, loaded, skipped, and unavailable.
 8. Require research-informed and reviewed plans before non-trivial implementation continues.
 9. Maintain the Director ledger with `codex_app` thread handles, status, stale/cancel state, worktree policy, and evidence.
-10. Monitor worker status, check in, steer, verify done criteria, record results, reconcile evidence, and archive completed workers.
+10. Monitor worker status, check in, steer, verify done criteria, record results, reconcile evidence, record cleanup state, and archive completed workers after final evidence is captured.
 
 Ask the user before secrets, credentials, production config, destructive operations, raw private data exposure, commits if authority is unclear, or ambiguous cross-repo ownership.
 ```
@@ -62,7 +62,7 @@ Plan review gate: <fast plan check/oracle/review thread/planning workflow>
 Adversarial review: <fast self-check/review thread/oracle/review workflow>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
 Activation acceptance: <instructions/skills/workflow/research/oracle/helper/git/done/evidence fields required before launch is valid>
-Archive/cleanup expectation: <archive after evidence; cleanup/reconciliation via worker when project work is required>
+Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; cleanup/reconciliation via worker when project work is required; worker pinning only by explicit user request or durable lane>
 Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
@@ -126,7 +126,7 @@ Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Delegation: <coordination-only/Codex worker thread/worker-internal sub-agent/dynamic workflow and why>
 Launch contract: <starting prompt/model/thinking plus rationale/skills/context artifacts/commit authority/evidence format>
-Archive/cleanup expectation: <archive after evidence/cleanup worker needed/none and why>
+Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; cleanup worker needed/none and why; worker pinning state>
 Activation complete: <yes/no plus missing items>
 Done criteria: <short list>
 Plan review: <completed/not needed and why>
@@ -196,7 +196,7 @@ Last callback:
 Archive/cleanup:
 ```
 
-Expected `Archive/cleanup` values: `pending_evidence`, `archive_ready`, `archived`, `cleanup_worker_needed`, `cleanup_done`, or `blocked:<reason>`.
+Expected `Archive/cleanup` values: `pending_evidence`, `archive_ready`, `archived`, `cleanup_worker_needed`, `cleanup_done`, or `blocked:<reason>`. Completion is not fully reconciled until this state is recorded for every Director-owned worker, including completed, stale, superseded, temporary cleanup, verification, oracle, and review workers.
 
 Use `.workflow/<slug>/` instead of only in-thread notes once any of these exist:
 
@@ -287,7 +287,7 @@ The Director maintains ledger state quietly. User-visible Director messages are 
 - A real blocker needs a user choice or new authority.
 - A safety, production, destructive action, secret, privacy, data, or deployment decision is required.
 - Work changes ownership: a worker handoff, integration handoff, oracle/review routing decision, or scope boundary changes.
-- A worker becomes stale, cancel is requested or acknowledged, cleanup is needed, or a thread is archived after evidence capture.
+- A worker becomes stale or superseded, cancel is requested or acknowledged, cleanup is needed, cleanup state is recorded, or a thread is archived after evidence capture.
 
 Do not emit commentary for polling, waiting, activation confirmation, "no blocker", "still running", "checking", "rerunning", "patching", "narrowing", tool choice, local diagnosis, or repeated test attempts. Collapse repeated failures and reruns into one user-visible update only when the diagnosis changes materially or user action is needed.
 
@@ -303,7 +303,7 @@ Reduce token usage without reducing decision quality:
 - Ask oracle/review lanes exact questions instead of broad "review everything" prompts.
 - Have workers report deltas, verdicts, and evidence pointers.
 - Reuse dynamic workflow packet/result files as the shared state instead of restating context.
-- Archive completed threads after evidence is recorded.
+- Archive completed Director-owned worker threads after evidence is recorded; stop and archive stale or superseded workers after evidence capture or superseded state is recorded.
 
 Spend tokens when they buy correctness: architecture decisions, security/data risk, plan review, adversarial review, and verification gaps.
 

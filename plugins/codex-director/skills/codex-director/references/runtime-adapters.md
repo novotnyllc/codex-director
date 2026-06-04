@@ -59,7 +59,7 @@ Exclude these hits from `codex_app` thread detection:
 
 ## Thread Management Adapter
 
-The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
+The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. Title the Director as `<Project Display Name> Director`, applying any workspace status emoji convention when available, and keep it pinned when pinning is exposed. Prefer explicit project/workspace names over the cwd basename. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
 
 Current `codex_app` thread contract:
 
@@ -124,7 +124,7 @@ Before calling `codex_app.create_thread`, define:
 - evidence format and verbosity limit
 - Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
-Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema, such as `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, or `gpt-5.3-codex-spark`, when the selected worker profile calls for an override. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Thinking/model defaults: Director judgment and code-writing workers use main/high; Spark is a separate-budget scout/helper lane for status, probes, prompt export, bounded research, and mechanical low-risk work; high-risk or final-authority gates use main/xhigh. Otherwise mark the brief as inheriting the default runtime settings. After creation, title and pin important project/packet workers when useful.
+Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. Director-created workers default to the current main model, for example `gpt-5.5`, with the selected thinking level; never choose older main-family model ids just because the schema exposes them. The only older-model exception is `gpt-5.3-codex-spark`, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Thinking defaults: Director judgment and code-writing workers use high; high-risk or final-authority gates use xhigh. Otherwise mark the brief as inheriting the default runtime settings. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
 
 Every real worker must start with an activation report. Record routine activation in the Director ledger; surface it to the user only when activation changes routing, exposes a blocker, or requires a decision. If the worker does not return activation, steer it once:
 
@@ -133,7 +133,7 @@ Before continuing, return the activation report required by the Director brief:
 instructions read, task shape, selected workflow, research lane, oracle lane, review gate, evidence, git/worktree handling, Goal fit, done criteria.
 ```
 
-If the worker still skips activation or broadens scope, stop that lane and re-brief it.
+If the worker still skips activation, broadens scope, becomes stale, or is superseded, send a stop/no-further-changes instruction, record the reason and any usable evidence, archive the worker after evidence capture or superseded-state recording, and re-brief only if the task is still needed.
 
 ### Required Thread Handle Fields
 
@@ -177,6 +177,7 @@ next_action:
 blockers:
 archive_after:
 cleanup_required:
+pinned: director-only | explicit-user-request | durable-lane | not-pinned
 ```
 
 For non-dynamic work, this ledger can live in the Director thread notes or a repo-local status artifact. Escalate to `.workflow/<slug>/` when the task needs persistent packet state, multiple worker handles, worktrees, approval checkpoints, integration state, or durable evidence files.
@@ -198,7 +199,7 @@ Default cadence should keep overall work fast:
 - Never choose a wake longer than 3 minutes while the user is actively waiting unless callback signaling is available or the worker explicitly gave a longer ETA.
 - Poll immediately after user steering, suspected blockage, a dependent worker finishing, or a worker-reported handoff.
 
-Polling cadence is not user-update cadence. Poll privately and update the ledger quietly. Do not emit user-facing messages for routine polls, waits, activation confirmations, reruns, local diagnosis, or "no blocker" checks. Surface only final evidence, real blockers or user decisions, safety/production/destructive choices, ownership-changing handoffs, and stale/cancel/archive state. Collapse repeated failures and reruns into one message only when the diagnosis changes materially or user action is needed.
+Polling cadence is not user-update cadence. Poll privately and update the ledger quietly. Do not emit user-facing messages for routine polls, waits, activation confirmations, reruns, local diagnosis, or "no blocker" checks. Surface only final evidence, real blockers or user decisions, safety/production/destructive choices, ownership-changing handoffs, and stale/cancel/archive/cleanup state. Completion is not fully reconciled until worker cleanup state is recorded. Collapse repeated failures and reruns into one message only when the diagnosis changes materially or user action is needed.
 
 Heartbeat hygiene:
 
@@ -207,6 +208,7 @@ Heartbeat hygiene:
 - Heartbeat prompt should be self-contained: read the Director ledger, poll recorded workers with `read_thread`, surface only visible-gate output, reschedule if active work remains, and pause/delete itself when no active worker handles remain.
 - If callback signaling is active, heartbeat is a watchdog only; do not use it as the primary progress mechanism.
 - Do not use heartbeat wakeups as a substitute for worker ownership; workers still own implementation, verification, and final evidence.
+- Temporary cleanup, verification, oracle, and review workers should not remain pinned and should be archived once no longer active or useful.
 
 When a worker needs input:
 
