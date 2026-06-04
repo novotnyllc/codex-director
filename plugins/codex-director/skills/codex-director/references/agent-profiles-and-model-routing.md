@@ -1,6 +1,6 @@
 # Agent Profiles And Model Routing
 
-Use this when the director thread is choosing Codex worker thread roles, model families, and reasoning effort.
+Use this when the Director thread is choosing Codex worker thread roles, model families, and reasoning effort, and when setting up the Director thread itself.
 
 ## Core Policy
 
@@ -10,7 +10,7 @@ Most Director-started worker threads should behave as packet coordinators: selec
 
 Director-created workers use the latest non-Spark main model exposed by the active schema by default, for example `gpt-5.5` when it is listed. Never choose older main-family model ids such as `gpt-5.4` when a newer main model is available. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
 
-Director-level judgment defaults to `high`: routing, decomposition, risk assessment, worker selection, evidence reconciliation, integration decisions, and completion/blocker calls are the Director's real work. Use `xhigh` only for high-risk or final-authority gates, not as a standing mode.
+The Director/coordinator thread itself defaults to latest-main/`xhigh`: routing, decomposition, worker launch contracts, project target resolution, review/oracle decisions, evidence reconciliation, integration decisions, and completion/blocker calls are the Director's real work. This default applies to the Director thread, not to every worker it launches.
 
 Implementation and code-writing workers default to latest-main/high. Use Spark only for mechanical low-blast-radius edits with obvious verification, and use low/Spark only for status, lookup, or narrow read-only probes. Escalate implementation to latest-main/xhigh for architecture, auth/security, data models/migrations, production config, concurrency, payments/permissions, cross-repo contracts, or hard-to-reverse decisions.
 
@@ -111,7 +111,7 @@ Use `medium` for:
 
 Use `high` for:
 
-- Director routing, decomposition, staffing, evidence reconciliation, and completion judgment
+- worker packet coordination, ordinary plan judgment, and evidence synthesis before Director acceptance
 - bounded implementation with real code changes
 - planning from research
 - ordinary adversarial review
@@ -122,6 +122,7 @@ Use `high` for:
 
 Use `xhigh` for:
 
+- the Director/coordinator thread's default routing, decomposition, worker launch contracts, project target resolution, review/oracle decisions, ledger reconciliation, and final acceptance
 - final plan review before complex implementation
 - auth/security/data/migration review
 - architecture, concurrency, payments, permissions, production config, or cross-repo contract changes
@@ -143,7 +144,7 @@ Escalate from Spark to the latest main model when:
 - the worker cannot name a runnable verification surface
 - completion depends on judgment rather than simple evidence
 
-Escalate from `high` to `xhigh` when:
+Escalate worker or oracle lanes from `high` to `xhigh` when:
 
 - the decision is final and hard to reverse
 - the verification surface is incomplete or indirect

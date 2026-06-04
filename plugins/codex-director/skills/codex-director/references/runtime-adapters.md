@@ -65,7 +65,7 @@ Current `codex_app` thread contract:
 
 | Operation | Tool | Contract |
 |---|---|---|
-| Create worker thread | `codex_app.create_thread` | `prompt`, `target`, optional `model`, optional `thinking`; use only when the active tool instructions authorize creating a new or separate thread |
+| Create worker thread | `codex_app.create_thread` | `prompt`, resolved `target`, optional `model`, optional `thinking`; use only when the active tool instructions authorize creating a new or separate thread |
 | Continue / steer worker | `codex_app.send_message_to_thread` | `threadId`, `prompt`, optional `model`, optional `thinking` |
 | Worker callback to Director | `codex_app.send_message_to_thread` from the worker runtime, only if exposed there and explicitly authorized in the worker brief | `threadId` is the Director thread id; signal only `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff` |
 | List threads | `codex_app.list_threads` | optional `query`, optional `limit` |
@@ -91,6 +91,21 @@ projectless target:
   directoryName: optional output directory name
 ```
 
+### Project Target Resolution
+
+Before launching a worker, resolve the `create_thread.target` from the worker's owning repo/path, not from the Director thread's current project by default.
+
+Resolution order:
+
+1. If the launch contract includes an explicit `projectId`, use that saved Codex project target.
+2. If `projectId` is absent and the repo/path/worktree path is known, find saved Codex projects that own that path. Prefer an exact workspace-root match, then the most specific saved project whose workspace root is closest to the owned path.
+3. For nested or overlapping saved project roots, do not treat overlap as ambiguity by itself. The closest owning workspace root wins.
+4. For multi-repo workspaces, bind each worker to the child repo/path it owns. Do not send every worker to the Director thread's project just because the Director was opened there.
+5. If no saved project owns the path, use a `projectless` target with recorded rationale. Projectless is also valid when the task is genuinely projectless.
+6. If equally specific matches remain, path ownership is unclear, or the selected project would not actually cover the worker's owned repo/path, stop before launch and report a runtime blocker or ask the user for the project target. Do not guess.
+
+Record the resolved `projectId` or `projectless` target, resolution basis, repo/path, worktree path, and projectless rationale when applicable in the worker brief and Director ledger. On resume, steering, or replacement launch, reuse that recorded target unless the user changes ownership.
+
 Lifecycle mapping:
 
 | Need | `codex_app` behavior |
@@ -115,7 +130,7 @@ Before calling `codex_app.create_thread`, define:
 - worker title
 - starting prompt
 - explicit authorization basis for creating a new/separate thread under the active tool instructions; for a Director thread itself, this requires a clear separate/new-thread request
-- target project/worktree or projectless directory
+- resolved target project/worktree or projectless directory, including the project id/target and resolution basis
 - model and thinking level plus rationale
 - required skills or workflow references
 - context artifacts or source files to read first
@@ -124,7 +139,7 @@ Before calling `codex_app.create_thread`, define:
 - evidence format and verbosity limit
 - Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
-Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with the selected thinking level; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Thinking defaults: Director judgment and code-writing workers use high; high-risk or final-authority gates use xhigh. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
+Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. A separate Director thread defaults to latest-main/`xhigh` when the active schema supports those choices. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with thinking selected by worker task shape and risk; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Worker thinking defaults remain task-based: low/medium for routine probes or mechanical work, high for ordinary packet coordination and implementation, and xhigh for high-risk or final-authority worker gates. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, but keep the Director pinned and pin worker threads only for an explicit user request or a durable lane that must remain visible.
 
 Every real worker must start with an activation report. Record routine activation in the Director ledger; surface it to the user only when activation changes routing, exposes a blocker, or requires a decision. If the worker does not return activation, steer it once:
 
@@ -147,6 +162,7 @@ adapter: codex_app | simulated-unavailable
 status: queued | running | needs_input | blocked | cancel_requested | stale | completed | archived
 project_id:
 target: local | worktree | projectless
+project_resolution_basis: explicit-projectId | exact-root-match | closest-owning-root-match | projectless-no-saved-project | projectless-task | blocked-equally-specific | blocked-unclear-ownership | blocked-selected-project-mismatch
 repo_path:
 worktree_path:
 branch:
@@ -413,18 +429,18 @@ Residual uncertainty:
 For plugin-package checks:
 
 - Validate `.codex-plugin/plugin.json`.
-- Validate the shared `novotnyllc/marketplace` entry when installability changes.
+- Validate the shared marketplace entry when installability changes.
 - Validate plugin-bundled `hooks/hooks.json` and run the bundled hook runner against marked and unmarked sample payloads.
 - Validate every `SKILL.md` frontmatter.
 - Check relative links.
 - Verify README commands match the current plugin layout.
 - If evaluating quality, run the plugin/skill evaluator before and after changes when available.
 
-For install instructions, use the GitHub marketplace source:
+For install instructions, use the configured GitHub marketplace source:
 
 ```bash
-codex plugin marketplace add novotnyllc/marketplace
-codex plugin add codex-director --marketplace novotnyllc
+codex plugin marketplace add <owner>/<marketplace>
+codex plugin add <plugin-name> --marketplace <owner>
 ```
 
 Do not publish local checkout install commands in user-facing docs unless the user explicitly asks for development-only instructions.
