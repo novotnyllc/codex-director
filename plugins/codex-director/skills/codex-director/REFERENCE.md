@@ -202,7 +202,7 @@ Hooks are not worker execution or completion enforcement. Worker execution remai
 
 ## Verbosity Budget
 
-Default worker reports should fit in 5-10 bullets. Research scouts should return sources, conflicts, confidence, and plan implications, not a literature review. Reviewers should lead with findings and verdict, not process. The director thread should ask for more detail only when needed to verify or unblock.
+Default worker reports should fit in 5-10 bullets. Research scouts should return sources, conflicts, confidence, and plan implications, not a literature review. Reviewers should lead with findings and verdict, not process. The director thread should ask for more detail only when needed to verify or unblock; its own status updates should be concise signals about decisions, task state, evidence, blockers/choices, and next action, not poll/search/tool narration.
 
 ## Token Economy
 

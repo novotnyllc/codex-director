@@ -15,6 +15,8 @@ Evidence: activation report, changed files, tests, review verdict
 
 Never make a worker brief depend on a private path, a single vendor, or an unstable API name. Codex worker thread lifecycle belongs to native Codex thread tools. Sub-agent APIs are worker-internal execution helpers, not substitutes for Director-managed Codex worker threads. Context engines are context builders, reviewers, or oracle helpers, not thread adapters.
 
+RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-layer helpers only. When native Codex thread tools such as `create_thread`, `send_message_to_thread`, `read_thread`, `list_threads`, `set_thread_title`, `set_thread_pinned`, or `set_thread_archived` are available, do not use RepoPrompt agents as the Director worker-thread dispatch mechanism. If native thread tools are unavailable, record that limitation, use `simulated-unavailable`, and ask or continue locally only for coordination work instead of silently swapping in RepoPrompt agents.
+
 The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If no real worker thread is available, report the runtime blocker instead of doing the work inline.
 
 ## Adapter Selection
@@ -148,6 +150,8 @@ For non-dynamic work, this ledger can live in the Director thread notes or a rep
 ### Polling, Input, And Staleness
 
 Read a newly created worker once after creation to confirm activation. For active short tasks, poll every 30-60 seconds. For long-running tasks, poll every 2-5 minutes and immediately after user steering, suspected blockage, or a dependent worker finishing.
+
+Polling cadence is not user-update cadence. Poll privately and update the ledger quietly between concise user-facing updates. Updates at appropriate intervals are fine, but they should emphasize decisions, task state changes, meaningful worker evidence, blockers/choices, and next action; avoid implementation narration, tool-by-tool detail, repeated polling notes, and long status prose.
 
 When a worker needs input:
 

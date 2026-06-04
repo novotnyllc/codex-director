@@ -39,7 +39,7 @@ Before answering or dispatching, decide:
 - Goal fit: Director ledger only, worker Codex Goal, or both?
 
 ## Context Workflow Routing
-Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Discover/load applicable Codex skills before dispatch, then require workers to re-run skill activation and report what they loaded or skipped. Native Codex thread tools own worker lifecycle; context, oracle, browser, and worker-internal sub-agent tools may implement lower-layer phases, but the Director brief must not depend on external workflow names or runner-specific parameters.
+Select the narrowest self-contained workflow that fits. Check dynamic workflow eligibility before defaulting to build or orchestrate for non-trivial work. Discover/load applicable Codex skills before dispatch, then require workers to re-run skill activation and report what they loaded or skipped. Native Codex thread tools own worker lifecycle; context, oracle, browser, and worker-internal sub-agent tools may implement lower-layer phases, but the Director brief must not depend on external workflow names or runner-specific parameters. RepoPrompt `agent_run` and RepoPrompt agents are lower-layer context/review/oracle helpers only; when native Codex thread tools are available, never use them as Director worker-thread dispatch.
 
 - Research: repo/docs/memory/prior-art/external scout pass before planning.
 - Investigate: deep read-only diagnosis or "how does this work?"
@@ -63,11 +63,15 @@ Default to a research lane before planning and an adversarial review gate before
 
 Every worker returns concise evidence, not a transcript: files changed, commands/tests, review verdicts, artifacts, risks, and blockers. Use summaries, slices, exports, and links to preserve quality while reducing tokens.
 
+Director status updates should be concise, evidence-driven, and shaped for what a user needs from a Director. Send updates at appropriate intervals when dispatching, when task state changes, when a worker produces meaningful evidence, when a blocker or decision appears, or when naming the next action; avoid implementation narration, tool-by-tool detail, repeated polling notes, and long status prose.
+
 ## Git And Worktrees
 
 Commit regularly in logical units only when the worker brief grants `commit-when-green` or `pr-only` authority. A single coherent workstream may use the main checkout/branch when that is safe and matches project practice. Use isolated worktrees for parallel, risky, long-running, or conflicting work. The director thread owns worktree policy, worker dispatch, tracking, reconciliation decisions, and cleanup coordination; workers perform repo-changing operations. The user should see branch/task outcomes, not have to manage worktree mechanics. All work must ultimately reconcile into the canonical repo on an appropriate branch.
 
 ## Worker Thread Rule
+
+Use native Codex thread tools such as `create_thread`, `send_message_to_thread`, `read_thread`, `list_threads`, `set_thread_title`, `set_thread_pinned`, and `set_thread_archived` for Director worker lifecycle whenever they are available. If those tools are unavailable, say so explicitly and mark the worker adapter `simulated-unavailable` or ask/continue locally for coordination-only work; do not silently substitute RepoPrompt agents.
 
 Every worker gets a bounded brief with repo/path, task, done criteria, constraints, git/worktree handling, likely skills/context workflow, research lane, oracle lane, review gates, evidence requirements, verbosity limits, and verification. Each worker starts with an activation report and reports back before widening scope.
 
@@ -79,5 +83,5 @@ The director thread maintains a project goal ledger. Worker threads use Codex Go
 
 ## Monitoring
 
-When checking Codex worker threads, confirm activation, reviewed planning, done criteria, required evidence, appropriate review gates, concise reporting, and no silent scope expansion. Record status and archive completed threads after output is captured.
+When checking Codex worker threads, confirm activation, reviewed planning, done criteria, required evidence, appropriate review gates, concise reporting, and no silent scope expansion. Poll/read privately and update the ledger without rapid repeated user narration; user-facing updates should emphasize decisions, task state changes, meaningful evidence, blockers/choices, and next action. Record status and archive completed threads after output is captured.
 Use [REFERENCE.md](REFERENCE.md) for templates, anti-patterns, and the full workflow contract.
