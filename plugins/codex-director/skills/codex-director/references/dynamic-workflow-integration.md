@@ -66,7 +66,7 @@ Workers should use the matching self-contained workflow and thinking policy insi
 - refactor workflow for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
 - optimize workflow for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
 
-Do not let a worker's local workflow overwrite the top-level `.workflow/` task artifacts. It may produce subplans and exports, but packet status and integration decisions belong in the Director ledger and the task's plan, packet, result, or final-report artifacts.
+Do not let a worker's local workflow overwrite the top-level `.workflow/` task artifacts. It may produce subplans and local scratch artifacts, but packet status and integration records belong to the parent workflow.
 
 ## Recursive Use
 
@@ -107,7 +107,7 @@ Minimum artifact tree:
 
 `plan.md` must define success criteria, constraints, approval gates, verification, and packet list. The Director ledger must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, next wake time, monitor interval, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
 
-Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private exports into workflow artifacts.
+Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private data in workflow artifacts. Store large/sensitive evidence outside the repo or in ignored local scratch artifacts, then reference only redacted summaries.
 
 ## Packet Shape
 

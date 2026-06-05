@@ -9,7 +9,7 @@ description: Coordinates project-scoped Codex Director threads for worker routin
 
 Use this file first as the dispatcher. Load [REFERENCE.md](REFERENCE.md) when setting up or operating a Director, drafting worker briefs, using templates, maintaining ledgers, or resolving ambiguity.
 
-Load [Latest Codex runtime tooling](references/runtime-adapters.md) before any Codex thread/project lifecycle operation. Load only the focused workflow reference that matches the task. Load Browser, Goals, model-routing, hook, or prompt-export references only when relevant.
+Load [Latest Codex runtime tooling](references/runtime-adapters.md) before any Codex thread/project lifecycle operation. Load only the focused workflow reference that matches the task. Load Browser, Goals, model-routing, hook, or optional artifact notes only when relevant.
 
 RepoPrompt/context engines, hooks, browsers, and sub-agents may assist with context, review, oracle, or worker-internal phases only. They do not replace Codex worker-thread dispatch.
 
@@ -75,8 +75,9 @@ Hooks are scoped advisory reminders, not enforcement and not worker execution. S
 - [runtime-adapters.md](references/runtime-adapters.md): Codex `codex_app` worker lifecycle, project targets, context/oracle/browser helpers, hooks, goals, and runtime boundaries.
 - [execution-mode-stack.md](references/execution-mode-stack.md): Director, dynamic workflow, workers, helpers, oracle/review, and context layer responsibilities.
 - [dynamic-workflow-integration.md](references/dynamic-workflow-integration.md): trigger rules, packet/result artifacts, approvals, and integration gates.
-- Workflow playbooks: [research/investigate](references/investigate-research-workflow.md), [deep-plan](references/deep-plan-workflow.md), [build](references/build-workflow.md), [orchestrate](references/orchestrate-workflow.md), [review](references/review-workflow.md), [refactor](references/refactor-workflow.md), [optimize](references/optimize-workflow.md), [prompt export](references/prompt-export-workflow.md).
+- Workflow playbooks: [research/investigate](references/investigate-research-workflow.md), [deep-plan](references/deep-plan-workflow.md), [build](references/build-workflow.md), [orchestrate](references/orchestrate-workflow.md), [review](references/review-workflow.md), [refactor](references/refactor-workflow.md), [optimize](references/optimize-workflow.md).
 - [agent-profiles-and-model-routing.md](references/agent-profiles-and-model-routing.md): Director `xhigh`, worker model/thinking defaults, and Spark exception.
 - [browser-chatgpt-oracle-workflow.md](references/browser-chatgpt-oracle-workflow.md): Browser ChatGPT Pro oracle privacy, fallback, and reconciliation.
+- [optional-prompt-artifact-notes.md](references/optional-prompt-artifact-notes.md): optional local scratch/handoff artifact notes; not a Director workflow dependency.
 - [goals-integration.md](references/goals-integration.md): Director ledger and worker Codex Goal fit, finish lines, and blocked policy.
 - [hooks README](../../hooks/README.md): bundled hook scope and advisory-only semantics.

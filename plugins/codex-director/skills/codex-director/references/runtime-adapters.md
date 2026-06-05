@@ -294,11 +294,11 @@ A context engine can implement research, planning, review, or oracle phases. The
 Usual mapping:
 
 - Verify workspace: bind to the project root first.
-- Broad planning: context builder in plan mode, optionally exported when a durable artifact or handoff is useful.
+- Broad planning: context builder in plan mode, saving a stable artifact only when handoff genuinely needs a path.
 - Investigation: context builder in question mode, then focused oracle/chat follow-up.
 - Review: git survey, then context builder in review mode with explicit comparison scope.
 - Oracle: curate selection first, then oracle send in plan/review/chat mode.
-- Handoff: export plan/review/oracle responses only when workers need a stable artifact path.
+- Handoff: save plan/review/oracle responses as artifacts only when workers need a stable path.
 
 Context-engine oracle turns are worker-internal or Director-owned context helpers. When the oracle is a separate Codex thread, use the Codex Oracle Thread Lane below; do not let ordinary worker threads message that oracle directly.
 

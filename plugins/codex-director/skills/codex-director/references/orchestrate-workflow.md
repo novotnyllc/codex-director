@@ -67,7 +67,7 @@ Raw: "make this installable"
 Contextualized: "Fix the plugin marketplace/install surface in README, marketplace.json, plugin.json, and validation commands for codex-director."
 ```
 
-When a context engine is available, use it to produce or export the initial plan. Treat the export or plan file as a shared read-only document for workers and a living checklist for the Director.
+When a context engine is available, use it to produce the initial plan. Save a shared read-only artifact only when workers or reviewers need a stable path.
 
 ## Phase 2: Research Before Planning
 
@@ -257,7 +257,7 @@ Report:
 After evidence is captured:
 
 - Archive or clean up completed worker threads/sessions according to the latest-Codex thread tooling contract.
-- Delete stale prompt/context exports that no worker or review still needs.
+- Delete stale scratch/context artifacts that no worker or review still needs.
 - Keep durable artifacts: plans, orchestration notes, packet/result records, final reports, commits, review reports.
 - Cancel stale workers before final status.
 - Remove temporary worktrees only through an authorized cleanup worker after their branch/commit/PR is recoverable and no conflict resolution is in progress.

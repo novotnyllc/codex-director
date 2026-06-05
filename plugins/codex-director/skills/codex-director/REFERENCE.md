@@ -208,7 +208,7 @@ Use `.workflow/<slug>/` instead of only in-thread notes once any of these exist:
 - isolated worktrees or branch reconciliation
 - explicit approval checkpoints
 - packet dependencies or integration order
-- durable prompt exports, oracle outputs, or review reports
+- oracle outputs, review reports, or optional scratch/handoff artifacts that must survive the current turn
 - stale/cancel state that affects later work
 - a user-visible task that will span turns or interruptions
 
@@ -245,7 +245,7 @@ Worker evidence should be sufficient to audit completion without replaying the w
 - Files changed or artifacts produced, with paths.
 - Commands/tests/checks run, with pass/fail summary.
 - Review gates used and verdicts.
-- Screenshots, URLs, exports, or local artifact paths when relevant.
+- Screenshots, URLs, or local artifact paths when relevant.
 - Requirements or done criteria satisfied.
 - Known gaps, skipped checks, risks, or blockers.
 
@@ -256,7 +256,7 @@ Keep evidence brief. Include exact error lines only when they explain a blocker.
 Treat artifacts as part of the evidence contract:
 
 - `.workflow/<slug>/` is a durable task artifact directory. Commit it only when project policy wants reusable or auditable workflow records; otherwise keep it as local working evidence until the final report is captured.
-- `prompt-exports/` contains durable prompt payloads, oracle inputs, and oracle outputs when a file artifact is useful. Redact secrets and raw private data before external submission. Delete stale exports after the receiving lane consumes them unless they are needed as durable evidence.
+- `prompt-exports/` is ignored scratch for optional prompt payloads or tool handoff files when a stable artifact path is explicitly useful. It is not a Director workflow dependency; redact secrets and raw private data before creating files for external tools, and delete stale artifacts after results are captured unless they are task evidence.
 - Worker evidence should be concise ledger/result text with artifact paths. Keep raw logs, screenshots, transcripts, and full diffs in local artifacts, not chat.
 - Browser ChatGPT Pro oracle outputs are external-review artifacts. Record the prompt source or artifact path when one was created, Pro availability result, visible model label or built-in main/`xhigh` fallback note, result path, and safety decision.
 - Do not commit private data, credentials, raw transcripts, bulky generated artifacts, or temporary worker scratch unless the project explicitly treats them as safe durable evidence.
@@ -302,7 +302,7 @@ Reduce token usage without reducing decision quality:
 - Prefer narrow worker briefs over giant shared context.
 - Use research scouts for one question each.
 - Pass artifact paths instead of pasted documents.
-- Prefer file slices, code structure, summaries, and exports over full files.
+- Prefer file slices, code structure, concise summaries, and stable artifact paths over full files.
 - Keep raw logs, transcripts, screenshots, and full diffs in artifacts, not chat.
 - Ask oracle/review lanes exact questions instead of broad "review everything" prompts.
 - Have workers report deltas, verdicts, and evidence pointers.
@@ -465,15 +465,15 @@ Model/effort: Spark/medium for measurement collection; Spark/high only for local
 
 Output: baseline, change, after measurement, tradeoffs, tests, and residual risks.
 
-### Prompt Export Workflow
+### Optional Prompt Artifact Notes
 
-Purpose: package just enough context into a durable local artifact for an oracle, reviewer, Browser upload/retry, or worker handoff without bloating chat.
+Purpose: document when a local scratch/handoff artifact is useful for tooling, upload/chunking, retry, audit, or explicit user-requested prompt files without making prompt export a Director workflow dependency.
 
-Use when: another lane needs a durable file artifact, a Browser ChatGPT Pro oracle payload is too large or must be resumable/auditable, cross-thread handoff needs a stable path, or a result must be preserved as an artifact.
+Use when: a stable file path is explicitly useful and the active Codex worker/thread or Browser oracle flow still owns the real work. For ChatGPT Pro oracle, the preferred path is the Browser-driven round trip; optional artifacts only support oversized payloads, retry, handoff, or audit.
 
-Model/effort: Spark/medium.
+Model/effort: Spark/medium only for mechanical artifact packaging; never as an authority lane.
 
-Output: local export path, included sources, excluded sensitive material, exact questions, and expected response shape. If the receiver is Browser ChatGPT Pro oracle, the export is optional payload support; the Browser workflow still must submit the prompt and capture the result when Pro is available, or route to built-in main/`xhigh` fallback when Pro is unavailable or ambiguous.
+Output: local artifact path if one was created, included sources, excluded sensitive material, exact question, and expected response shape.
 
 ## Adapted Workflow References
 
@@ -491,7 +491,7 @@ Check execution mode and dynamic workflow eligibility early for non-trivial work
 - [Refactor workflow](references/refactor-workflow.md)
 - [Optimize workflow](references/optimize-workflow.md)
 - [Browser ChatGPT Pro oracle workflow](references/browser-chatgpt-oracle-workflow.md)
-- [Prompt export workflow](references/prompt-export-workflow.md)
+- [Optional prompt artifact notes](references/optional-prompt-artifact-notes.md)
 - [Codex Goals integration](references/goals-integration.md)
 - [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
 - [Latest Codex runtime tooling](references/runtime-adapters.md)

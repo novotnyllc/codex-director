@@ -80,7 +80,7 @@ Default path when the project has no convention:
 docs/plans/<topic>-<YYYY-MM-DD>.md
 ```
 
-If the repo forbids durable docs or the task is projectless, use a local artifact such as `prompt-exports/<timestamp>-plan-<slug>.md` and say it is local/non-durable.
+If the repo forbids durable docs or the task is projectless, keep the plan in the Director/worker thread or use a local scratch artifact only when a stable path is explicitly useful.
 
 ## Phase 4: Context Plan Pass
 
@@ -89,7 +89,7 @@ Use the lightest adequate planning path:
 - Use a context engine when it can cheaply synthesize the plan file/background, likely files, risks, and verification strategy.
 - Ask for oracle/review critique when independent judgment would reduce risk. In a Director-managed worker, return an Oracle Request Packet to the Director rather than contacting the oracle/review thread directly.
 - Draft directly from research when the scope is narrow.
-- Export the response when it will be handed to implementers or reviewers.
+- Save or share a stable artifact only when implementers or reviewers need a durable path.
 
 The draft must include:
 
@@ -102,7 +102,7 @@ The draft must include:
 - Review stop points.
 - Risks and rollback notes.
 
-If the context engine returns an export, treat it as the draft source, not a disposable hint. Read it, copy the useful approach/work items into the plan, then keep the export until critique is complete.
+If a context engine returns a draft artifact, treat it as a draft source, not a disposable hint. Read it, copy the useful approach/work items into the plan, then keep the artifact only as long as critique needs it.
 
 ## Phase 5: Work Item Shaping
 
@@ -134,7 +134,7 @@ Ask the critic to check:
 
 The critic should not rewrite the plan. Fold actionable findings into the plan yourself.
 
-Give the critic both the plan and any context-builder/oracle export that shaped it. Ask for top gaps, over-specified tactics, missing dependencies, sequencing risks, and questions that would change implementation order. If the critic is a separate Director-managed oracle/review thread, package this as an Oracle Request Packet for the Director to route.
+Give the critic the plan and any source artifact that shaped it. Ask for top gaps, over-specified tactics, missing dependencies, sequencing risks, and questions that would change implementation order. If the critic is a separate Director-managed oracle/review thread, package this as an Oracle Request Packet for the Director to route.
 
 ## Phase 7: Polish And Handoff
 
@@ -157,6 +157,6 @@ Return plan path, summary, reviewed status, open questions, and suggested next w
 - Implementing while in plan mode.
 - Asking generic questions before doing any grounding.
 - Dumping raw scout transcripts into Background.
-- Deleting the draft/export before critique has used it.
+- Deleting a draft artifact before critique has used it.
 - Over-specifying tactical choices that implementation workers should own.
 - Leaving plan work items without done criteria, dependencies, or verification.

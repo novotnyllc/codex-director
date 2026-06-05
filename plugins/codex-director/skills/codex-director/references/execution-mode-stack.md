@@ -77,7 +77,7 @@ Owns:
 - codebase context building
 - oracle reasoning over curated context, mediated by the Director when implemented as a separate Codex thread
 - worker-internal sub-agent or execution helpers when useful
-- exports for plan/review handoff
+- optional scratch/handoff artifacts for plan/review context when a stable path is useful
 - live implementation/review/investigation loops inside the owning worker thread
 
 Context and helper tools are not the durable project ledger and are not the `codex_app` thread/project layer. They can support self-contained workflow phases, but they do not replace latest-Codex worker lifecycle tooling. See [Latest Codex runtime tooling](runtime-adapters.md) for the concrete Codex tool contract and project-target rules.
@@ -128,7 +128,6 @@ Use the selected workflow reference:
 - deep plan
 - refactor
 - optimize
-- prompt export
 - Browser ChatGPT Pro oracle
 
 Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
@@ -201,7 +200,7 @@ Use the narrow self-contained workflow that matches each assigned work item. Whe
 - Review packet -> review workflow
 - Refactor packet -> refactor workflow
 - Optimize packet -> optimize workflow
-- Browser/external oracle packet -> Director-mediated Browser ChatGPT Pro oracle; use prompt export only for durable payload, upload/chunking, retry, audit, or handoff needs; if Pro is unavailable or ambiguous, route to built-in main/`xhigh` oracle/review fallback unless Pro-only was explicit
+- Browser/external oracle packet -> Director-mediated Browser ChatGPT Pro oracle; use optional local prompt artifacts only for oversized payloads, upload/chunking, retry, audit, or handoff needs; if Pro is unavailable or ambiguous, route to built-in main/`xhigh` oracle/review fallback unless Pro-only was explicit
 
 The Director should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions. Oracle packets flow through the Director: `worker -> Director -> oracle lane -> Director -> worker/result`.
 

@@ -8,7 +8,7 @@ Use delegation aggressively when it improves speed, coverage, review independenc
 
 Most non-trivial Director-started worker threads are work-item coordinators, not monolithic executors: use the defined workflow/playbook that matches the assigned work item, select the relevant functions/files/tests before reading broadly, choose helper lanes by task shape, delegate independent scouting or verification to narrow sub-agents, and return concise evidence instead of accumulating transcript mass. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
 
-Director-created workers use the latest non-Spark main model exposed by the active schema by default, for example `gpt-5.5` when it is listed. Never choose older main-family model ids such as `gpt-5.4` when a newer main model is available. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, prompt export, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
+Director-created workers use the latest non-Spark main model exposed by the active schema by default, for example `gpt-5.5` when it is listed. Never choose older main-family model ids such as `gpt-5.4` when a newer main model is available. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, optional artifact packaging, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
 
 The Director/coordinator thread itself defaults to latest-main/`xhigh`: routing, decomposition, worker launch contracts, project target resolution, review/oracle decisions, evidence reconciliation, integration decisions, and completion/blocker calls are the Director's real work. This default applies to the Director thread, not to every worker it launches.
 
@@ -22,7 +22,7 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | --- | --- | --- | --- |
 | `research-scout` | Narrow repo/docs/web/prior-art question, no edits | Spark | low/medium |
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
-| `prompt-exporter` | Package durable context artifacts for oracle/review/upload/retry/handoff lanes | Spark | medium |
+| `artifact-packager` | Package optional scratch/handoff context artifacts only when a stable file path is explicitly useful | Spark | medium |
 | `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
 | `work-item-coordinator` | Own a non-trivial assigned work item, run the matching workflow/playbook, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | latest main | high |
 | `implementation-worker` | Bounded build/refactor/test work item with code-writing or verification | current main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
@@ -38,7 +38,7 @@ When a concrete helper/delegation tool exposes generic role labels, map Director
 | Director profile | Generic role |
 | --- | --- |
 | `research-scout` / `context-scout` | `explore` |
-| `prompt-exporter` / `chatgpt-pro-oracle-runner` | `engineer` or `explore` for read-only prep/automation |
+| `artifact-packager` / `chatgpt-pro-oracle-runner` | `engineer` or `explore` for read-only prep/automation |
 | `work-item-coordinator` | `pair` for ambiguous/context-heavy work items, `engineer` for clear implementation work items |
 | `implementation-worker` | `engineer` for clear work items, `pair` for ambiguous work items |
 | `adversarial-reviewer` | `pair` or `design` depending on runtime support |
@@ -55,7 +55,7 @@ Use Spark for bounded, evidence-oriented throughput work:
 - research scouts
 - status summaries
 - artifact/result collection
-- prompt export packaging when a durable artifact is needed
+- optional scratch/handoff artifact packaging when a stable file path is needed
 - Browser ChatGPT Pro oracle automation with built-in main/`xhigh` fallback when Pro is unavailable, unsafe, or lower-value than local review
 - first-pass reconnaissance
 - mechanical edits with clear tests
@@ -103,7 +103,7 @@ Use `low` for:
 Use `medium` for:
 
 - Browser ChatGPT Pro oracle automation
-- prompt export when a durable artifact is needed
+- optional scratch/handoff artifact packaging when a stable file path is needed
 - ordinary research scouts
 - simple bounded reviews
 - mechanical docs/config/test-data edits with obvious verification
