@@ -6,7 +6,7 @@ Use when work has multiple items, dependencies, parallel lanes, substantial ambi
 
 The orchestrator owns the plan, ledger, sequencing, review gates, and reconciliation. Implementation and deep context gathering belong to bounded workers. Do not fire-and-forget a swarm; verify each completed item before dependent work continues.
 
-If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, packets, approval gates, integration policy, and results as the task source of truth. Use this orchestration workflow to execute and monitor packets, not to create a competing top-level plan.
+If a `codex-dynamic-workflows` run exists for the task, treat its plan, packets, approval gates, integration policy, and results as the task source of truth. Use this orchestration workflow to execute and monitor packets, not to create a competing top-level plan.
 
 ## Phase 0: Workspace And Ledger
 
@@ -35,7 +35,7 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, state, p
    - evidence required
    - last poll/stale threshold
 
-Escalate to `.workflow/<slug>/` and mirror this state into `state.json`, packet files, and result files once the task has multiple worker handles, worktrees, approvals, integration order, durable review/oracle artifacts, or stale/cancel state that must survive turns.
+Escalate to `.workflow/<slug>/` once the task has multiple worker handles, worktrees, approvals, integration order, durable review/oracle artifacts, or stale/cancel state that must survive turns. Use `plan.md`, `orchestration.md`, packet files, result files, and `final-report.md` for durable task artifacts while the Director ledger tracks worker state.
 
 Codex lifecycle examples:
 
@@ -227,7 +227,7 @@ For each completed worker:
 
 If gaps exist, steer the same worker to fix them before starting dependent work.
 
-Update the plan, ledger, or `.workflow/<slug>/state.json` immediately after each accepted item. Marking a worker done in chat is not enough; the next worker needs an artifact or ledger state it can trust.
+Update the plan, ledger, packet file, or result artifact immediately after each accepted item. Marking a worker done in chat is not enough; the next worker needs an artifact or ledger checkpoint it can trust.
 
 ## Phase 8: Reconcile
 
@@ -258,7 +258,7 @@ After evidence is captured:
 
 - Archive or clean up completed worker threads/sessions according to the latest-Codex thread tooling contract.
 - Delete stale prompt/context exports that no worker or review still needs.
-- Keep durable artifacts: plans, workflow state, final reports, commits, review reports.
+- Keep durable artifacts: plans, orchestration notes, packet/result records, final reports, commits, review reports.
 - Cancel stale workers before final status.
 - Remove temporary worktrees only through an authorized cleanup worker after their branch/commit/PR is recoverable and no conflict resolution is in progress.
 

@@ -11,14 +11,13 @@ The `codex-dynamic-workflows` skill owns the orchestration protocol for one comp
 ```text
 .workflow/<slug>/
 |-- plan.md
-|-- state.json
 |-- orchestration.md
 |-- packets/
 |-- results/
 `-- final-report.md
 ```
 
-Call into `codex-dynamic-workflows` when the Director triage decides a task needs explicit task-level orchestration: packetization, Codex worker-thread staffing, integration, approval tracking, verification state, or reusable workflow artifacts.
+Call into `codex-dynamic-workflows` when the Director triage decides a task needs explicit task-level orchestration: packetization, Codex worker-thread staffing, integration, approval tracking, verification tracking, or reusable workflow artifacts.
 
 For the full relationship between Director, dynamic workflow artifacts, self-contained workflow playbooks, Codex worker threads, and oracle/review lanes, see [Execution mode stack](execution-mode-stack.md).
 
@@ -31,7 +30,7 @@ Check dynamic workflow mode before selecting build or orchestrate for every non-
 Invoke it when any hard trigger is true:
 
 - The user explicitly asks for a dynamic workflow, swarm, packets, delegated workers, or Claude Code-style orchestration.
-- The task needs explicit approval checkpoints, packet state, integration state, or a reusable recipe.
+- The task needs explicit approval checkpoints, packet tracking, integration tracking, or a reusable recipe.
 - The task spans multiple repos, worktrees, service boundaries, or independently mergeable workstreams.
 - Risk and breadth are both present, such as migrations plus code changes, production data plus implementation, or external writes plus verification.
 
@@ -51,7 +50,7 @@ Do not invoke it for small single-thread tasks. Start one Codex worker thread wi
 - Director active goal -> `.workflow/<slug>/plan.md`
 - Director worker thread brief -> packet file under `packets/`
 - Codex worker thread output -> result file under `results/`
-- Director ledger snapshot -> `state.json`
+- Director ledger checkpoint -> Director ledger, with packet/result evidence reflected in workflow artifacts
 - Director sequencing rules -> `orchestration.md`
 - Director final status -> `final-report.md`
 
@@ -67,7 +66,7 @@ Workers should use the matching self-contained workflow and thinking policy insi
 - refactor workflow for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
 - optimize workflow for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
 
-Do not let a worker's local workflow overwrite the `.workflow/` task source of truth. It may produce subplans and exports, but packet status and integration decisions belong in the dynamic workflow artifact.
+Do not let a worker's local workflow overwrite the top-level `.workflow/` task artifacts. It may produce subplans and exports, but packet status and integration decisions belong in the Director ledger and the task's plan, packet, result, or final-report artifacts.
 
 ## Recursive Use
 
@@ -100,14 +99,13 @@ Minimum artifact tree:
 ```text
 .workflow/<slug>/
 |-- plan.md
-|-- state.json
 |-- orchestration.md
 |-- packets/
 |-- results/
 `-- final-report.md
 ```
 
-`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. `state.json` must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, next wake time, monitor interval, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
+`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. The Director ledger must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, next wake time, monitor interval, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
 
 Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private exports into workflow artifacts.
 

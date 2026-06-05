@@ -17,7 +17,7 @@ Codex worker thread lifecycle belongs to the active `codex_app` thread and proje
 
 RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-layer helpers only. Do not use them as the Director worker-thread dispatch mechanism. Director setup confirms the required latest-Codex `codex_app` thread/project tools and schema before operating, and the skill assumes those native definitions are present. Do not swap in RepoPrompt agents for Codex worker threads.
 
-The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update workflow state, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If a status/checkup/lookup answer would require repo/docs/code inspection, the Director must spawn or continue a Codex worker thread instead of doing the work inline. Latest-Codex thread/project tooling is the assumed execution surface for that worker-thread path.
+The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update ledgers or workflow artifacts, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. If a status/checkup/lookup answer would require repo/docs/code inspection, the Director must spawn or continue a Codex worker thread instead of doing the work inline. Latest-Codex thread/project tooling is the assumed execution surface for that worker-thread path.
 
 The Director is a rapid-fire intake surface, not a single-task executor. For multiple user asks, dispatch or continue separate bounded worker threads or workflow packets, record handles and expected evidence in the ledger, and stop after the dispatch/checkpoint instead of waiting inline unless the user explicitly asks for live narration.
 
@@ -195,7 +195,7 @@ cleanup_required:
 pinned: director-only | explicit-user-request | durable-lane | not-pinned
 ```
 
-For non-dynamic work, this ledger can live in the Director thread notes or a repo-local status artifact. Escalate to `.workflow/<slug>/` when the task needs persistent packet state, multiple worker handles, worktrees, approval checkpoints, integration state, or durable evidence files.
+For non-dynamic work, this ledger can live in the Director thread notes or a repo-local status artifact. Escalate to `.workflow/<slug>/` when the task needs persistent packet tracking, multiple worker handles, worktrees, approval checkpoints, integration tracking, or durable evidence files.
 
 ### Resumable Monitoring, Input, And Staleness
 
@@ -231,7 +231,7 @@ When a worker needs input:
 1. If the answer would require repo/doc/code inspection for a status, checkup, lookup, research, investigation, verification, or implementation request, spawn or continue a Codex worker thread instead of reading repo/docs/code directly in the Director thread.
 2. When steering a worker thread, choose the steering prompt's thinking level from the worker policy: `low` for routine worker reminders/status, `medium` for continuing a reviewed plan, `high` for substantive judgment or implementation steering, and `xhigh` for risky or final worker decisions. When the target is the Director thread instead, use `xhigh`.
 3. Ask the user when the answer changes outcome, expands scope, exposes sensitive data, requires production/destructive action, or changes commit authority.
-4. Record the decision in the ledger or `.workflow/<slug>/state.json`.
+4. Record the decision in the ledger or the relevant workflow artifact.
 
 A worker is stale when it misses the expected check-in window, stops making observable progress, or no longer matches the active brief. Steer once with the original boundary or stop request. If it remains stale, mark `stale`, archive after capturing the last readable state, and dispatch a replacement worker with a clean brief.
 
@@ -328,7 +328,7 @@ Browser ChatGPT Pro is a concrete oracle lane, not the oracle role itself.
 
 Use it when a Pro web-model second opinion is materially valuable, whether or not the user explicitly said Pro: high-ambiguity planning, product/UX/content judgment, broad architecture tradeoffs, conflicting local reviews, final external critique before high-cost work, or user requests for ChatGPT Pro/web. Prefer the local Codex oracle/review lane for sensitive payloads, routine source-backed code review, normal diffs, and fast review loops. Do not open or navigate an in-app Browser just to check whether Pro is available; inspect Pro availability only during a selected Browser Pro oracle run, or in an already-open ChatGPT tab when safe and non-disruptive.
 
-Before Browser work, read any existing local capability sentinel as a routing hint only. Preferred sentinel locations are user state (`$XDG_STATE_HOME/codex-director/chatgpt-pro-capability.json` or `~/.local/state/codex-director/chatgpt-pro-capability.json`), active `.workflow/<slug>/state.json`, repo-local untracked `.codex-director/local-state/`, then Director ledger/thread notes when sandboxed. Missing, stale, or inaccessible sentinel means `unknown` and must not trigger Browser navigation.
+Before Browser work, read any existing local capability sentinel as a routing hint only. Preferred sentinel locations are user state (`$XDG_STATE_HOME/codex-director/chatgpt-pro-capability.json` or `~/.local/state/codex-director/chatgpt-pro-capability.json`), repo-local untracked `.codex-director/local-state/`, then Director ledger/thread notes when sandboxed. Missing, stale, or inaccessible sentinel means `unknown` and must not trigger Browser navigation.
 
 If the sentinel is expired and Browser Pro would materially affect routing, refresh it only from already-available non-invasive surfaces: an already-open safe ChatGPT tab, Browser/tab metadata that does not open a page, or the model-picker inspection from a just-completed selected Browser Pro oracle run. If no safe surface exists, leave it stale or record `refresh_status: deferred_no_safe_surface`; do not prompt for login or open Browser just to refresh. Write or refresh the sentinel only after those safe checks or a real Browser Pro oracle run.
 

@@ -38,9 +38,8 @@ Use a local capability sentinel as a cache, not as a probe. Reading the sentinel
 Preferred write locations, in order:
 
 1. User state: `$XDG_STATE_HOME/codex-director/chatgpt-pro-capability.json`, or `~/.local/state/codex-director/chatgpt-pro-capability.json` when `XDG_STATE_HOME` is unset.
-2. Active workflow state: `.workflow/<slug>/state.json` under a `browser_chatgpt_pro_capability` key when the task already has a workflow artifact and user-state writes are unavailable.
-3. Repo-local untracked state: `.codex-director/local-state/chatgpt-pro-capability.json`, with `.codex-director/` added to `.git/info/exclude` when allowed. Do not edit tracked `.gitignore` just to store this cache.
-4. Director ledger/thread notes only, when filesystem writes are unavailable or sandboxed.
+2. Repo-local untracked state: `.codex-director/local-state/chatgpt-pro-capability.json`, with `.codex-director/` added to `.git/info/exclude` when allowed. Do not edit tracked `.gitignore` just to store this cache.
+3. Director ledger/thread notes only, when filesystem writes are unavailable or sandboxed.
 
 The sentinel is advisory and may be stale. A missing, unreadable, expired, or sandbox-inaccessible sentinel means `unknown`; it must not trigger Browser navigation. Negative or ambiguous sentinel values should bias toward the built-in Codex oracle/review lane unless the user explicitly asks for Browser Pro.
 
@@ -137,7 +136,7 @@ After submitting:
 
 1. Wait for ChatGPT to finish generating. Pro responses can take a while; poll patiently until the stop/regenerate controls and page state indicate completion. Use a generous wait budget and report progress only if the wait becomes unusually long.
 2. Capture the final assistant response from the page.
-3. Save it to `prompt-exports/<timestamp>-browser-oracle-result-<slug>.md` or the active workflow's `results/` directory when packetized state exists.
+3. Save it to `prompt-exports/<timestamp>-browser-oracle-result-<slug>.md` or the active workflow's `results/` directory when a packetized workflow exists.
 4. Include the prompt source (`direct` or artifact path), selected ChatGPT model label, ChatGPT URL if available, timestamp, elapsed wait time, and any automation caveats.
 
 Capture metadata:

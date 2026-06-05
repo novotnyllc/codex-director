@@ -54,11 +54,10 @@ Owns:
 - packetization
 - worker-thread packet ownership
 - packet integration
-- verification strategy and verification state
+- verification strategy and verification tracking
 - reusable workflow recipes
 - `.workflow/<slug>/` task artifact
 - `plan.md`
-- `state.json`
 - `orchestration.md`
 - `packets/`
 - `results/`
@@ -98,7 +97,7 @@ Workers must report scope expansion, blockers, and verification gaps back to the
 
 ### Director availability invariant
 
-The Director does not perform project work. It stays available for instructions, check-ins, steering, coordination, workflow-state updates, evidence integration, and final status. Any implementation, investigation, review, testing, refactor, optimization, or research work belongs in a Codex worker thread. Tiny work still gets a tiny worker brief.
+The Director does not perform project work. It stays available for instructions, check-ins, steering, coordination, workflow artifact updates, evidence integration, and final status. Any implementation, investigation, review, testing, refactor, optimization, or research work belongs in a Codex worker thread. Tiny work still gets a tiny worker brief.
 
 ## Selection Order
 
@@ -134,7 +133,7 @@ Use the selected workflow reference:
 
 Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
 
-No dynamic workflow unless durable packet/state artifacts are useful; the single worker still executes the work.
+No dynamic workflow unless durable packet/result artifacts are useful; the single worker still executes the work.
 
 ### 3. Multi-item but short-lived
 
@@ -161,10 +160,10 @@ Use this when the task needs:
 - reusable workflow recipe
 - many packets or cross-track coordination
 
-When optional context/delegation tools are also available, use them as implementations under the same artifact source of truth:
+When optional context/delegation tools are also available, use them as implementations under the same task artifact source of truth:
 
 1. Director invokes `codex-dynamic-workflows` to create the task orchestration run.
-2. Director uses the dynamic workflow plan/state as the task source of truth.
+2. Director uses the dynamic workflow plan and artifacts as the task source of truth.
 3. For each dynamic workflow packet, Director dispatches a Codex worker thread.
 4. The worker uses the relevant self-contained workflow playbook for its assigned work item.
 5. For work-item complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that work item.
@@ -175,7 +174,7 @@ When optional context/delegation tools are also available, use them as implement
 
 Worker-internal helpers are implementation helpers. They are best when the current worker needs to decompose work, select likely models/functions/files/tests, map context slices, delegate a bounded subtask, verify items, review a narrow surface, or package context without bloating the owning worker thread.
 
-`codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, worker-thread packet passes, integration, verification state, and a final audit trail.
+`codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, worker-thread packet passes, integration, verification tracking, and a final audit trail.
 
 Use both when the task is complex and optional tooling is available:
 
@@ -211,7 +210,7 @@ The Director should predict likely skills in the worker brief, but the worker mu
 Use Codex Goals inside the director thread or worker threads only when the objective is durable, evidence-based, and likely to span turns or iterations.
 
 - Director project ledger tracks portfolio work.
-- Dynamic workflow tracks complex task orchestration.
+- Dynamic workflow artifacts track complex task orchestration.
 - Codex Goal gives a single thread a persistent finish line.
 
 Worker Goals must name the outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition. The Director should audit evidence before accepting a Goal as complete. See [Codex Goals integration](goals-integration.md).

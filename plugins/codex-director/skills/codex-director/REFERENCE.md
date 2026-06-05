@@ -9,7 +9,7 @@ Use `xhigh` reasoning for the Director/coordinator thread by default. The Direct
 
 Your job is to coordinate work across this project. Read and follow the project instruction files before routing work. This is a narrow coordination-metadata exception: you may read top-level instruction files, Director-owned ledger/workflow artifacts, and this plugin's own docs/config to establish the operating brief, but substantive repo/docs/code or production inspection remains worker-owned. Do not treat a non-git workspace root as a problem.
 
-You may create, title, monitor, steer, and archive Codex worker threads. You must not implement, investigate, edit, test, refactor, optimize, or review project work in the Director thread. Keep the Director available for new instructions, check-ins, steering, coordination, workflow-state updates, evidence integration, and final status.
+You may create, title, monitor, steer, and archive Codex worker threads. You must not implement, investigate, edit, test, refactor, optimize, or review project work in the Director thread. Keep the Director available for new instructions, check-ins, steering, coordination, workflow artifact updates, evidence integration, and final status.
 
 If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it as `<Project Display Name> Director`, applying any workspace status emoji convention when available. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized default. Avoid colon-prefixed or reversed title forms. Pin the Director when thread tools expose pinning. When creating a separate Director thread and the active schema supports thinking selection, launch it with `xhigh` reasoning. When continuing, waking, or routing a callback into an existing Director thread, pass `thinking: "xhigh"` when the tool exposes thinking selection; never downshift a Director-thread turn to `low`, `medium`, or ordinary `high` for status, polling, callbacks, or routine steering. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
 
@@ -212,7 +212,7 @@ Use `.workflow/<slug>/` instead of only in-thread notes once any of these exist:
 - stale/cancel state that affects later work
 - a user-visible task that will span turns or interruptions
 
-When escalated, mirror ledger state into `.workflow/<slug>/state.json`, worker briefs into `packets/`, accepted worker evidence into `results/`, and final status into `final-report.md`.
+When escalated, keep the Director ledger synchronized with the workflow artifacts: worker briefs in `packets/`, accepted worker evidence in `results/`, orchestration notes in `orchestration.md`, and final status in `final-report.md`.
 
 ## Signal-First Resumable Monitoring
 
@@ -255,7 +255,7 @@ Keep evidence brief. Include exact error lines only when they explain a blocker.
 
 Treat artifacts as part of the evidence contract:
 
-- `.workflow/<slug>/` is durable task state. Commit it only when project policy wants reusable or auditable workflow records; otherwise keep it as local working evidence until the final report is captured.
+- `.workflow/<slug>/` is a durable task artifact directory. Commit it only when project policy wants reusable or auditable workflow records; otherwise keep it as local working evidence until the final report is captured.
 - `prompt-exports/` contains durable prompt payloads, oracle inputs, and oracle outputs when a file artifact is useful. Redact secrets and raw private data before external submission. Delete stale exports after the receiving lane consumes them unless they are needed as durable evidence.
 - Worker evidence should be concise ledger/result text with artifact paths. Keep raw logs, screenshots, transcripts, and full diffs in local artifacts, not chat.
 - Browser ChatGPT Pro oracle outputs are external-review artifacts. Record the prompt source or artifact path when one was created, Pro availability result, visible model label or built-in main/`xhigh` fallback note, result path, and safety decision.
@@ -306,7 +306,7 @@ Reduce token usage without reducing decision quality:
 - Keep raw logs, transcripts, screenshots, and full diffs in artifacts, not chat.
 - Ask oracle/review lanes exact questions instead of broad "review everything" prompts.
 - Have workers report deltas, verdicts, and evidence pointers.
-- Reuse dynamic workflow packet/result files as the shared state instead of restating context.
+- Reuse dynamic workflow packet/result files as the shared context instead of restating context.
 - Archive completed Director-owned worker threads after evidence is recorded; stop and archive stale or superseded workers after evidence capture or superseded state is recorded.
 
 Spend tokens when they buy correctness: architecture decisions, security/data risk, plan review, adversarial review, and verification gaps.
@@ -479,7 +479,7 @@ Output: local export path, included sources, excluded sensitive material, exact 
 
 Use these workflow playbooks first. They are the source of truth. Optional external tools may implement a phase, but the Director and worker briefs should name the self-contained workflow and the task outcome, not an external workflow dependency.
 
-Check execution mode and dynamic workflow eligibility early for non-trivial work; do not bury dynamic workflow behind build/orchestrate once packetized state would reduce drift.
+Check execution mode and dynamic workflow eligibility early for non-trivial work; do not bury dynamic workflow behind build/orchestrate once packetized artifacts would reduce drift.
 
 - [Execution mode stack](references/execution-mode-stack.md)
 - [Dynamic workflow integration](references/dynamic-workflow-integration.md)
