@@ -4,7 +4,9 @@ Use for bounded implementation where one Codex worker thread can plan, edit, ver
 
 ## Principle
 
-Do not jump from request to edits. Build enough context to produce a grounded plan, review that plan when the task is non-trivial, then implement directly. Use any available context engine, local search, code structure, file reads, and review lane that satisfies the workflow contract.
+Do not jump from request to edits. Build enough context to produce a grounded plan, review that plan when the task is non-trivial, then implement directly. Use any available context engine, local search, code structure, file reads, helper/subagent lane, and review lane that satisfies the workflow contract.
+
+A Director-created build worker is a coordinator for non-trivial work: it must use at least one real helper/subagent lane for context, implementation support, verification, or review before final evidence. Direct leaf is worker-internal only and requires separate tiny, mechanical, and low-risk rationale.
 
 ## Phase 0: Scope And Workspace
 
@@ -15,7 +17,8 @@ Do not jump from request to edits. Build enough context to produce a grounded pl
 5. Confirm commit authority from the worker brief.
 6. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and not loaded in activation.
 7. Confirm model and thinking level plus rationale from the launch contract.
-8. Create a Codex goal if the task is multi-turn, interruption-prone, or requires repeated verification.
+8. Record worker role, helper/subagent lanes, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale.
+9. Create a Codex goal if the task is multi-turn, interruption-prone, or requires repeated verification.
 
 ## Phase 1: Quick Orientation
 
@@ -41,7 +44,7 @@ Avoid deep reading before context building; it invites shallow confidence.
 
 Build context with the lightest adequate path:
 
-- Start by deciding the helper/context strategy from the worker brief: which facts/files/functions/tests can be scouted by narrow helpers, which context belongs in the owning thread, and what should be excluded.
+- Start by deciding the helper/context strategy from the worker brief: which facts/files/functions/tests can be scouted by narrow helpers, which context belongs in the owning thread, and what should be excluded. For non-trivial Director-created builds this is mandatory; if no helper/subagent lane is available, report `blocked:<reason>` or ask the Director for direction instead of continuing monolithically.
 - Use a context engine when one can cheaply map files, patterns, edge cases, and verification.
 - Otherwise use targeted search/read/code-structure calls.
 - Use worker-internal sub-agents for independent context mapping, model/function selection, call-site discovery, verification surface discovery, or narrow review when that keeps the owning thread smaller and the work disjoint.
@@ -74,7 +77,7 @@ Fallback if assumption breaks:
 
 ## Phase 3: Plan Review Gate
 
-Skip only for tiny mechanical changes.
+Skip only for tiny mechanical changes. In a Director-created worker, skipping must be paired with direct-leaf rationale that separately proves the task is tiny, mechanical, and low-risk; missing or weak rationale should be reported as `insufficient-evidence` for Director reconciliation.
 
 Review questions:
 
@@ -135,8 +138,12 @@ Return 5-10 bullets:
 - Branch and commit hash if committed.
 - Commands/tests run with pass/fail.
 - Review gate used and verdict.
+- Helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
 - Done criteria satisfied.
 - Known gaps, skipped checks, or blockers.
+- Cleanup/archive expectation and any worktree/branch reconciliation state.
+
+For Director acceptance, final build evidence is not accepted from a callback, expected final, or stale summary alone. The Director must read the worker thread with `codex_app.read_thread`, capture this terminal report from the child thread itself, reconcile done criteria/review/helper status, and record archive/cleanup state before marking `accepted`.
 
 ## Anti-Patterns
 
@@ -145,3 +152,6 @@ Return 5-10 bullets:
 - Committing without named authority mode.
 - Treating partial tests as complete verification without saying what is unverified.
 - Expanding a single-worker task into orchestration without updating the Director.
+- Treating ordinary tool use, self-checks, or “helpers considered” as satisfying the non-trivial helper/subagent gate.
+- Reporting build completion without helper/direct-leaf evidence, review/oracle status, and cleanup/archive expectations.
+- Accepting callback-only or unread worker finals as complete.

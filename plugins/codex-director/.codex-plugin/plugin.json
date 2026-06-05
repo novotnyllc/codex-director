@@ -1,7 +1,7 @@
 {
   "name": "codex-director",
-  "version": "0.6.1",
-  "description": "Project-scoped director workflow for Codex worker-thread coordination, signal-first monitoring, lifecycle hooks, research, oracle, review, goals, and evidence gates.",
+  "version": "0.7.0",
+  "description": "Project-scoped director workflow for Codex worker-thread coordination, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
     "url": "https://github.com/novotnyllc"
@@ -14,7 +14,6 @@
     "director",
     "workflow",
     "delegation",
-    "hooks",
     "review",
     "oracle"
   ],
@@ -22,7 +21,7 @@
   "interface": {
     "displayName": "Codex Director",
     "shortDescription": "Coordinate project work across Codex worker threads with quiet, signal-first monitoring.",
-    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, signal-first worker callbacks with heartbeat watchdogs, lifecycle hook reminders, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
+    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
     "developerName": "Claire Novotny LLC",
     "category": "Productivity",
     "capabilities": [
@@ -35,7 +34,7 @@
     "termsOfServiceURL": "https://github.com/novotnyllc/codex-director/blob/main/TERMS.md",
     "defaultPrompt": [
       "Make this current thread the Director for this project. Title it as <Project Display Name> Director using the workspace status emoji convention when available, pin it when available, coordinate only, and do not inspect, edit, test, deploy, or query production inline.",
-      "Coordinate this task with Codex worker threads, dynamic workflow when warranted, and review/oracle gates before acceptance.",
+      "Coordinate this task with Codex worker threads, dynamic workflow when warranted, helper/subagent lanes for non-trivial workers, and review/oracle gates; accept Director-created workers only after child-thread readback and evidence reconciliation. Direct leaf is worker-internal only for tiny/mechanical/low-risk work.",
       "Audit active project work from the Director ledger; dispatch workers for any repo/docs/code/prod-backed status."
     ]
   }

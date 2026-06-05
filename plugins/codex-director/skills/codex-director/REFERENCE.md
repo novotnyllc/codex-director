@@ -9,9 +9,9 @@ Use `xhigh` reasoning for the Director/coordinator thread by default. The Direct
 
 Your job is to coordinate work across this project. Read and follow the project instruction files before routing work. This is a narrow coordination-metadata exception: you may read top-level instruction files, Director-owned ledger/workflow artifacts, and this plugin's own docs/config to establish the operating brief, but substantive repo/docs/code or production inspection remains worker-owned. Do not treat a non-git workspace root as a problem.
 
-You may create, title, monitor, steer, and archive Codex worker threads. You must not implement, investigate, edit, test, refactor, optimize, or review project work in the Director thread. Keep the Director available for new instructions, check-ins, steering, coordination, workflow artifact updates, evidence integration, and final status.
+You may create, title, monitor, steer, and archive Codex worker threads. You must not implement, investigate, edit, test, refactor, optimize, or review project work in the Director thread. Direct inline repo execution after a worker stalls is prohibited; for emergencies, record explicit user authority and dispatch a bounded emergency worker or dynamic workflow, but the Director still must not inspect or execute repo/prod work inline. Keep the Director available for new instructions, check-ins, steering, coordination, workflow artifact updates, evidence integration, and final status.
 
-If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it as `<Project Display Name> Director`, applying any workspace status emoji convention when available. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized default. Avoid colon-prefixed or reversed title forms. Pin the Director when thread tools expose pinning. When creating a separate Director thread and the active schema supports thinking selection, launch it with `xhigh` reasoning. When continuing, waking, or routing a callback into an existing Director thread, pass `thinking: "xhigh"` when the tool exposes thinking selection; never downshift a Director-thread turn to `low`, `medium`, or ordinary `high` for status, polling, callbacks, or routine steering. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
+If this Director was invoked in the current thread without an explicit request for a separate/new/existing Director thread, this current thread is the Director. Title it as `<Project Display Name> Director`, applying any workspace status emoji convention when available. Prefer explicit project/workspace names from saved project metadata, top-level instruction files, repo/workspace docs, package/plugin metadata, or user-provided names; use the cwd basename only as a cautious normalized default. Avoid colon-prefixed or reversed title forms. Rename a Director thread only when the resume state or material focus changes, and keep the title on the parent Director focus; child worker titles must not overwrite, mask, or replace the Director title. Pin the Director when thread tools expose pinning. When creating a separate Director thread and the active schema supports thinking selection, launch it with `xhigh` reasoning. When continuing, waking, or routing a callback into an existing Director thread, pass `thinking: "xhigh"` when the tool exposes thinking selection; never downshift a Director-thread turn to `low`, `medium`, or ordinary `high` for status, polling, callbacks, or routine steering. Do not resurrect or unarchive an archived prior Director by default; continue an existing active Director only when the user clearly asks to continue or reuse it.
 
 Before any tool use or answer, classify the next action as: allowed inline coordination; worker-only inspection; or worker-only execution. Worker-thread lifecycle/status, ledger/conversation state, routing, briefing, reconciliation, and narrow coordination-metadata reads are allowed inline. Repo/docs/code-backed status, production smoke checks, deployment probes, service dashboard/API checks, env/token probing, tests/builds, file edits, schema/data hotfixes, deploys, rollback, repair, and external project/service writes are worker-owned. Latest-Codex worker/thread/project tooling is the premise of this skill and is confirmed during Director setup.
 
@@ -22,12 +22,12 @@ For each request:
 2. Convert the request into a goal-shaped task with done criteria.
 3. Decide whether the request is coordination-only, one Codex worker thread, or a dynamic workflow decomposed into multiple concrete packet files.
 4. Discover applicable Codex skills and workflow playbooks for the Director-level routing decision.
-5. Define the launch contract for each worker: starting prompt, resolved project target, model, thinking level plus rationale, required skills/workflow references, context artifacts, commit authority, evidence requirements, git/worktree handling, helper/sub-agent policy, and done criteria.
+5. Define the launch contract for each worker: starting prompt, resolved project target, model, thinking level plus rationale, required skills/workflow references, context artifacts, commit authority derived from the user's request, evidence requirements, git/worktree handling, helper/sub-agent policy, and done criteria.
 6. Predict required research lane, skills, context tools, worker-internal helper lanes, oracle lane, Browser ChatGPT Pro suitability, plan review gate, adversarial review gate, and review workflows before dispatch.
 7. Require each worker thread to re-run skill activation and report exact skills considered, loaded, skipped, and not loaded.
 8. Require research-informed and reviewed plans before non-trivial implementation continues.
 9. Maintain the Director ledger with `codex_app` thread handles, status, stale/cancel state, worktree policy, and evidence.
-10. Monitor worker status, check in, steer, verify done criteria, record results, reconcile evidence, record cleanup state, and archive completed workers after final evidence is captured.
+10. Monitor worker status, check in, steer, verify done criteria, record results, reconcile evidence, record cleanup state, and archive accepted workers after final evidence is captured. If archive tooling is unavailable, record `archive_blocked:<reason>` and do not claim cleanup.
 
 Ask the user before secrets, credentials, production config, destructive operations, raw private data exposure, commits if authority is unclear, or ambiguous cross-repo ownership.
 ```
@@ -46,7 +46,7 @@ Thinking rationale: <why this level/model fits risk and task shape>
 Codex skills to consider: <exact skill names>
 Required skills/workflows: <skill mentions and Director workflow references to activate>
 Starting prompt: <self-contained launch prompt or artifact path>
-Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only>
+Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only, derived from the user's request>
 Done when:
 - <criterion>
 - <criterion>
@@ -57,16 +57,18 @@ Constraints:
 Selected workflow/playbook: <build/review/research/deep-plan/orchestrate/refactor/optimize/etc. plus why it matches this work item>
 Context/oracle/review tools: <context engine/browser oracle/review lane/etc.>
 Research lane: <none/local/thread/context engine/web/other available lane>
-Worker helper policy: <sub-agents/context scouts/model or function selection helpers/none plus why>
-Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct leaf execution because tiny/mechanical/low-risk plus why>
+Worker helper policy: <required helper/subagent lanes for non-trivial work; direct-leaf only with tiny/mechanical/low-risk rationale>
+Helper/subagent lanes required: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
+Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
+Direct-leaf exception rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Oracle lane: <none or predicted second-opinion path>
 Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale for none>
 Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested>
 Plan review gate: <fast plan check/oracle/review thread/planning workflow>
 Adversarial review: <fast self-check/review thread/oracle/review workflow>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
-Activation acceptance: <instructions/skills/workflow/research/oracle/helper/git/done/evidence fields required before launch is valid>
-Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; cleanup/reconciliation via worker when project work is required; worker pinning only by explicit user request or durable lane>
+Activation acceptance: <instructions/skills/workflow/research/oracle/helper-or-direct-leaf/git/done/evidence fields required before launch is valid; non-trivial work is invalid without at least one real helper/subagent lane or blocked helper capability>
+Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; record archive_blocked:<reason> when archive tooling is unavailable; cleanup/reconciliation via worker when project work is required; worker pinning only by explicit user request or durable lane>
 Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
@@ -76,12 +78,12 @@ Worker expectations:
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
 - Use the selected workflow/playbook as the control loop for the work item. Optional tools can implement workflow phases, but they should not replace the defined workflow.
-- Act as a work-item coordinator when the task is non-trivial: choose narrow helper functions/models, keep context deliberately small, and use worker-internal sub-agents for scouting, model/function selection, context mapping, verification, review, or contained subwork when that improves quality or token economy. Direct leaf execution is allowed only for tiny, mechanical, low-risk work and must be justified in activation.
+- Act as a work-item coordinator when the task is non-trivial: choose narrow helper functions/models, keep context deliberately small, and use at least one real worker-internal helper/subagent lane for scouting, model/function selection, context mapping, verification, review, or contained subwork before final evidence. Ordinary tool use, self-checks, or saying helpers were considered does not satisfy this gate. If helper/subagent capability is unavailable for non-trivial work, report `blocked:<reason>` or ask the Director for direction instead of continuing as a monolithic executor. Direct leaf execution is worker-internal only, never Director-inline, and is allowed only for tiny, mechanical, low-risk work with separate activation rationale for tiny, mechanical, and low-risk.
 - Treat oracle as a role, not a vendor. Use a separate Codex worker thread, browser oracle, review workflow, or other second-opinion lane when available and useful.
 - If oracle input is needed, return an Oracle Request Packet to the Director with mode, exact question, evidence paths, diff/test summary, constraints, and why oracle judgment is needed. Do not create, continue, or message oracle threads directly unless the Director explicitly delegates that authority.
 - Default to adversarial review for worker-thread tasks. A worker may use a fast self-check only for trivial coordination answers, mechanical one-line edits, or clearly low-risk work.
 - Use worker-internal delegation when the selected workflow calls for decomposition, and also when narrow helpers can cheaply select models/functions, map relevant context, verify claims, review a risky patch, or answer independent scout questions. Do not use helpers for overlapping edits or as a substitute for the Director-owned oracle lane.
-- If using nested dynamic workflow, sub-agents, or additional worker threads inside a bounded work item, keep them under that work item's ownership and roll concise evidence back into the worker result. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
+- If using nested dynamic workflow or sub-agents inside a bounded work item, keep them under that work item's ownership and roll concise evidence back into the worker result. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts. A worker must not create nested top-level Codex worker threads unless the Director brief explicitly grants that authority.
 - Use Codex Goals only when the task has a durable objective, evidence finish line, and multi-turn or uncertain path. Inspect existing Goals before continuing and audit evidence before completion.
 - Commit regularly in logical units only when commit authority allows it. Use isolated worktrees when work is parallel, risky, long-running, or likely to conflict. Reconcile all work back to the canonical repo/branch and clean up finished worktrees.
 - Report concise evidence only: changed files, commands/tests, review verdicts, artifact paths, unresolved risks, and blockers. Do not paste long logs or narrate exploration unless requested.
@@ -117,8 +119,12 @@ Codex skills skipped/not loaded: <names and reason>
 Selected workflow/playbook: <workflow reference and why it matches this work item>
 Context/oracle/review tools: <tools selected and why>
 Research lane: <none/local/thread/context engine/web/other available lane and why>
-Worker helper policy: <sub-agents/context scouts/model or function selection helpers/none and why>
-Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct leaf execution because tiny/mechanical/low-risk plus why>
+Worker role: <coordinator|direct-leaf>
+Worker helper policy: <required helper/subagent lanes for non-trivial work; direct-leaf only with tiny/mechanical/low-risk rationale>
+Helper/subagent lanes: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
+Blocked helper capability: <no|blocked:<reason>>
+Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
+Direct-leaf rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Oracle lane: <none/tool/thread and why>
 Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale for none>
 Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested>
@@ -126,11 +132,11 @@ Adversarial review: <fast self-check/review thread/oracle/review workflow and wh
 Evidence required: <files/tests/review verdict/artifacts/blockers>
 Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
-Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only>
+Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only, derived from the user's request>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Delegation: <coordination-only/Codex worker thread/worker-internal sub-agent/dynamic workflow and why>
 Launch contract: <starting prompt/model/thinking plus rationale/skills/context artifacts/commit authority/evidence format>
-Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; cleanup worker needed/none and why; worker pinning state>
+Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; record archive_blocked:<reason> when archive tooling is unavailable; cleanup worker needed/none and why; worker pinning state>
 Activation complete: <yes/no plus unresolved items>
 Done criteria: <short list>
 Plan review: <completed/not needed and why>
@@ -167,7 +173,10 @@ Minimum ledger item:
 Task id:
 Task:
 Shape: coordination-only | worker | dynamic-workflow
-Status: queued | dispatching | running | needs_user | blocked | cancel_requested | stale | completed | archived
+Status: queued | dispatching | running | needs_user | blocked | cancel_requested | stale | pending-readback | readback_blocked:<reason> | insufficient-evidence | accepted | archived
+Director-created worker: yes | no
+Director thread id:
+Owning Director task id:
 Codex thread/project tooling: confirmed
 Worker thread id:
 Worker title:
@@ -197,10 +206,19 @@ Monitor id/status:
 Callback policy:
 Director callback thread id:
 Last callback:
+Read cursor:
+Last turn seen:
+Terminal signal: none | callback:final | callback:blocked | callback:needs_user | callback:oracle_request | callback:handoff | poll:final
+Readback status: not-started | pending-readback | readback_complete | readback_blocked:<reason>
+Terminal thread read at:
+Final report captured: yes | no
+Evidence reconciled: yes | no
+Helper policy accepted: yes | no | direct-leaf:<tiny/mechanical/low-risk rationale> | blocked:<reason>
+Acceptance status: running | pending-readback | insufficient-evidence | accepted | blocked | stale | archived
 Archive/cleanup:
 ```
 
-Expected `Archive/cleanup` values: `pending_evidence`, `archive_ready`, `archived`, `cleanup_worker_needed`, `cleanup_done`, or `blocked:<reason>`. Completion is not fully reconciled until this state is recorded for every Director-owned worker, including completed, stale, superseded, temporary cleanup, verification, oracle, and review workers.
+Expected `Archive/cleanup` values: `pending_evidence`, `archive_ready`, `archived`, `cleanup_worker_needed`, `cleanup_done`, `archive_blocked:<reason>`, or `blocked:<reason>`. Completion is not fully reconciled until this state is recorded for every Director-owned worker, including completed, stale, superseded, temporary cleanup, verification, oracle, and review workers. Do not claim cleanup when archive tooling is unavailable; record `archive_blocked:<reason>` instead.
 
 Use `.workflow/<slug>/` instead of only in-thread notes once any of these exist:
 
@@ -218,7 +236,9 @@ When escalated, keep the Director ledger synchronized with the workflow artifact
 
 The Director should not stay active solely to wait for spawned workers. Worker threads are durable handles; monitoring is resumable state. Prefer callback signals over timer-only polling when the active worker runtime exposes `codex_app.send_message_to_thread` and the Director explicitly authorizes callback use in the worker brief.
 
-Worker callbacks are one-shot signals to the Director thread, not status streams. They are allowed only for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`. Callback messages must include task id, worker thread id, signal type, concise evidence or blocker, and whether the worker is done, paused, or still running. Workers must not send poll/progress chatter, repeated rerun notes, or messages directly to oracle/review threads unless explicitly delegated.
+Worker callbacks are one-shot signals to the Director thread, not status streams. They are allowed only for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`. Callback messages must include task id, worker thread id, signal type, concise evidence or blocker, and whether the worker is done, paused, or still running. Workers must not send poll/progress chatter, repeated rerun notes, or messages directly to oracle/review threads unless explicitly delegated. A callback payload, expected final message, stale summary, or worker claim is only a terminal signal until the Director reads the child thread with `codex_app.read_thread`.
+
+Completion acceptance sequence: callback/poll signal -> mark `pending-readback` -> call `codex_app.read_thread` for the child thread -> capture the terminal child report from the thread itself -> reconcile done criteria, evidence, review/oracle gates, and helper/direct-leaf policy -> record `accepted`, `insufficient-evidence`, `blocked`, or `stale` -> record archive/cleanup state separately. If readback fails or has not happened, the worker remains `pending-readback` or `readback_blocked:<reason>` and must not be marked `accepted` or `completed`.
 
 After dispatch:
 
@@ -238,16 +258,39 @@ Cadence is adaptive and should optimize throughput, not quietness alone:
 - Do not set sleeps or timers longer than 3 minutes while the user is actively waiting unless callback signaling is available or the worker explicitly reported a longer ETA.
 - Do not create duplicate heartbeats for the same Director task. Update the existing monitor when possible, and pause/delete it once no active worker handles remain.
 
+## Completion Acceptance Gate
+
+A Director-created worker is not accepted until all of these are true:
+
+1. The Director recorded the worker handle with `thread_id`, `read_cursor` or `last_turn_seen`, callback policy, and owning Director task id.
+2. Any callback or poll result was treated only as a terminal signal.
+3. The Director called `codex_app.read_thread` for the child thread after the terminal signal, including resume, heartbeat, expected-final, stale-summary, and callback paths.
+4. The terminal child report was captured from the child thread itself.
+5. The report was reconciled against done criteria, evidence requirements, review/oracle gates, helper/subagent use, and any direct-leaf rationale.
+6. The Director recorded an explicit acceptance state: `accepted`, `insufficient-evidence`, `blocked`, or `stale`.
+7. Lifecycle closure was recorded separately as `archive_ready`, `archived`, or `archive_blocked:<reason>`.
+
+State transition:
+
+```text
+launched -> activation-read -> running -> terminal-signal -> pending-readback -> readback_complete -> accepted | insufficient-evidence | blocked | stale -> archive_ready | archived | archive_blocked:<reason>
+```
+
+`readback_complete` is not final acceptance. It only means the Director has read the child thread; acceptance still requires evidence reconciliation. Missing readback, failed `read_thread`, missing terminal child report, weak helper evidence, or implausible direct-leaf rationale leaves the worker in `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, or `blocked`.
+
 ## Evidence Contract
 
 Worker evidence should be sufficient to audit completion without replaying the whole thread:
 
+- Done criteria result.
 - Files changed or artifacts produced, with paths.
-- Commands/tests/checks run, with pass/fail summary.
-- Review gates used and verdicts.
+- Commands/tests/checks run, with pass/fail summary, or explicit verification-not-run reason.
+- Helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
+- Review gates used and verdicts, including review/oracle status when required by the workflow.
 - Screenshots, URLs, or local artifact paths when relevant.
 - Requirements or done criteria satisfied.
-- Known gaps, skipped checks, risks, or blockers.
+- Known gaps, skipped checks, risks, blockers, or residual uncertainty.
+- Cleanup/archive expectations.
 
 Keep evidence brief. Include exact error lines only when they explain a blocker. Do not paste secrets, raw private data, huge logs, full diffs, or broad excerpts. If a reviewer needs detail, point to the file, artifact, thread, or command instead.
 
@@ -263,21 +306,11 @@ Treat artifacts as part of the evidence contract:
 
 ## Hooks
 
-Codex Director ships scoped plugin-bundled advisory hooks as runtime plumbing. Detailed hook implementation notes live beside the hook files under `../../hooks/`.
+Codex Director currently ships no active plugin-bundled hooks. `../../hooks/hooks.json` is intentionally empty so installs do not register Director behavior globally across all Codex threads.
 
-When enabled, trusted, and running in a Director-marked thread, the hooks reinforce:
+There is no hook runner in the plugin package. Do not rely on marker strings, prompt text, or transcript scanning to decide whether a thread is Director-managed. Director identity and routing come from explicit thread setup, project scope, worker launch contracts, and the Director ledger.
 
-- Director threads coordinate and remain available.
-- Project work runs in Codex worker threads.
-- Every worker launch needs prompt, model, thinking level plus rationale, skills/workflows, commit authority, done criteria, and evidence format.
-- Compaction must restore ledger and handle awareness.
-- Nested helpers roll evidence up to their owning worker or concrete dynamic workflow packet.
-- No-inline repo/prod inspection and worker-only execution boundaries.
-- Dynamic workflow selection for production or external-write work.
-- Activation, review/oracle, cleanup, and archive closeout.
-- Final status must account for stale/cancel state, cleanup, and archives.
-
-Hooks are not worker execution or completion enforcement. Worker execution remains the concrete latest-Codex `codex_app` thread/project tooling documented in [Latest Codex runtime tooling](references/runtime-adapters.md).
+If Codex later exposes real thread-attached metadata or explicit per-thread hook binding, hook support may be reconsidered as opt-in runtime plumbing. Until then, hooks are not advisory reminders, enforcement, worker execution, or completion enforcement. Worker execution remains the concrete latest-Codex `codex_app` thread/project tooling documented in [Latest Codex runtime tooling](references/runtime-adapters.md).
 
 ## Verbosity Budget
 
@@ -307,7 +340,7 @@ Reduce token usage without reducing decision quality:
 - Ask oracle/review lanes exact questions instead of broad "review everything" prompts.
 - Have workers report deltas, verdicts, and evidence pointers.
 - Reuse dynamic workflow packet/result files as the shared context instead of restating context.
-- Archive completed Director-owned worker threads after evidence is recorded; stop and archive stale or superseded workers after evidence capture or superseded state is recorded.
+- Archive accepted Director-owned worker threads after evidence is recorded; stop and archive stale or superseded workers after evidence capture or superseded state is recorded.
 
 Spend tokens when they buy correctness: architecture decisions, security/data risk, plan review, adversarial review, and verification gaps.
 
@@ -320,7 +353,7 @@ The director thread should hide worktree mechanics from the user unless there is
   - `commit-when-green`: worker may commit logical units after verification.
   - `ask-before-commit`: worker stops before each commit.
   - `pr-only`: worker prepares branch/commits but final merge is through PR/review.
-- If authority is unclear, default to `no-commit` and ask before committing.
+- Derive commit authority from the user's request and task shape. Use `commit-when-green` or `pr-only` when the user asked for durable implementation that naturally includes commits, use `no-commit` when the user explicitly forbids commits or assigns an edit/verify-only task, and ask when authority is genuinely unclear.
 - Check git status before dispatch and before reconciliation.
 - If there is one coherent workstream and no meaningful conflict risk, it may run in the main checkout on the appropriate branch.
 - Use worktrees for parallel workstreams, speculative/risky changes, long-running tasks, or tasks likely to touch overlapping files.
@@ -567,6 +600,10 @@ Treat this as dynamic workflow by default. First record the ledger item and disp
 - Forwarding user meta-commentary into worker briefs instead of translating it into task constraints.
 - Running smoke, deployment, service, or production checks inline because workers are slow.
 - Treating urgent production remediation as permission to execute in the Director thread.
-- Accepting worker completion without activation, evidence, review/oracle status, and archive/cleanup state.
+- Accepting worker completion without activation, child-thread readback, evidence reconciliation, review/oracle status, helper/direct-leaf acceptance, and archive/cleanup state.
+- Treating a callback, expected final message, stale summary, or worker claim as final evidence without `codex_app.read_thread` readback.
+- Marking a worker `complete` or `accepted` while it is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, or missing helper/direct-leaf acceptance.
+- Launching a non-trivial Director-created worker with `helper policy: none`, or accepting ordinary tool use/self-checks as satisfying the helper/subagent gate.
+- Using direct leaf to disguise Director-inline repo/docs/code/prod work instead of worker-internal tiny, mechanical, low-risk execution.
 - Narrating polling, checking, rerunning, patching, or narrowing in user-visible chat.
 - Leaving completed worker threads visible or unarchived after evidence capture.

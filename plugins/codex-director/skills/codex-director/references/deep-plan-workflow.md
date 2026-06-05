@@ -6,14 +6,17 @@ Use when the deliverable is a durable implementation or architecture plan, not c
 
 Plan only. The output is a polished, executable plan that future implementation workers can trust. Research scouts gather evidence; the planner owns synthesis, structure, and final wording. Do not implement, scaffold, or half-build.
 
+For Director-created planning workers, non-trivial planning is coordinator work: use real scout/helper lanes and a critique/review lane before final evidence. A direct-leaf planning worker is valid only for tiny, mechanical, low-risk plan edits and must record separate tiny, mechanical, and low-risk rationale.
+
 ## Phase 0: Scope And Involvement
 
 1. Verify project/repo/path scope and local instructions.
 2. Decide where the plan artifact belongs according to project conventions.
 3. Confirm model, thinking level plus rationale, commit authority, required skills/workflows, and evidence format from the launch contract.
 4. Discover applicable Codex skills; record skills considered, loaded, skipped, and not loaded in activation.
-5. Ask the user for input only when an ambiguity would change architecture, order, scope, or risk.
-6. If the user asks to be involved at a checkpoint, honor that promise. Do not silently continue past a chosen checkpoint.
+5. Record worker role, helper/subagent lanes, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale in activation.
+6. Ask the user for input only when an ambiguity would change architecture, order, scope, or risk.
+7. If the user asks to be involved at a checkpoint, honor that promise. Do not silently continue past a chosen checkpoint.
 
 Involvement modes:
 
@@ -41,7 +44,7 @@ Ask the user only questions that the scan made sharper.
 
 ## Phase 2: Research And Seam Mapping
 
-Run research lanes before drafting:
+Run research lanes before drafting. For non-trivial Director-created planning workers, at least one scout/context helper lane is mandatory, and high-risk or broad plans should use both a scout/context lane and a critique/review lane. If helper/subagent capability is unavailable, report `blocked:<reason>` instead of continuing as a monolithic planner.
 
 - In-workspace seams: how subsystems connect, key types, extension points.
 - External facts: APIs/libraries/current behavior that the plan depends on.
@@ -121,7 +124,7 @@ Most plans should have 2-3 work items. More than 5 usually means the abstraction
 
 ## Phase 6: Plan Critique
 
-Run a bounded design/adversarial critique before finalizing.
+Run a bounded design/adversarial critique before finalizing. For non-trivial Director-created planning workers this critique/review lane is mandatory; ordinary self-checks or saying helpers were considered do not satisfy helper/direct-leaf acceptance.
 
 Ask the critic to check:
 
@@ -150,7 +153,9 @@ Final plan should be tight and executable:
 
 ## Evidence
 
-Return plan path, summary, reviewed status, open questions, and suggested next workflow.
+Return plan path, summary, reviewed status, open questions, suggested next workflow, helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
+
+For Director acceptance, this evidence is only a candidate final report until the Director reads the child thread with `codex_app.read_thread`, captures the terminal child report from the thread itself, reconciles done criteria/review/helper status, and records archive/cleanup state. A callback, expected final, or plan path alone must leave the worker `pending-readback` or `insufficient-evidence`.
 
 ## Anti-Patterns
 
@@ -160,3 +165,5 @@ Return plan path, summary, reviewed status, open questions, and suggested next w
 - Deleting a draft artifact before critique has used it.
 - Over-specifying tactical choices that implementation workers should own.
 - Leaving plan work items without done criteria, dependencies, or verification.
+- Finalizing non-trivial planning without scout/helper and critique/review evidence.
+- Treating a callback, plan artifact, or stale summary as accepted Director evidence before child-thread readback.

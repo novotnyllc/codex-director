@@ -44,7 +44,7 @@ For a multi-repo workspace, name the scope directly:
 Start $codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
 ```
 
-The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
+The Director titles and pins its coordination thread, then creates separate Codex worker threads for project work. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. Director-created workers are accepted only after the Director reads the child thread and reconciles the worker's evidence. Non-trivial Director-created workers use helper/subagent lanes; direct leaf is worker-internal only for tiny, mechanical, low-risk work. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
 
 ### Director boundary
 
@@ -77,7 +77,7 @@ The Director is optimized for rapid-fire intake: each distinct ask should be rou
 ## Structure
 
 - `plugins/codex-director/.codex-plugin/plugin.json` is the plugin manifest.
-- `plugins/codex-director/hooks/` contains scoped, advisory lifecycle hooks for Director-marked threads plus implementation notes.
+- `plugins/codex-director/hooks/` contains an intentionally empty hook config; Director does not bundle active lifecycle hooks or a hook runner.
 - `plugins/codex-director/skills/codex-director/SKILL.md` is the compact entrypoint Codex reads when selecting the skill.
 - `plugins/codex-director/skills/codex-director/REFERENCE.md` contains the full operating brief, worker templates, evidence rules, and status formats.
 - `plugins/codex-director/skills/codex-director/references/` contains workflow playbooks for build, review, research, dynamic workflow integration, Browser ChatGPT oracle, and related execution modes.

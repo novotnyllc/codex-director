@@ -6,6 +6,8 @@ Use for behavior-preserving simplification, duplication removal, organization, b
 
 Refactoring preserves behavior. If behavior changes are needed, name them as bug fixes and separate them from the refactor commits.
 
+For Director-created refactor workers, non-trivial refactors require real helper/subagent support for structure scouting, verification discovery, or review. Direct leaf applies only to tiny, mechanical, low-risk refactors with separate rationale for all three properties.
+
 ## Phase 0: Scope And Safety
 
 1. Confirm target area and local instructions.
@@ -14,8 +16,9 @@ Refactoring preserves behavior. If behavior changes are needed, name them as bug
 4. Confirm commit authority from the worker brief.
 5. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and not loaded in activation.
 6. Confirm model and thinking level plus rationale from the launch contract.
-7. Identify tests that prove behavior is preserved.
-8. Define "out of scope" explicitly.
+7. Record helper/subagent lanes, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale.
+8. Identify tests that prove behavior is preserved.
+9. Define "out of scope" explicitly.
 
 Do not start broad cleanup from a vague request. Narrow the target first.
 
@@ -31,7 +34,7 @@ Scout questions:
 - Which tests cover the behavior?
 - Which public APIs or data contracts must not change?
 
-Use explore workers or local code-structure/search. Keep each scout to one area.
+Use explore workers, worker-internal helper/subagent lanes, or local code-structure/search. Keep each scout to one area. For non-trivial Director-created refactors, at least one real helper/subagent lane must contribute structure, verification, or review evidence; ordinary tool use or self-checks do not satisfy this gate.
 
 ## Phase 2: Analyze Opportunities
 
@@ -58,7 +61,7 @@ Use two passes for non-trivial refactors:
 1. Opportunity review: find duplication, complexity, ownership boundaries, and risk.
 2. Execution plan: choose ordered refactor items with done criteria and verification.
 
-Do not combine analysis and editing unless the change is tiny and mechanical.
+Do not combine analysis and editing unless the change is tiny, mechanical, and low-risk, and record that direct-leaf rationale for Director reconciliation.
 
 ## Phase 3: Refactor Plan
 
@@ -77,7 +80,7 @@ Parallelize only when modules do not overlap and verification can prove behavior
 
 ## Phase 4: Plan Review
 
-Run adversarial review before edits.
+Run adversarial review before edits. In a Director-managed worker, request separate review/oracle lanes through the Director when required; review results are advisory until the owning worker verifies them and the Director later reads back the worker thread.
 
 Challenge:
 
@@ -122,7 +125,11 @@ Report:
 - changed files
 - commit hashes
 - review verdict
+- helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail
+- cleanup/archive expectation and worktree/branch reconciliation state
 - residual risk
+
+For Director acceptance, final refactor evidence remains unaccepted until the Director reads the child thread with `codex_app.read_thread`, captures the terminal report, reconciles behavior-preservation evidence, helper/direct-leaf policy, review/oracle status, and records cleanup/archive state.
 
 ## Anti-Patterns
 
@@ -131,3 +138,5 @@ Report:
 - Parallelizing overlapping refactors.
 - Skipping tests because the change "should be mechanical."
 - Leaving the code in a half-migrated style.
+- Treating a non-trivial refactor as complete without helper/subagent evidence or valid direct-leaf rationale.
+- Accepting callback-only, expected-final-only, or stale-summary evidence before child-thread readback.

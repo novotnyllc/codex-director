@@ -6,6 +6,8 @@ Use for code review, plan review, worker-output review, branch diffs, PRs, and a
 
 Review is an independent challenge pass. Findings lead. Summaries and praise are secondary. A review without a clear scope is not a review yet.
 
+When reviewing Director-created worker output, the review must challenge the Director acceptance path itself: unread child finals, missing `readback_status`, missing helper/subagent evidence, invalid direct-leaf rationale, and missing cleanup/archive state are review findings, not administrative nits.
+
 ## Phase 0: Confirm Scope
 
 Start by confirming the worker launch contract: model, thinking level plus rationale, commit authority, relevant Codex skills, and the required review workflow. Record skills considered, loaded, skipped, and not loaded in activation.
@@ -18,7 +20,7 @@ Determine what is being reviewed:
 - Branch vs `main`, `master`, or named target.
 - Pull request.
 - Plan artifact.
-- Worker-thread output and claimed evidence.
+- Worker-thread output and claimed evidence, including child-thread readback state and helper/direct-leaf acceptance.
 
 If the scope is ambiguous and cannot be inferred from the request and git state, ask before reviewing.
 
@@ -51,6 +53,8 @@ For plans/workers:
 - Read the task brief.
 - Read done criteria.
 - Read claimed evidence.
+- Confirm the Director or owning orchestrator read the child thread with `codex_app.read_thread` after the terminal signal and captured the terminal report from the child thread itself.
+- Check `read_cursor` or `last_turn_seen`, `readback_status`, `final_report_captured`, `evidence_reconciled`, `helper_policy_accepted`, `acceptance_status`, and cleanup/archive state when the output came from a Director-created worker.
 - Identify unverified claims.
 
 ## Phase 2: Build Review Context
@@ -79,6 +83,10 @@ Challenge:
 - UI/UX regressions if user-facing.
 - Scope creep and unrelated changes.
 - Commit coherence.
+- Callback-only, expected-final-only, or stale-summary-only acceptance without child-thread readback.
+- Missing, weak, or implausible helper/subagent evidence for non-trivial Director-created work.
+- Direct-leaf claims that do not separately justify tiny, mechanical, and low-risk.
+- Missing archive/cleanup state for accepted, stale, superseded, review, oracle, verification, or cleanup workers.
 
 For plan review, also challenge:
 
@@ -112,7 +120,20 @@ Keep it concise:
 - **Suggestions**: useful but not blocking.
 - **Questions**: only if answers could change the verdict.
 - **Verdict**: approve, approve with nits, block, or insufficient evidence.
+- **Acceptance gate**: for Director-created worker output, state whether child-thread readback, evidence reconciliation, helper/direct-leaf acceptance, review/oracle status, and cleanup/archive state are present.
 - **Residual risk**: tests or paths not covered.
+
+## Review Worker Evidence
+
+When this review workflow is itself run by a Director-created review worker, its final report must include:
+
+- explicit review scope and comparison/artifact reviewed;
+- findings/verdict and residual risk;
+- helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail;
+- review/oracle status if another lane was used or requested;
+- cleanup/archive expectation.
+
+For Director acceptance, the review worker's verdict is only candidate evidence until the Director reads the review worker thread with `codex_app.read_thread`, captures the terminal report from the child thread itself, reconciles scope/findings/helper/direct-leaf status, and records cleanup/archive state. A callback, expected final, or verdict alone must not be accepted.
 
 If no issues are found, say that clearly and name remaining test gaps.
 
@@ -123,3 +144,5 @@ If no issues are found, say that clearly and name remaining test gaps.
 - Treating style nits as must-fix.
 - Skipping changed call sites or tests when API behavior changed.
 - Saying "looks good" without naming residual risk or unverified surfaces.
+- Approving Director-created worker output when it is still `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state.
+- Treating ordinary tool use or self-checks as the mandatory helper/subagent lane for non-trivial work.

@@ -1,38 +1,29 @@
-# Director Hooks
+# Director Hook Reference
 
-Codex Director bundles scoped advisory hooks through `hooks/hooks.json`.
+Codex Director does not register plugin-bundled lifecycle hooks. `hooks/hooks.json` is intentionally empty so installs do not attach Director behavior to every Codex thread.
 
-These hooks remind Director-marked threads about role boundaries, no-inline repo/prod inspection, worker-only execution, dynamic workflow for production/external project/service writes, and activation/review/oracle/cleanup/archive closeout hygiene. They keep runtime nudges close to the hook implementation while the skill docs define the Director workflow itself.
+No hook runner is shipped or retained. Hook support is absent unless Codex exposes real thread-attached metadata or another explicit per-thread binding surface and a future implementation is added.
 
 ## Files
 
-- `hooks.json`: Codex hook registration.
-- `director-hook.py`: scoped hook runner.
+- `hooks.json`: empty Codex hook configuration. No events or commands are registered.
 
-## Events
+## Registration
 
-| Event | Purpose |
-|---|---|
-| `SessionStart` | Restore the role boundary on Director-marked starts and compact resumes |
-| `UserPromptSubmit` | Re-check routing before handling a Director-marked instruction; repo/docs/code/prod inspection and project execution belong in workers |
-| `Stop` | Emit a structured closeout warning for evidence, activation/review/oracle blockers, stale/cancel state, cleanup, and archive decisions |
-| `SubagentStart` | Remind Director-marked nested helpers they are scoped under an owning worker or packet |
-| `SubagentStop` | Emit a structured warning to roll helper evidence back to the owning worker or packet |
+No hook events are registered. The plugin does not install `SessionStart`, `UserPromptSubmit`, `Stop`, `SubagentStart`, `SubagentStop`, or `PostCompact` commands.
 
-The bundled hooks intentionally omit `PostCompact`. Plain `PostCompact` stdout is not model-visible, so compaction reminders use the `SessionStart` hook when Codex starts from `compact` and the transcript is Director-marked.
+Do not use marker strings, prompt scanning, or transcript scanning to infer Director scope. Director identity and routing come from explicit thread setup, project scope, worker launch contracts, and ledger state.
 
-## Scoping
+## Future Hook Requirements
 
-The runner emits output only when the submitted prompt or recent transcript contains a Director marker such as `$codex-director`, `codex-director`, `Codex Director`, or `Director thread`.
+Hook support can be reconsidered only when the runtime exposes a reliable way to bind hooks to a specific Director thread or explicit per-thread metadata.
 
-- `SessionStart`, `UserPromptSubmit`, and `SubagentStart` emit structured `additionalContext`.
-- `Stop` and `SubagentStop` emit structured `systemMessage` only; they do not block or force continuation.
-- Unmarked threads receive no hook output.
+Any future hook design must be opt-in or thread-attached, avoid global behavior for ordinary Codex threads, and avoid marker, string, or transcript detection as the primary scope mechanism.
 
-Do not use Director hooks to block ordinary worker tools, force worker execution, or prevent routine turn completion. Rely on worker briefs, activation reports, monitoring, review gates, and ledger state for enforcement.
+Until then, rely on worker briefs, activation reports, monitoring, review gates, ledger state, and workflow artifacts for Director-scoped enforcement and reminders, including child-thread readback, evidence reconciliation, and helper/direct-leaf policy.
 
 ## Trust
 
-Codex lists configured hooks through `/hooks`. New or changed non-managed hooks require review and trust before they run. Plugin-bundled hooks load alongside other hook sources and use the same trust-review flow.
+Codex lists configured hooks through `/hooks`. Because `hooks/hooks.json` is empty, Codex Director should not appear as a configured hook provider after install.
 
-A runtime policy that disables hooks is a reduced reminder surface, not a blocker by itself. The Director contract does not change: project work still belongs in Codex worker threads.
+A runtime policy that disables hooks is not a reduced Director surface. The Director contract is independent of hooks: project work still belongs in Codex worker threads.

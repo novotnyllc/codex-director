@@ -9,9 +9,9 @@ description: Coordinates project-scoped Codex Director threads for worker routin
 
 Use this file first as the dispatcher. Load [REFERENCE.md](REFERENCE.md) when setting up or operating a Director, drafting worker briefs, using templates, maintaining ledgers, or resolving ambiguity.
 
-Load [Latest Codex runtime tooling](references/runtime-adapters.md) before any Codex thread/project lifecycle operation. Load only the focused workflow reference that matches the task. Load Browser, Goals, model-routing, hook, or optional artifact notes only when relevant.
+Load [Latest Codex runtime tooling](references/runtime-adapters.md) before any Codex thread/project lifecycle operation. Load only the focused workflow reference that matches the task. Load Browser, Goals, model-routing, or optional artifact notes only when relevant.
 
-RepoPrompt/context engines, hooks, browsers, and sub-agents may assist with context, review, oracle, or worker-internal phases only. They do not replace Codex worker-thread dispatch.
+RepoPrompt/context engines, browsers, and sub-agents may assist with context, review, oracle, or worker-internal phases only. They do not replace Codex worker-thread dispatch.
 
 ## Core Contract
 
@@ -19,9 +19,13 @@ RepoPrompt/context engines, hooks, browsers, and sub-agents may assist with cont
 - The Director/coordinator thread defaults to latest-main with `xhigh` reasoning; worker model/thinking choices remain task-specific.
 - The Director coordinates only: routing, briefs, ledgers, monitoring, review/oracle mediation, evidence reconciliation, and final acceptance.
 - Repo/docs/code/prod inspection and all execution belong to bounded Codex worker threads or dynamic workflow packets.
+- Direct inline corrective repo execution is prohibited. If workers stall or an emergency arises, the Director records explicit authority and steers, stops, relaunches, dispatches a bounded emergency worker/dynamic workflow, or reports the blocker; the Director still must not inspect or execute repo/prod work inline.
 - Worker lifecycle uses the latest Codex `codex_app` thread/project contract; never invent APIs or substitute RepoPrompt agents for Director workers.
+- Top-level Codex worker lifecycle belongs to the Director. Workers and helpers must not create nested top-level Codex worker threads unless the brief explicitly delegates that authority.
+- Thread titles must track the current resume state and material focus. Child-worker titles must not overwrite, mask, or retitle the parent Director focus.
 - Project scope may be a saved project, repo, multi-repo workspace, child path, or projectless directory; worker launches must resolve the concrete saved Codex project target that owns each repo/path.
 - Delegate proactively when it improves speed, coverage, review independence, risk control, context management, or token economy.
+- Direct leaf is worker-internal only. It never authorizes Director-inline repo/docs/code/prod inspection or execution, and it is valid only when the worker records separate tiny, mechanical, and low-risk rationale.
 
 ## Triage
 
@@ -48,18 +52,19 @@ Every worker brief must include:
 - project scope, resolved Codex project target, owned repo/path, and path-ownership rationale;
 - bounded task, done criteria, selected workflow/playbook, constraints, and verification surface;
 - model/thinking choice with rationale, using [Agent profiles and model routing](references/agent-profiles-and-model-routing.md);
-- skills to consider/load/report, context or helper policy, and research lane;
-- oracle/review policy, commit authority, git/worktree handling, and archive/cleanup expectation;
+- skills to consider/load/report, context/helper policy, research lane, and a mandatory real helper/subagent lane for non-trivial Director-created workers;
+- oracle/review policy, commit authority derived from the user's request, git/worktree handling, and archive/cleanup expectation;
 - evidence format, verbosity limit, activation report requirement, and unresolved launch-brief items;
-- Goal fit: Director ledger only, worker Codex Goal, or both.
+- Goal fit: Director ledger only, worker Codex Goal, or both;
+- direct-leaf exception, only when the worker itself will do a tiny, mechanical, low-risk task and records separate rationale for all three properties.
 
 Use [REFERENCE.md](REFERENCE.md) for the full worker brief, activation report, oracle packet, ledger, git/worktree, and anti-pattern templates.
 
 ## Monitoring And Evidence
 
-Workers start with activation. Accept only callbacks for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`; otherwise poll privately, update the ledger, and avoid routine progress narration.
+Workers start with activation. Accept only callbacks for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`; otherwise poll privately, update the ledger, and avoid routine progress narration. A callback, expected final message, stale summary, or worker claim is only a terminal signal until the Director calls `codex_app.read_thread` for that child thread and reads the terminal child report from the thread itself.
 
-Use watchdogs for stale work. Completion requires captured evidence, review/oracle status, cleanup/archive state, and reconciled ledger/workflow artifacts. Surface user-visible updates only for final evidence, real blockers or decisions, safety/production/destructive choices, ownership-changing handoffs, or stale/cancel/archive/cleanup state.
+Use watchdogs for stale work. Worker threads are single-material-task handles: steer only inside the same bounded assignment, and create a fresh worker for a different material task. Completion requires child-thread readback, captured terminal worker evidence, evidence reconciliation against done criteria, review/oracle status, helper/direct-leaf acceptance, cleanup/archive state, and reconciled ledger/workflow artifacts. If readback or terminal evidence is missing, report `pending-readback`, `readback_blocked:<reason>`, `stale`, or `insufficient-evidence` instead of a final verdict. Do not send final user status while any Director-created worker is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, or missing helper/direct-leaf acceptance. Surface user-visible updates only for final evidence, real blockers or decisions, safety/production/destructive choices, ownership-changing handoffs, or stale/cancel/archive/cleanup state.
 
 ## Safety And Boundaries
 
@@ -67,12 +72,12 @@ Ask before secrets, raw private data, production/destructive actions, external s
 
 Browser ChatGPT Pro oracle use requires the privacy review, Pro-value judgment, fallback behavior, and packet flow in [Browser ChatGPT oracle workflow](references/browser-chatgpt-oracle-workflow.md).
 
-Hooks are scoped advisory reminders, not enforcement and not worker execution. See [hooks README](../../hooks/README.md).
+Codex Director does not rely on plugin-bundled lifecycle hooks. Do not use marker strings, prompt scanning, or transcript scanning as a Director routing mechanism. See [hooks README](../../hooks/README.md).
 
 ## Reference Map
 
 - [REFERENCE.md](REFERENCE.md): full Director operating brief, templates, ledgers, evidence, gates, git/worktrees, monitoring, examples, and anti-patterns.
-- [runtime-adapters.md](references/runtime-adapters.md): Codex `codex_app` worker lifecycle, project targets, context/oracle/browser helpers, hooks, goals, and runtime boundaries.
+- [runtime-adapters.md](references/runtime-adapters.md): Codex `codex_app` worker lifecycle, project targets, context/oracle/browser helpers, goals, and runtime boundaries.
 - [execution-mode-stack.md](references/execution-mode-stack.md): Director, dynamic workflow, workers, helpers, oracle/review, and context layer responsibilities.
 - [dynamic-workflow-integration.md](references/dynamic-workflow-integration.md): trigger rules, packet/result artifacts, approvals, and integration gates.
 - Workflow playbooks: [research/investigate](references/investigate-research-workflow.md), [deep-plan](references/deep-plan-workflow.md), [build](references/build-workflow.md), [orchestrate](references/orchestrate-workflow.md), [review](references/review-workflow.md), [refactor](references/refactor-workflow.md), [optimize](references/optimize-workflow.md).
@@ -80,4 +85,4 @@ Hooks are scoped advisory reminders, not enforcement and not worker execution. S
 - [browser-chatgpt-oracle-workflow.md](references/browser-chatgpt-oracle-workflow.md): Browser ChatGPT Pro oracle privacy, fallback, and reconciliation.
 - [optional-prompt-artifact-notes.md](references/optional-prompt-artifact-notes.md): optional local scratch/handoff artifact notes; not a Director workflow dependency.
 - [goals-integration.md](references/goals-integration.md): Director ledger and worker Codex Goal fit, finish lines, and blocked policy.
-- [hooks README](../../hooks/README.md): bundled hook scope and advisory-only semantics.
+- [hooks README](../../hooks/README.md): intentionally empty hook config and no active hook runner.

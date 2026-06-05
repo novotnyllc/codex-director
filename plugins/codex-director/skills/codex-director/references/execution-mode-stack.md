@@ -10,8 +10,6 @@ Everything else is an execution mode selected by the director thread for a speci
 
 ```text
 Director Codex thread
-|-- plugin-bundled hooks
-|   |-- reinforce role boundaries, routing, compaction recovery, closeout
 |-- `codex_app` thread layer
 |   |-- create/title/pin/read/steer/archive worker threads through exposed `codex_app` contracts
 |   `-- resolve project targets and preserve worker lifecycle evidence through latest-Codex contracts
@@ -33,9 +31,9 @@ Owns:
 - project portfolio and active work ledger
 - routing to repo/path
 - whether a request is coordination-only, one worker thread, or a dynamic workflow run
-- Codex worker thread creation, steering, monitoring, archival
+- Codex worker thread creation, steering, monitoring, readback, acceptance, and archival
 - worktree/branch/commit/reconciliation policy
-- final user-facing status
+- final user-facing status after child-thread readback and evidence reconciliation
 
 Does not own:
 
@@ -73,7 +71,7 @@ Use exposed `codex_app` thread/project tools for worker-thread lifecycle, with t
 Owns:
 
 - Codex worker-thread creation, steering, polling, archival, and cleanup through exposed `codex_app` contracts
-- Director hook reminders for role boundaries, compaction recovery, nested helper evidence, and closeout
+- explicit Director thread/project contracts, worker briefs, activation reports, ledgers, and closeout evidence
 - codebase context building
 - oracle reasoning over curated context, mediated by the Director when implemented as a separate Codex thread
 - worker-internal sub-agent or execution helpers when useful
@@ -97,7 +95,9 @@ Workers must report scope expansion, blockers, and verification gaps back to the
 
 ### Director availability invariant
 
-The Director does not perform project work. It stays available for instructions, check-ins, steering, coordination, workflow artifact updates, evidence integration, and final status. Any implementation, investigation, review, testing, refactor, optimization, or research work belongs in a Codex worker thread. Tiny work still gets a tiny worker brief.
+The Director does not perform project work. It stays available for instructions, check-ins, steering, coordination, workflow artifact updates, evidence integration, and final status. Any implementation, investigation, review, testing, refactor, optimization, research work, or repo/docs/code/prod inspection belongs in a Codex worker thread. Tiny project work still gets a tiny worker brief when it requires repo/docs/code/prod inspection or execution.
+
+Direct leaf is a worker-internal execution mode only. It cannot authorize Director-inline project work. A worker may classify itself as direct leaf only when the assigned task is explicitly tiny, mechanical, and low-risk, and both activation and final evidence include separate rationale for tiny, mechanical, and low-risk.
 
 ## Selection Order
 
@@ -114,7 +114,7 @@ Examples:
 - ask for a missing approval
 - update the Director ledger from worker evidence
 
-No project execution in the Director thread.
+No project execution in the Director thread. Direct leaf is not an exception to this rule; it is only a worker-internal shortcut for tiny, mechanical, low-risk work.
 
 ### 2. Single bounded implementation, review, or investigation
 
@@ -132,7 +132,7 @@ Use the selected workflow reference:
 
 Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
 
-No dynamic workflow unless durable packet/result artifacts are useful; the single worker still executes the work.
+No dynamic workflow unless durable packet/result artifacts are useful; the single worker still executes the work. If the worker treats the item as direct leaf, the Director may accept that only after child-thread readback confirms the tiny/mechanical/low-risk rationale and evidence.
 
 ### 3. Multi-item but short-lived
 
@@ -166,8 +166,8 @@ When optional context/delegation tools are also available, use them as implement
 3. For each dynamic workflow packet, Director dispatches a Codex worker thread.
 4. The worker uses the relevant self-contained workflow playbook for its assigned work item.
 5. For work-item complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that work item.
-6. Worker writes concise result evidence into `results/`.
-7. Director dispatches any integration, verification, or reconciliation work to workers, records accepted evidence, and writes final report.
+6. Worker writes concise result evidence into `results/` only through the workflow's accepted-result path.
+7. Director reads back each child worker thread, reconciles evidence and helper/direct-leaf policy, dispatches any integration, verification, or reconciliation work to workers, records accepted evidence, and writes final report.
 
 ## How Recursive Helpers Fit
 
@@ -228,9 +228,12 @@ A task is complete only when all selected layers agree:
 
 - Director ledger says done.
 - Workflow artifact, if used, passes completion audit.
-- Worker threads have reported evidence.
+- Every Director-created worker that reached a terminal signal has been read with `codex_app.read_thread`, and the terminal child report was captured from the child thread itself.
+- Worker threads have reported evidence, and the Director has reconciled it against done criteria.
+- Non-trivial workers used required helper/subagent lanes, or direct-leaf workers provided credible tiny/mechanical/low-risk rationale.
 - Review gates have passed or residual risk is accepted.
 - Authorized commits or PR evidence are complete, or `no-commit` evidence is ready for user/Director decision.
 - Worktrees are reconciled into the canonical repo/branch.
+- No worker remains `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, or missing helper/direct-leaf acceptance.
 - Runtime handles are collected, archived, canceled, or cleaned up.
 - Final user-facing status is concise and source-backed.

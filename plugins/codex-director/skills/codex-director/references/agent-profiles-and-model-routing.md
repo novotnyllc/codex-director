@@ -6,7 +6,11 @@ Use this when the Director thread is choosing Codex worker thread roles, model f
 
 Use delegation aggressively when it improves speed, coverage, review independence, risk control, context management, or token economy. Do not wait for the user to say "subagents", "swarm", "oracle", or "Pro".
 
-Most non-trivial Director-started worker threads are work-item coordinators, not monolithic executors: use the defined workflow/playbook that matches the assigned work item, select the relevant functions/files/tests before reading broadly, choose helper lanes by task shape, delegate independent scouting or verification to narrow sub-agents, and return concise evidence instead of accumulating transcript mass. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
+Non-trivial Director-created worker threads are work-item coordinators, not monolithic executors: they must use the defined workflow/playbook that matches the assigned work item, select the relevant functions/files/tests before reading broadly, choose helper lanes by task shape, delegate at least one real independent scouting, context, verification, critique/review, implementation, or oracle/review lane before final evidence, and return concise evidence instead of accumulating transcript mass. Ordinary tool use, self-checks, or saying helpers were considered does not satisfy this gate. Use `packet` only for concrete `.workflow/<slug>/packets/` artifacts.
+
+Acceptable helper/subagent lanes include research scouts, code/context scouts, verification helpers, critique/review helpers, implementation helpers for disjoint contained subwork, and oracle/review lanes when the workflow requires independent judgment. High-risk or non-trivial planning should include both a scout/context lane and a critique/review lane. If a non-trivial worker lacks helper/subagent capability, it must report `blocked:<reason>` or ask the Director/user for direction rather than continuing as a monolithic executor. Direct leaf is worker-internal only and requires separate tiny, mechanical, and low-risk rationale in activation and final evidence.
+
+Helper outputs are advisory until the owning worker verifies them, reconciles them with authoritative repo/workflow evidence, and includes them in final evidence. Worker evidence remains advisory to the Director until the Director reads the child thread with `codex_app.read_thread`, captures the terminal child report, reconciles done criteria and helper/direct-leaf policy, and records acceptance.
 
 Director-created workers use the latest non-Spark main model exposed by the active schema by default, for example `gpt-5.5` when it is listed. Never choose older main-family model ids such as `gpt-5.4` when a newer main model is available. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, optional artifact packaging, bounded research, Browser automation runner, or mechanical low-risk helper lane. Spark is never an authority lane.
 
@@ -24,7 +28,7 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | `context-scout` | Fast code-map, ownership, command, or file-location probe | Spark | low |
 | `artifact-packager` | Package optional scratch/handoff context artifacts only when a stable file path is explicitly useful | Spark | medium |
 | `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
-| `work-item-coordinator` | Own a non-trivial assigned work item, run the matching workflow/playbook, choose context/helper strategy, select models/functions/files/tests, and roll up evidence | latest main | high |
+| `work-item-coordinator` | Own a non-trivial assigned work item, run the matching workflow/playbook, choose and use required context/helper lanes, select models/functions/files/tests, and roll up verified evidence | latest main | high |
 | `implementation-worker` | Bounded build/refactor/test work item with code-writing or verification | current main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
 | `adversarial-reviewer` | Challenge plan/code/evidence before continuation | current main by default; Spark only for quick low-risk first pass | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | latest main | high |
@@ -78,7 +82,7 @@ Do not use Spark as final authority for:
 
 Use the latest non-Spark main model exposed by the active schema for:
 
-- work-item coordinator workers that choose context/helper strategy
+- work-item coordinator workers that choose and enforce context/helper strategy
 - director top-level task decisions
 - dynamic workflow setup and concrete packet design
 - final plan review
@@ -86,6 +90,7 @@ Use the latest non-Spark main model exposed by the active schema for:
 - conflict resolution
 - ordinary implementation with design judgment
 - high-stakes review
+- Director readback and acceptance decisions after worker terminal signals
 - security/auth/data/migration judgment
 - deciding whether work is complete or blocked
 

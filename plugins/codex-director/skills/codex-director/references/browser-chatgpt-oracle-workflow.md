@@ -8,6 +8,8 @@ The Browser ChatGPT Pro oracle is an implementation of the oracle lane. It shoul
 
 Do not require a separate prompt file just because Browser ChatGPT Pro is the selected oracle lane. Write a prompt artifact only when it adds real value: durable audit trail, large payload/upload, resumability after Browser failure, cross-thread handoff, or explicit user request. When this workflow is selected for a delegated oracle-runner worker, that runner must complete the Browser round trip unless blocked by sign-in, Pro availability, safety, or browser automation failure. Other workers should request this lane through the Director. Do not run a non-Pro ChatGPT model and report it as a Pro oracle; when Pro is unavailable, prefer the built-in Codex oracle/review lane with main/`xhigh`.
 
+If the Browser oracle runner is a Director-created worker, its result artifact and callback are not accepted until the Director reads the runner's child thread with `codex_app.read_thread`, captures the terminal report, reconciles oracle evidence and helper/direct-leaf policy, and records cleanup/archive state.
+
 ## Safety Gate
 
 Before sending content to ChatGPT through Browser, check whether the payload contains secrets, credentials, raw private data, source-data exports, transcripts, tokens, invite links, or regulated data. If it does, ask the user for explicit permission or create a redacted/summarized prompt first.
@@ -16,7 +18,7 @@ Do not print sensitive payloads in chat. Prefer local files and concise status.
 
 ## Phase 0: Decide Whether Browser ChatGPT Pro Oracle Is Appropriate
 
-Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
+Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, helper/direct-leaf policy, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
 
 Use Browser ChatGPT Pro oracle when a Pro web-model second opinion is materially better than the local oracle/review lane, even if the user did not explicitly say Pro:
 
@@ -136,14 +138,17 @@ After submitting:
 
 1. Wait for ChatGPT to finish generating. Pro responses can take a while; poll patiently until the stop/regenerate controls and page state indicate completion. Use a generous wait budget and report progress only if the wait becomes unusually long.
 2. Capture the final assistant response from the page.
-3. Save it to the active workflow's `results/` directory when a packetized workflow exists, or another local scratch artifact path when a standalone result file is useful.
-4. Include the prompt source (`direct` or artifact path), selected ChatGPT model label, ChatGPT URL if available, timestamp, elapsed wait time, and any automation caveats.
+3. Save it to the active workflow's `results/` directory only when this is already an accepted/reconciled packet result; otherwise save to a scratch or candidate-result artifact until Director readback and reconciliation promote it. Use another local scratch artifact path when a standalone result file is useful.
+4. Include the prompt source (`direct` or artifact path), selected ChatGPT model label, ChatGPT URL if available, timestamp, elapsed wait time, helper/direct-leaf status if delegated, cleanup/archive expectation, and any automation caveats.
 
 Capture metadata:
 
 ```text
 Prompt source/artifact:
 Result artifact:
+Runner thread id if delegated:
+Readback status if Director-created runner:
+Helper/direct-leaf status:
 Model/label selected:
 Submission time:
 Completion time:
@@ -157,7 +162,7 @@ If the response is long, save the full text to the result artifact and summarize
 
 ## Phase 4: Feed Back Into The Workflow
 
-Use the Browser ChatGPT Pro oracle result as evidence, not as authority.
+Use the Browser ChatGPT Pro oracle result as evidence, not as authority. If the oracle result came from a delegated Director-created runner, treat the result as candidate evidence until child-thread readback and reconciliation are complete.
 
 For plan review:
 
@@ -185,6 +190,7 @@ Return:
 - verdict
 - must-fix findings count
 - whether the plan/work was updated
+- delegated runner readback status, helper/direct-leaf acceptance, and cleanup/archive state when applicable
 - any blockers or caveats
 
 Do not paste the full oracle response unless the user asks.
@@ -197,6 +203,7 @@ Do not paste the full oracle response unless the user asks.
 - Browser automation cannot extract result: save what can be extracted, note the blocker, and create or keep a temporary prompt artifact only if needed for retry or handoff.
 - Sensitive payload detected: pause for permission or redact.
 - Page structure changes make capture unreliable.
+- Reporting a delegated oracle-runner callback or result artifact as accepted before `codex_app.read_thread` readback and evidence reconciliation.
 
 ## Evidence
 
@@ -208,3 +215,4 @@ The final evidence bundle should include:
 - verdict
 - follow-up edits or decisions made from the result
 - unresolved caveats
+- delegated runner thread id, child-thread readback status, helper/direct-leaf status, and cleanup/archive state when applicable

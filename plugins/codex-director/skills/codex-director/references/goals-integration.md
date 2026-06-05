@@ -4,13 +4,14 @@ Use when the director thread or a Codex worker thread is deciding whether to cre
 
 ## Relationship To The Director Stack
 
-Codex Goals are persistence and completion-pressure for a single thread objective. They are not a replacement for director coordination, dynamic workflow orchestration, or review gates.
+Codex Goals are persistence and completion-pressure for a single thread objective. They are not a replacement for director coordination, dynamic workflow orchestration, worker helper/subagent policy, child-thread readback, evidence reconciliation, cleanup/archive state, or review gates.
 
 ```text
 Director ledger = portfolio state
 Dynamic workflow = complex task orchestration
 Codex worker thread = execution unit
 Codex Goal = persistent objective inside a thread
+Child-thread readback = required before Director accepts worker Goal evidence
 Evidence = required before completion
 ```
 
@@ -55,6 +56,9 @@ Worker activation should state:
 
 ```text
 Codex Goal: <none/create/continue/inspect/clear> because <fit test>
+Worker role: <coordinator|direct-leaf>
+Helper/subagent lanes: <lanes|blocked:<reason>|not-needed-direct-leaf>
+Direct-leaf rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Goal outcome: <measurable end state>
 Verification surface: <commands/artifacts/files/review>
 Constraints: <must preserve>
@@ -73,7 +77,7 @@ Goal operations are runtime-dependent, but the Director contract is stable:
 - Continue: only when the current Goal's outcome and boundaries match the worker brief.
 - Pause or clear: before unrelated detours, stale resumed objectives, or changed task scope.
 - Audit: compare claimed completion against the named verification surface.
-- Complete: only when evidence satisfies outcome, constraints, and review gates.
+- Complete: only when evidence satisfies outcome, constraints, helper/direct-leaf policy, and review gates. For a Director-created worker Goal, the worker may claim Goal completion in its own thread, but the Director cannot accept that completion until child-thread readback and evidence reconciliation are recorded.
 - Block: only when the blocked stop condition is met and no defensible next step remains.
 
 Do not create a Goal silently. A worker may propose one in its activation report, but the Director or user should accept the goal-shaped objective before it becomes the worker's persistent finish line.
@@ -86,6 +90,8 @@ Reason:
 Outcome:
 Verification surface:
 Evidence:
+Helper/direct-leaf status:
+Readback status if Director-created worker:
 Constraints checked:
 Next iteration rule:
 Blocked stop:
@@ -113,12 +119,16 @@ Research Goals should not overclaim from proxies. If proof is unavailable, final
 
 Before the Director accepts a worker Goal as complete:
 
-1. Compare the stated outcome to evidence.
-2. Confirm named verification surfaces were run or inspected.
-3. Confirm constraints did not regress.
-4. Confirm review gates passed or residual risk is accepted.
-5. Confirm dynamic workflow packet/result state is updated if applicable.
-6. Confirm commits/worktrees are reconciled when repo changes were made.
+1. Confirm the worker has reached a terminal signal, then read the child thread with `codex_app.read_thread`; callback payloads, expected finals, stale summaries, or worker claims are only wake signals.
+2. Capture the terminal child report from the thread itself and record `readback_status: readback_complete` or a blocker state.
+3. Compare the stated outcome to evidence.
+4. Confirm named verification surfaces were run or inspected.
+5. Confirm constraints did not regress.
+6. Confirm helper/subagent lanes were used for non-trivial work, or direct-leaf tiny/mechanical/low-risk rationale is valid.
+7. Confirm review gates passed or residual risk is accepted.
+8. Confirm dynamic workflow packet/result state is updated if applicable.
+9. Confirm commits/worktrees are reconciled when repo changes were made.
+10. Record cleanup/archive state separately from Goal completion.
 
 Budget exhaustion, a plausible summary, or partial verification is not completion.
 
@@ -128,6 +138,8 @@ Completion must answer:
 - Was the named verification surface run or inspected?
 - Did constraints remain true?
 - Did the review/adversarial gate pass or record accepted residual risk?
+- Did helper/direct-leaf policy pass?
+- Did the Director record child-thread readback and cleanup/archive state before accepting the worker Goal?
 - Is remaining uncertainty explicitly named?
 
 ## Blocked Handling
@@ -151,8 +163,9 @@ When dynamic workflow mode is active:
 
 - Overall task success criteria belong in `.workflow/<slug>/plan.md`.
 - Packet-level persistent objectives may become worker Goals.
-- Packet result files should include Goal outcome, verification surface, completion evidence, and blockers.
-- Director completion requires both Goal audit and dynamic workflow completion audit.
+- Packet result files should include Goal outcome, verification surface, completion evidence, helper/direct-leaf status, readback status, and blockers.
+- Packet outputs become durable `results/` only after Director readback and reconciliation, not merely after callback.
+- Director completion requires Goal audit, child-thread readback, helper/direct-leaf acceptance, cleanup/archive state, and dynamic workflow completion audit.
 
 ## Anti-Patterns
 
@@ -161,5 +174,5 @@ When dynamic workflow mode is active:
 - Treating budget exhaustion as done.
 - Hiding uncertainty in research Goals.
 - Continuing an old Goal during an unrelated detour.
-- Using a Goal to bypass approval gates.
+- Using a Goal to bypass approval gates, child-thread readback, helper/direct-leaf acceptance, review/oracle gates, or cleanup/archive state.
 - Marking blocked because the task is hard rather than because the blocked stop condition is met.

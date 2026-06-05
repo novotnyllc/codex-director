@@ -6,9 +6,11 @@ Use for performance, latency, memory, allocation, throughput, frame time, bundle
 
 Performance work only improves what can be measured. The loop is: map, measure, change one thing, re-measure, review, decide.
 
+For Director-created optimization workers, non-trivial optimization requires real helper/subagent evidence for bottleneck scouting, measurement design, verification, or critique. Direct leaf is worker-internal only for tiny, mechanical, low-risk measurement or tuning changes with separate rationale.
+
 ## Phase 0: Target And Stop Rule
 
-Confirm the worker launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, and evidence format. Record skills considered, loaded, skipped, and not loaded in activation.
+Confirm the worker launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, helper/direct-leaf policy, and evidence format. Record skills considered, loaded, skipped, and not loaded in activation.
 
 Translate the user request into:
 
@@ -23,7 +25,7 @@ If the target is vague, research first. Do not optimize "slow" without a measura
 
 ## Phase 1: Bottleneck Scouting
 
-Run scouts before planning:
+Run scouts before planning. For non-trivial Director-created optimization, at least one scout/helper lane is mandatory unless direct-leaf tiny/mechanical/low-risk rationale is valid; if helper capability is unavailable, report `blocked:<reason>` instead of optimizing monolithically:
 
 - Target implementation and call graph.
 - Callers and hot loops.
@@ -107,7 +109,7 @@ For each iteration:
 
 Do not combine multiple performance ideas in one iteration unless they cannot be separated.
 
-Use one worker for a full optimize-and-harden iteration when possible: implement, verify correctness, measure, and report. Use separate workers only when measurement and implementation can be cleanly isolated.
+Use one worker for a full optimize-and-harden iteration when possible: implement, verify correctness, measure, and report. Use worker-internal helpers for disjoint measurement, bottleneck, verification, or review lanes when that reduces bias or context load. Use separate top-level workers only when measurement and implementation can be cleanly isolated by the Director.
 
 ## Phase 5: Oracle / Adversarial Decision
 
@@ -124,7 +126,7 @@ Respect stop signals: target met, plateau, risk too high, measurement unreliable
 
 The oracle/review lane should see the scoreboard and evidence, not the whole transcript. Ask for a stop/continue verdict and the one next experiment that would most likely matter.
 
-When an optimization worker reaches this decision point, it returns an Oracle Request Packet with the scoreboard, measurement caveats, correctness evidence, candidate list, and requested stop/continue verdict. The Director chooses and messages the oracle/review lane, then routes the decision back.
+When an optimization worker reaches this decision point, it returns an Oracle Request Packet with the scoreboard, measurement caveats, correctness evidence, candidate list, helper/direct-leaf status, and requested stop/continue verdict. The Director chooses and messages the oracle/review lane, then routes the decision back. Oracle output is advisory; the worker still verifies and reports final evidence, and the Director later accepts only after child-thread readback and reconciliation.
 
 ## Phase 6: Finalization
 
@@ -146,7 +148,11 @@ Report:
 - commit hash per attributed change
 - tests/checks
 - review verdict
+- helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail
+- cleanup/archive expectation and worktree/branch reconciliation state
 - reason for stopping
+
+For Director acceptance, final optimization evidence is not complete until the Director reads the child thread with `codex_app.read_thread`, captures the terminal report, reconciles measurement/correctness/review/helper status, and records cleanup/archive state.
 
 ## Anti-Patterns
 
@@ -155,3 +161,5 @@ Report:
 - Shipping temporary instrumentation accidentally.
 - Combining unrelated performance ideas in one iteration.
 - Continuing iterations after stop criteria are met.
+- Claiming optimization success from a callback, oracle verdict, or stale summary before child-thread readback.
+- Treating non-trivial optimization as complete without helper/subagent evidence or valid direct-leaf rationale.
