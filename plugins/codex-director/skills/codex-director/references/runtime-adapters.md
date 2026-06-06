@@ -131,6 +131,8 @@ Lifecycle mapping:
 
 ### Launch Contract
 
+Before a Director gives a user-facing thread/work plan or calls `codex_app.create_thread`, the proposed structure must be complete enough to dispatch. Each proposed worker or packet needs a selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan.
+
 Before calling `codex_app.create_thread`, define:
 
 - worker title tied to the bounded material task
@@ -138,6 +140,7 @@ Before calling `codex_app.create_thread`, define:
 - explicit authorization basis for creating a new/separate thread under the active tool instructions; for a Director thread itself, this requires a clear separate/new-thread request
 - resolved target project/worktree or projectless directory, including the project id/target and resolution basis
 - model and thinking level plus rationale
+- selected workflow/playbook and top-level worker control loop
 - required skills or workflow references
 - context artifacts or source files to read first
 - mandatory helper/subagent lanes for non-trivial Director-created work, or direct-leaf exception with separate tiny, mechanical, and low-risk rationale

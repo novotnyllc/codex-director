@@ -99,12 +99,19 @@ Each item needs:
 
 - Goal.
 - Done when.
+- Selected workflow/playbook.
+- Top-level worker control loop.
+- Helper/subagent lanes, or direct-leaf tiny/mechanical/low-risk rationale.
 - Key files/modules.
 - Dependencies.
 - Size.
 - Review gate.
+- Oracle lane or no-oracle rationale.
 - Evidence required.
+- Acceptance/readback/cleanup requirements.
 - Git/worktree handling.
+
+When presenting the planned thread structure to the user, use the thread structure matrix from `REFERENCE.md`. Do not describe only role names such as "implementation worker" or "verification worker"; each item needs its selected workflow/playbook and top-level control loop before dispatch.
 
 If the work is naturally one item but still non-trivial, keep one owning worker and have that worker run a lightweight orchestration loop: plan, use helper/context lanes, execute the phase playbook, verify, review, and report evidence. Dispatch a direct build/review/investigate workflow only when the task is tiny, mechanical, low-risk, or genuinely single-lane and the brief records that rationale.
 

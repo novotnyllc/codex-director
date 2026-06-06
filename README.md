@@ -24,7 +24,7 @@ Use this thread as the Director thread. Read the project instructions, identify 
 
 `$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate.
 
-After the Director thread is established, give it outcomes, not workflow mechanics. You should not need to say "use dynamic workflow", "orchestrate", "use workers", or "run subagents". The Director should decide that based on scope, risk, parallelism, evidence needs, and token economy.
+After the Director thread is established, give it outcomes, not workflow mechanics. You should not need to say "use dynamic workflow", "orchestrate", "use workers", or "run subagents". The Director should decide that based on scope, risk, parallelism, evidence needs, and token economy. When it sketches a future thread or worker structure, it should name the selected workflow/playbook and top-level control loop for each proposed worker up front.
 
 ```text
 Coordinate the Discord invite work.
@@ -88,7 +88,8 @@ The Director is optimized for rapid-fire intake: each distinct ask should be rou
 ```text
 Director Codex thread
   -> Codex worker threads
-      -> selected self-contained workflow / dynamic workflow packet / optional tool implementation
+      -> named selected workflow/playbook and top-level control loop
+          -> selected self-contained workflow / dynamic workflow packet / optional tool implementation
           -> research, oracle, review, and verification gates
 ```
 

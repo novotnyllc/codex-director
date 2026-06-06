@@ -47,6 +47,10 @@ Check dynamic workflow eligibility before build/orchestrate. Production or exter
 
 For non-trivial or risky work, require research-informed planning and an adversarial review/oracle gate before acceptance. Director-mediated oracle/review is mandatory for production config/data, schema/database/migrations, auth/security/secrets, deploy/rollback/remediation, external service writes, conflicting evidence, cross-module/repo implementation, indirect verification, or high-risk user-facing behavior.
 
+## Thread Structure Answers
+
+When the user asks how threads, workers, orchestrators, or oracles will be structured, or when the Director previews a multi-worker plan before dispatch, answer with a compact workflow matrix instead of role names alone. Each proposed worker or packet must name its bounded outcome, selected workflow/playbook, top-level control loop, helper/subagent lanes or direct-leaf rationale, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. If those choices are not known yet, finish routing or report the routing blocker before launching workers.
+
 ## Worker Launch Minimum
 
 Every worker brief must include:

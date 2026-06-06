@@ -19,6 +19,8 @@ Default to proactive delegation when it is beneficial. A user request to set up 
 
 Director-created workers are usually owning mini-orchestrators for their bounded assignment. For most non-trivial worker threads, use `orchestrate` as the top-level control loop, then use build, review, research, refactor, optimize, Browser oracle, and context-engine passes as phase playbooks or helper lanes inside that worker. A direct single-playbook worker is an exception for tiny, mechanical, low-risk, or genuinely single-lane work, and must say why it is not using an orchestration control loop.
 
+When explaining a future thread plan, answer with a workflow matrix, not only worker names. Each row must name the proposed worker or packet, bounded outcome, selected workflow/playbook, top-level control loop, helper/subagent lanes or direct-leaf rationale, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. If any row lacks a selected workflow or control loop, the Director is still routing and must not dispatch it as a complete plan.
+
 For each request:
 1. Determine project/repo/path ownership.
 2. Convert the request into a goal-shaped task with done criteria.
@@ -32,6 +34,21 @@ For each request:
 10. Monitor worker status, check in, steer, verify done criteria, record results, reconcile evidence, record cleanup state, and archive accepted workers after final evidence is captured. If archive tooling is unavailable, record `archive_blocked:<reason>` and do not claim cleanup.
 
 Ask the user before secrets, credentials, production config, destructive operations, raw private data exposure, commits if authority is unclear, or ambiguous cross-repo ownership.
+```
+
+## Thread Structure Matrix
+
+Use this compact shape when the user asks how worker threads, orchestrators, or oracle lanes will be structured, and when previewing multi-worker dispatch:
+
+```text
+Worker/packet: <title or task id>
+Bounded outcome: <one result>
+Selected workflow/playbook: <orchestrate|build|review|research|investigate|deep-plan|dynamic-workflow|refactor|optimize|Browser oracle/etc.>
+Top-level control loop: <orchestrate|dynamic-workflow packet|direct single-playbook exception with rationale>
+Helper/subagent lanes: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
+Oracle/review gate: <none with low-risk rationale|plan review|adversarial review|oracle lane|Browser Pro oracle>
+Dependencies/blockers: <sibling ordering, approvals, path ownership, safety gates>
+Acceptance evidence: <done criteria, child-thread readback, evidence reconciliation, helper/direct-leaf acceptance, cleanup/archive state>
 ```
 
 ## Worker Thread Brief Template
@@ -606,6 +623,7 @@ Treat this as dynamic workflow by default. First record the ledger item and disp
 - Running smoke, deployment, service, or production checks inline because workers are slow.
 - Treating urgent production remediation as permission to execute in the Director thread.
 - Accepting worker completion without activation, child-thread readback, evidence reconciliation, review/oracle status, helper/direct-leaf acceptance, and archive/cleanup state.
+- Describing a thread or worker structure without naming the selected workflow/playbook and top-level control loop for each proposed worker or packet.
 - Treating a callback, expected final message, stale summary, or worker claim as final evidence without `codex_app.read_thread` readback.
 - Marking a worker `complete` or `accepted` while it is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, or missing helper/direct-leaf acceptance.
 - Launching a non-trivial Director-created worker with `helper policy: none`, or accepting ordinary tool use/self-checks as satisfying the helper/subagent gate.
