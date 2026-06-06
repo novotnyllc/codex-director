@@ -111,7 +111,7 @@ Each item needs:
 - Acceptance/readback/cleanup requirements.
 - Git/worktree handling.
 
-When presenting the planned thread structure to the user, use the thread structure matrix from `REFERENCE.md`. Do not describe only role names such as "implementation worker" or "verification worker"; each item needs its selected workflow/playbook and top-level control loop before dispatch.
+Record the selected workflow/playbook and top-level control loop for every item in the plan, ledger, dispatch brief, status checkpoint, and final reconciliation. When presenting planned thread structure to the user, use the thread structure matrix from `REFERENCE.md`. Do not describe only role names such as "implementation worker" or "verification worker"; each item needs its selected workflow/playbook and top-level control loop before dispatch. If the workflow is not chosen yet, keep the item in routing and do not launch it.
 
 If the work is naturally one item but still non-trivial, keep one owning worker and have that worker run a lightweight orchestration loop: plan, use helper/context lanes, execute the phase playbook, verify, review, and report evidence. Dispatch a direct build/review/investigate workflow only when the task is tiny, mechanical, low-risk, or genuinely single-lane and the brief records that rationale.
 
@@ -159,7 +159,7 @@ Every worker brief must include:
 - done criteria
 - research/plan context
 - Codex skills loaded/required/skipped
-- Director workflow/playbook
+- selected workflow/playbook and top-level control loop
 - context/oracle/review tools
 - worker helper/context policy: mandatory real helper/subagent lanes for non-trivial work, blocked helper capability if unavailable, or direct-leaf only with separate tiny/mechanical/low-risk rationale
 - oracle request policy: workers return Oracle Request Packets to the Director unless explicitly delegated oracle-runner authority

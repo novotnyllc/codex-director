@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Director"
   short_description: "Coordinate project work across Codex worker threads with quiet, signal-first monitoring"
-  default_prompt: "Use $codex-director to coordinate this project task with appropriate worker threads, dynamic workflows, goals, reviews, helper/subagent lanes for non-trivial workers, and evidence gates. When sketching a thread plan, name each worker's selected workflow/playbook and top-level control loop before dispatch. Keep the parent Director title stable as <Project Display Name> Director and restore it if task auto-title drift occurs. Accept Director-created workers only after child-thread readback and evidence reconciliation; direct leaf is worker-internal only for tiny/mechanical/low-risk work."
+  default_prompt: "Use $codex-director to coordinate this project task with appropriate worker threads, dynamic workflows, goals, reviews, helper/subagent lanes for non-trivial workers, and evidence gates. Always record each worker or packet's selected workflow/playbook and top-level control loop before dispatch and in ledger/status entries. Keep the parent Director title stable as <Project Display Name> Director and restore it if task auto-title drift occurs. Accept Director-created workers only after child-thread readback and evidence reconciliation; direct leaf is worker-internal only for tiny/mechanical/low-risk work."
 
 policy:
   allow_implicit_invocation: true

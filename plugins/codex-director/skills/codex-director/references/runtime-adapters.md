@@ -131,7 +131,7 @@ Lifecycle mapping:
 
 ### Launch Contract
 
-Before a Director gives a user-facing thread/work plan or calls `codex_app.create_thread`, the proposed structure must be complete enough to dispatch. Each proposed worker or packet needs a selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan.
+Before a Director records, reports, steers, or calls `codex_app.create_thread` for a worker/packet/review/oracle lane, the proposed structure must be complete enough to force a workflow choice. Each proposed worker or packet needs a selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan, status item, or accepted worker entry.
 
 Before calling `codex_app.create_thread`, define:
 
@@ -185,7 +185,8 @@ thinking:
 thinking_rationale:
 starting_prompt_or_artifact:
 skills_required:
-workflow_playbook:
+selected_workflow_playbook:
+top_level_control_loop:
 commit_authority:
 done_criteria:
 evidence_required:
