@@ -124,6 +124,8 @@ Use an oracle or review lane at decision points:
 
 Respect stop signals: target met, plateau, risk too high, measurement unreliable, or iteration cap reached.
 
+Default iteration cap is five optimization loops. Before launching a sixth loop, surface the current scoreboard and ask the Director or user for explicit continuation authority; do not extend the cap just because another candidate remains.
+
 The oracle/review lane should see the scoreboard and evidence, not the whole transcript. Ask for a stop/continue verdict and the one next experiment that would most likely matter.
 
 When an optimization worker reaches this decision point, it returns an Oracle Request Packet with the scoreboard, measurement caveats, correctness evidence, candidate list, helper/direct-leaf status, and requested stop/continue verdict. The Director chooses and messages the oracle/review lane, then routes the decision back. Oracle output is advisory; the worker still verifies and reports final evidence, and the Director later accepts only after child-thread readback and reconciliation.

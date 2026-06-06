@@ -17,6 +17,8 @@ Before any tool use or answer, classify the next action as: allowed inline coord
 
 Default to proactive delegation when it is beneficial. A user request to set up or use the Director authorizes bounded Codex worker threads in the named project scope, but it does not imply creating a separate Director thread unless the user clearly asks for one. Do not wait for the user to say subagents, oracle, or Pro; choose those lanes when task shape, risk, context pressure, or review value warrants them.
 
+Director-created workers are usually owning mini-orchestrators for their bounded assignment. For most non-trivial worker threads, use `orchestrate` as the top-level control loop, then use build, review, research, refactor, optimize, Browser oracle, and context-engine passes as phase playbooks or helper lanes inside that worker. A direct single-playbook worker is an exception for tiny, mechanical, low-risk, or genuinely single-lane work, and must say why it is not using an orchestration control loop.
+
 For each request:
 1. Determine project/repo/path ownership.
 2. Convert the request into a goal-shaped task with done criteria.
@@ -54,12 +56,13 @@ Constraints:
 - Read local instruction files first.
 - Do not touch unrelated dirty changes.
 - Do not print secrets or private data.
-Selected workflow/playbook: <build/review/research/deep-plan/orchestrate/refactor/optimize/etc. plus why it matches this work item>
+Selected workflow/playbook: <orchestrate for most non-trivial Director-created workers, or build/review/research/deep-plan/refactor/optimize/etc. only with direct/single-lane rationale>
+Top-level worker control loop: <orchestrate|dynamic-workflow packet|direct single-playbook exception>
 Context/oracle/review tools: <context engine/browser oracle/review lane/etc.>
 Research lane: <none/local/thread/context engine/web/other available lane>
 Worker helper policy: <required helper/subagent lanes for non-trivial work; direct-leaf only with tiny/mechanical/low-risk rationale>
 Helper/subagent lanes required: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
-Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
+Work-item coordination policy: <own mini-orchestration over subwork/helpers/review gates|coordinate sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
 Direct-leaf exception rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Oracle lane: <none or predicted second-opinion path>
 Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale for none>
@@ -74,6 +77,7 @@ Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
 - Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, selected workflow/playbook and why it matches this work item, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, work-item coordination policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
+- Treat the worker thread as the owning mini-orchestrator for non-trivial assignments. Use `orchestrate` as the top-level control loop unless the work is tiny, mechanical, low-risk, or genuinely single-lane; then call the specific build/review/research/refactor/optimize/oracle playbook as the current phase inside that control loop.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
@@ -116,14 +120,15 @@ Task shape: <answer/research/investigate/deep-plan/dynamic-workflow/build/orches
 Codex skills considered: <names and why>
 Codex skills loaded: <names>
 Codex skills skipped/not loaded: <names and reason>
-Selected workflow/playbook: <workflow reference and why it matches this work item>
+Selected workflow/playbook: <orchestrate unless direct/single-lane exception applies; phase playbook names as needed>
+Top-level worker control loop: <orchestrate|dynamic-workflow packet|direct single-playbook exception>
 Context/oracle/review tools: <tools selected and why>
 Research lane: <none/local/thread/context engine/web/other available lane and why>
 Worker role: <coordinator|direct-leaf>
 Worker helper policy: <required helper/subagent lanes for non-trivial work; direct-leaf only with tiny/mechanical/low-risk rationale>
 Helper/subagent lanes: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
 Blocked helper capability: <no|blocked:<reason>>
-Work-item coordination policy: <coordinate subwork/helpers/sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
+Work-item coordination policy: <own mini-orchestration over subwork/helpers/review gates|coordinate sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
 Direct-leaf rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Oracle lane: <none/tool/thread and why>
 Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale for none>
@@ -299,7 +304,7 @@ Keep evidence brief. Include exact error lines only when they explain a blocker.
 Treat artifacts as part of the evidence contract:
 
 - `.workflow/<slug>/` is a durable task artifact directory. Commit it only when project policy wants reusable or auditable workflow records; otherwise keep it as local working evidence until the final report is captured.
-- `prompt-exports/` is ignored scratch for optional prompt payloads or tool handoff files when a stable artifact path is explicitly useful. It is not a Director workflow dependency; redact secrets and raw private data before creating files for external tools, and delete stale artifacts after results are captured unless they are task evidence.
+- `prompt-exports/` is ignored scratch for optional prompt payloads or tool handoff files when a stable artifact path is explicitly useful. It is not a Director workflow or export lane; redact secrets and raw private data before creating files for external tools, and delete stale artifacts after results are captured unless they are task evidence.
 - Worker evidence should be concise ledger/result text with artifact paths. Keep raw logs, screenshots, transcripts, and full diffs in local artifacts, not chat.
 - Browser ChatGPT Pro oracle outputs are external-review artifacts. Record the prompt source or artifact path when one was created, Pro availability result, visible model label or built-in main/`xhigh` fallback note, result path, and safety decision.
 - Do not commit private data, credentials, raw transcripts, bulky generated artifacts, or temporary worker scratch unless the project explicitly treats them as safe durable evidence.
@@ -500,7 +505,7 @@ Output: baseline, change, after measurement, tradeoffs, tests, and residual risk
 
 ### Optional Prompt Artifact Notes
 
-Purpose: document when a local scratch/handoff artifact is useful for tooling, upload/chunking, retry, audit, or explicit user-requested prompt files without making prompt export a Director workflow dependency.
+Purpose: document when a local scratch/handoff artifact is useful for tooling, upload/chunking, retry, audit, or explicit user-requested prompt files without making scratch prompt artifacts a Director workflow dependency.
 
 Use when: a stable file path is explicitly useful and the active Codex worker/thread or Browser oracle flow still owns the real work. For ChatGPT Pro oracle, the preferred path is the Browser-driven round trip; optional artifacts only support oversized payloads, retry, handoff, or audit.
 

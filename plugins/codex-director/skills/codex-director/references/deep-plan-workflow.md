@@ -24,7 +24,7 @@ Involvement modes:
 - Up-front: run a small ambiguity scan, then ask focused questions before broad research.
 - Mid-flow: draft the plan, then ask only questions that would change order, scope, or risk before critique.
 
-If the user explicitly chose a checkpoint and then does not answer, stop rather than silently proceeding with guessed answers.
+When the selected workflow includes an initial involvement-mode prompt, treat that first prompt differently from later promised checkpoints: an answer sets the mode, an explicit skip or no response before any work has begun falls back to Hands-off, and a user-selected Up-front or Mid-flow checkpoint becomes a promise. If the user explicitly chose a checkpoint and then does not answer at that checkpoint, stop rather than silently proceeding with guessed answers.
 
 ## Phase 1: Grounded Ambiguity Scan
 

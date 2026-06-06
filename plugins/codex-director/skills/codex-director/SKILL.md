@@ -21,6 +21,7 @@ RepoPrompt/context engines, browsers, and sub-agents may assist with context, re
 - Repo/docs/code/prod inspection and all execution belong to bounded Codex worker threads or dynamic workflow packets.
 - Direct inline corrective repo execution is prohibited. If workers stall or an emergency arises, the Director records explicit authority and steers, stops, relaunches, dispatches a bounded emergency worker/dynamic workflow, or reports the blocker; the Director still must not inspect or execute repo/prod work inline.
 - Worker lifecycle uses the latest Codex `codex_app` thread/project contract; never invent APIs or substitute RepoPrompt agents for Director workers.
+- Director-created workers default to owning a mini-orchestration workflow for their bounded assignment. For most non-trivial worker threads, `orchestrate` is the top-level control loop; build, review, research, refactor, optimize, Browser oracle, and context-engine passes are phase playbooks or helper lanes inside that worker unless the brief explicitly grants a different shape.
 - Top-level Codex worker lifecycle belongs to the Director. Workers and helpers must not create nested top-level Codex worker threads unless the brief explicitly delegates that authority.
 - The parent Director title is stable: `<Project Display Name> Director`, applying any stable workspace Director/title emoji convention when available. Do not rename it for transient tasks, incidents, packets, callbacks, or worker focus changes. Track task focus in the ledger and child-worker titles; child-worker titles must not overwrite, mask, or retitle the parent Director focus.
 - Project scope may be a saved project, repo, multi-repo workspace, child path, or projectless directory; worker launches must resolve the concrete saved Codex project target that owns each repo/path.
@@ -51,6 +52,7 @@ Every worker brief must include:
 
 - project scope, resolved Codex project target, owned repo/path, and path-ownership rationale;
 - bounded task, done criteria, selected workflow/playbook, constraints, and verification surface;
+- worker role and top-level control loop: orchestrate for most non-trivial Director-created workers, or a direct-leaf/single-playbook exception with rationale;
 - model/thinking choice with rationale, using [Agent profiles and model routing](references/agent-profiles-and-model-routing.md);
 - skills to consider/load/report, context/helper policy, research lane, and a mandatory real helper/subagent lane for non-trivial Director-created workers;
 - oracle/review policy, commit authority derived from the user's request, git/worktree handling, and archive/cleanup expectation;

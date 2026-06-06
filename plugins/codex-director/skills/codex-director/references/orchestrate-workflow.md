@@ -6,6 +6,8 @@ Use when work has multiple items, dependencies, parallel lanes, substantial ambi
 
 The orchestrator owns the plan, ledger, sequencing, review gates, and reconciliation. Implementation and deep context gathering belong to bounded workers. Do not fire-and-forget a swarm; verify each completed item before dependent work continues.
 
+Most Director-created worker threads should themselves run this orchestration workflow as the top-level control loop for their bounded assignment. Inside that worker, build, review, investigate, refactor, optimize, Browser oracle, and context-engine passes are phase playbooks or helper lanes. A direct single-playbook worker is an exception for tiny, mechanical, low-risk, or genuinely single-lane work and must record why orchestration is unnecessary.
+
 For Director-created workers, “completed” means terminal signal -> `pending-readback` -> `codex_app.read_thread` child-thread readback -> terminal report captured -> evidence/helper/direct-leaf reconciliation -> cleanup/archive state recorded -> explicit acceptance state. Callback payloads, expected finals, stale summaries, and worker claims are only wake signals.
 
 If a `codex-dynamic-workflows` run exists for the task, treat its plan, packets, approval gates, integration policy, and results as the task source of truth. Use this orchestration workflow to execute and monitor packets, not to create a competing top-level plan.
@@ -104,7 +106,7 @@ Each item needs:
 - Evidence required.
 - Git/worktree handling.
 
-If the work is naturally one item, do not add orchestration ceremony. Dispatch a build/review/investigate workflow directly.
+If the work is naturally one item but still non-trivial, keep one owning worker and have that worker run a lightweight orchestration loop: plan, use helper/context lanes, execute the phase playbook, verify, review, and report evidence. Dispatch a direct build/review/investigate workflow only when the task is tiny, mechanical, low-risk, or genuinely single-lane and the brief records that rationale.
 
 For each item, decide fresh worker vs steering:
 
@@ -143,6 +145,7 @@ Every worker brief must include:
 - project scope and repo/path
 - exact item responsibility
 - starting prompt and required skills/workflow references
+- top-level worker control loop, defaulting to orchestration for non-trivial work
 - exact model or inherited profile
 - thinking level plus rationale
 - sibling work and areas to avoid
@@ -180,6 +183,7 @@ Thinking plus rationale:
 Codex skills to consider:
 Required skills/workflows:
 Required workflow:
+Top-level worker control loop:
 Research/context required:
 Worker helper/context policy:
 Helper/subagent lanes required:
