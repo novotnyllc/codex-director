@@ -61,10 +61,11 @@ The active `codex_app` tool schema is the contract. Do not document or call thre
 
 Parent Director title guard:
 
-1. Resolve the stable parent title from project metadata and title convention, for example `💼 Effervescenz Director`.
-2. At setup, at the start of every heartbeat/callback/resume turn, after any worker `create_thread` or worker `set_thread_title` call, and before final/checkpoint output, compare the parent thread title with the stable title when the active tool surface exposes title/read/list operations.
-3. If the parent title has drifted because of an app auto-title pass, local task-title convention, or a mistaken worker-title operation, call `codex_app.set_thread_title` on the parent thread id to restore the stable title. Record `parent_title_repaired:<old-title> -> <stable-title>` in the ledger.
-4. Do not use the parent title to expose task focus. Put current focus in the ledger, workflow artifact, and child worker titles.
+1. Resolve the stable parent title from project metadata and title convention, for example `💼 Example Project Director`.
+2. At setup, at the start of every heartbeat/callback/resume turn, after any worker `create_thread`, queued worktree creation, worker `set_thread_title` call, or pending-worktree pickup, and before final/checkpoint output, compare the parent thread title with the stable title when the active tool surface exposes title/read/list operations.
+3. If the parent title has drifted because of an app auto-title pass, local task-title convention, queued worktree focus, or a mistaken worker-title operation, call `codex_app.set_thread_title` on the parent thread id to restore the stable title. Record `parent_title_repaired:<old-title> -> <stable-title>` in the ledger.
+4. If title repair tooling is unavailable or fails, record `parent-title-blocked:<reason>` in the ledger and surface it when the user-visible status could otherwise imply the parent handle is stable.
+5. Do not use the parent title to expose task focus. Put current focus in the ledger, workflow artifact, and child worker titles.
 
 Current `codex_app` thread contract:
 
@@ -131,7 +132,7 @@ Lifecycle mapping:
 
 ### Launch Contract
 
-Before a Director records, reports, steers, or calls `codex_app.create_thread` for a worker/packet/review/oracle lane, the proposed structure must be complete enough to force a workflow choice. Each proposed worker or packet needs a selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan, status item, or accepted worker entry.
+Before a Director records, reports, steers, or calls `codex_app.create_thread` for a worker/packet/review/oracle lane, the proposed structure must be complete enough to force a workflow choice. Each proposed worker or packet needs an explicit `$director-*` workflow skill, selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan, status item, or accepted worker entry.
 
 Before calling `codex_app.create_thread`, define:
 
@@ -140,10 +141,12 @@ Before calling `codex_app.create_thread`, define:
 - explicit authorization basis for creating a new/separate thread under the active tool instructions; for a Director thread itself, this requires a clear separate/new-thread request
 - resolved target project/worktree or projectless directory, including the project id/target and resolution basis
 - model and thinking level plus rationale
-- selected workflow/playbook and top-level worker control loop
+- explicit `$director-*` workflow skill, selected workflow/playbook, and top-level worker control loop
 - required skills or workflow references
 - context artifacts or source files to read first
 - mandatory helper/subagent lanes for non-trivial Director-created work, or direct-leaf exception with separate tiny, mechanical, and low-risk rationale
+- coordinator authority: coordinator-only, packet-executor for a named packet, or tiny direct-leaf with rationale
+- checkpoint continuation policy for coordinator-only workers: next packet dispatch, existing monitor, blocker, or approval wait state
 - git/worktree handling and commit authority derived from the user's request
 - done criteria
 - evidence format and verbosity limit
@@ -158,6 +161,8 @@ Before continuing, return the activation report required by the Director brief:
 instructions read, task shape, selected workflow, research lane, helper/subagent lanes or direct-leaf tiny/mechanical/low-risk rationale, oracle lane, review gate, evidence, git/worktree handling, Goal fit, done criteria.
 ```
 
+If the worker reports only a generic workflow and not the explicit `$director-*` skill from the brief, steer it to load the missing skill before accepting activation.
+
 If the worker still skips activation, broadens scope, becomes stale, or is superseded, send a stop/no-further-changes instruction, record the reason and any usable evidence, archive the worker after evidence capture or superseded-state recording, and re-brief only if the task is still needed. Do not reuse that worker for a different material task; create a fresh worker handle for the new assignment.
 
 ### Required Thread Handle Fields
@@ -167,6 +172,7 @@ Every running or queued worker needs a ledger handle:
 ```text
 worker_id:
 thread_id:
+pending_worktree_id:
 thread_title:
 director_created_worker: yes | no
 director_thread_id:
@@ -187,6 +193,8 @@ starting_prompt_or_artifact:
 skills_required:
 selected_workflow_playbook:
 top_level_control_loop:
+coordinator_authority: coordinator-only | packet-executor:<packet-id> | tiny-direct-leaf:<rationale>
+checkpoint_continuation: none | next-packet-dispatched | monitor-scheduled | blocked-on-dispatch:<reason> | awaiting-approval:<reason>
 commit_authority:
 done_criteria:
 evidence_required:
@@ -195,6 +203,7 @@ last_poll_at:
 next_wake_at:
 monitor_interval:
 monitor_mechanism: heartbeat | cron | manual | none
+monitor_status: active | pending-create | monitor_blocked:<reason> | replaced | cleared | none
 monitor_id:
 stale_after:
 callback_policy: none | director-thread-signal
@@ -221,7 +230,7 @@ For non-dynamic work, this ledger can live in the Director thread notes or a rep
 
 ### Resumable Monitoring, Input, And Staleness
 
-Read a newly created worker once after creation to confirm activation when practical. Do not keep the Director turn running only to wait for spawned workers. After dispatch, record worker handles, cursor or last turn seen, `last_poll_at`, `callback_policy`, `next_wake_at`, `monitor_interval`, and `stale_after`; then stop the Director turn or schedule the lightest available wake mechanism.
+Read a newly created worker once after creation to confirm activation when practical. If worker creation returns a pending worktree id rather than a thread id, record that pending id as an active handle and schedule a pickup monitor to find the eventual thread, title it, read activation, restore the parent title, and continue normal monitoring. Do not keep the Director turn running only to wait for spawned workers. After dispatch, record worker handles, cursor or last turn seen, `last_poll_at`, `callback_policy`, `next_wake_at`, `monitor_interval`, and `stale_after`; then stop the Director turn or schedule the lightest available wake mechanism.
 
 Prefer signal-first monitoring when the worker runtime exposes `codex_app.send_message_to_thread` and the Director brief explicitly authorizes callback use. The worker may send a single callback to the Director thread for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`; it must not send routine progress, poll, rerun, or "no blocker" callbacks. When thinking selection is exposed on the callback send, the callback must use `thinking: "xhigh"` because it wakes the Director thread. The Director treats the callback as a wake signal only, marks `terminal_signal`, sets `readback_status: pending-readback`, then reads the worker thread before accepting evidence.
 
@@ -236,7 +245,7 @@ Concrete callback-to-readback sequence:
 
 Duplicate or out-of-order callbacks update `terminal_signal` and then read only unread child turns by cursor. Do not downgrade already accepted evidence unless `read_thread` reveals a newer terminal child update that changes the final report or blocker. If `read_thread` fails, is unavailable, or returns no terminal child report, record `readback_blocked:<reason>`, `pending-readback`, or `insufficient-evidence`; never record `accepted` from the callback payload alone.
 
-Use a short quiet polling burst only when the worker is likely to finish within about a minute or an immediate dependent decision is expected. Otherwise prefer callback signaling plus a watchdog heartbeat. If callback signaling is not active for the worker, prefer a thread heartbeat attached to the Director thread for near-term follow-up when appropriate; heartbeat prompts that wake the Director thread must use `xhigh` reasoning when that setting is exposed. Use a detached cron/workspace automation only for genuinely detached monitoring. If no wake mechanism is exposed, record `monitor_mechanism: manual`, `next_wake_at`, and the next action rather than leaving the Director spinning.
+Use a short quiet polling burst only when the worker is likely to finish within about a minute or an immediate dependent decision is expected. Otherwise prefer callback signaling plus a watchdog heartbeat. If callback signaling is not active for the worker, prefer a thread heartbeat attached to the Director thread for near-term follow-up when appropriate; heartbeat prompts that wake the Director thread must use `xhigh` reasoning when that setting is exposed. Use a detached cron/workspace automation only for genuinely detached monitoring. If no wake mechanism is exposed, record `monitor_mechanism: manual`, `next_wake_at`, and the next action rather than leaving the Director spinning. If the selected monitor create/update call fails, record `monitor_status: monitor_blocked:<reason>`, keep any existing monitor active unless it is demonstrably superseded, and surface the blocker instead of claiming the task is monitored.
 
 Default cadence should keep overall work fast:
 
@@ -247,7 +256,7 @@ Default cadence should keep overall work fast:
 - Never choose a wake longer than 3 minutes while the user is actively waiting unless callback signaling is available or the worker explicitly gave a longer ETA.
 - Poll immediately after user steering, suspected blockage, a dependent worker finishing, or a worker-reported handoff.
 
-Polling cadence is not user-update cadence. Poll privately and update the ledger quietly. Do not emit user-facing messages for routine polls, waits, activation confirmations, reruns, local diagnosis, or "no blocker" checks. Surface only final evidence, real blockers or user decisions, safety/production/destructive choices, ownership-changing handoffs, and stale/cancel/archive/cleanup state. Do not return a user-visible final verdict until child-thread readback has captured terminal worker evidence and the Director has reconciled done criteria, evidence, review/oracle status, and helper/direct-leaf acceptance; if evidence is missing, report `pending-readback`, `readback_blocked:<reason>`, `stale`, or `insufficient-evidence`. Completion is not fully reconciled until worker cleanup state is recorded. Collapse repeated failures and reruns into one message only when the diagnosis changes materially or user action is needed.
+Polling cadence is not user-update cadence. Poll privately and update the ledger quietly. Do not emit user-facing messages for routine polls, waits, activation confirmations, reruns, local diagnosis, or "no blocker" checks. Surface only final evidence, real blockers or user decisions, safety/production/destructive choices, ownership-changing handoffs, and stale/cancel/archive/cleanup state. Do not return a user-visible final verdict until child-thread readback has captured terminal worker evidence and the Director has reconciled done criteria, evidence, review/oracle status, and helper/direct-leaf acceptance; if evidence is missing, report `pending-readback`, `readback_blocked:<reason>`, `stale`, or `insufficient-evidence`. A coordinator checkpoint that only recommends next worker briefs must be followed by `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>` before the Director can claim the workflow is progressing. Pending worktree ids, queued workers without thread ids, and running workers are active handles; do not clear the only monitor for the task until every active handle has terminal evidence, a replacement monitor, or a recorded blocker. Completion is not fully reconciled until worker cleanup state is recorded. Collapse repeated failures and reruns into one message only when the diagnosis changes materially or user action is needed.
 
 Heartbeat hygiene:
 

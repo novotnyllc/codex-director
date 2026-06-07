@@ -25,7 +25,7 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, packets,
    - task
    - shape
    - Codex thread/project tooling
-   - worker thread id/title
+   - worker thread id/title, or pending worktree id before the thread is visible
    - owner thread
    - repo/path
    - status
@@ -38,6 +38,7 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, packets,
    - commit authority
    - evidence required
    - callback policy and terminal signal
+   - monitor mechanism, monitor id, and monitor status
    - `read_cursor` or `last_turn_seen`
    - `readback_status`, `final_report_captured`, and `evidence_reconciled`
    - `helper_policy_accepted` and direct-leaf rationale if claimed
@@ -115,6 +116,8 @@ Record the selected workflow/playbook and top-level control loop for every item 
 
 If the work is naturally one item but still non-trivial, keep one owning worker and have that worker run a lightweight orchestration loop: plan, use helper/context lanes, execute the phase playbook, verify, review, and report evidence. Dispatch a direct build/review/investigate workflow only when the task is tiny, mechanical, low-risk, or genuinely single-lane and the brief records that rationale.
 
+If the worker is coordinator-only, keep that role explicit. Coordinator-only means workflow artifacts, packet briefs, integration notes, dependency decisions, and checkpoint reports only. It does not include packet implementation, file edits for implementation, tests, or validation runs unless the Director explicitly grants implementation authority for a named tiny/mechanical/low-risk slice. When a coordinator returns packet briefs or a final checkpoint, the Director must either dispatch the next authorized packet/review/oracle worker, record an already-running worker monitor, or mark the workflow `blocked-on-dispatch:<reason>` / `awaiting-approval:<reason>`.
+
 For each item, decide fresh worker vs steering:
 
 - Fresh worker: default for independent items, review lanes, research scouts, and anything that benefits from clean context.
@@ -168,6 +171,8 @@ Every worker brief must include:
 - evidence and verbosity limits
 - git/worktree expectations
 - commit authority derived from the user's request
+- coordinator vs packet-executor authority
+- checkpoint continuation policy: a coordinator checkpoint must name the next packet worker to dispatch, the monitor already covering it, or the blocker/approval preventing dispatch
 
 For parallel workers, explicitly name siblings:
 
@@ -188,7 +193,8 @@ Sibling work:
 Model: latest main id, inherited latest-main default, or `gpt-5.3-codex-spark` for a Spark-fit lane only
 Thinking plus rationale:
 Codex skills to consider:
-Required skills/workflows:
+Required skills/workflows: exact `$director-*` workflow skill mention plus any other skills/references
+Explicit workflow skill:
 Required workflow:
 Top-level worker control loop:
 Research/context required:
@@ -205,10 +211,12 @@ Browser Pro suitability:
 Evidence format:
 Verbosity limit: visible update gate; final evidence or blocker/decision only; no poll/wait/rerun narration
 Nested worker authority: none unless explicitly delegated by the Director
+Coordinator authority: coordinator-only | packet-executor:<packet-id> | tiny-direct-leaf:<rationale>
+Checkpoint continuation: next-packet-dispatched | monitor-scheduled | blocked-on-dispatch:<reason> | awaiting-approval:<reason>
 Stop and report if:
 ```
 
-For `codex_app` worker threads, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. Use low/medium thinking only for routine polling and steering sent to worker/helper threads, high for substantive implementation/review steering, and xhigh for risky or final worker decisions. Any continuation, callback, or heartbeat that targets the Director thread itself must stay `xhigh`. Do not send a final completion rollup while worker handles are running, waiting for input, stale without a recorded stale verdict, missing terminal evidence, `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
+For `codex_app` worker threads, there is no blocking wait operation; poll with `codex_app.read_thread`, grant callback authority when safe and exposed, then stop the Director turn or schedule/update a watchdog heartbeat when workers are still active. A create/dispatch call that returns a pending worktree id instead of a thread id is still an active handle and needs a pickup monitor. Use low/medium thinking only for routine polling and steering sent to worker/helper threads, high for substantive implementation/review steering, and xhigh for risky or final worker decisions. Any continuation, callback, or heartbeat that targets the Director thread itself must stay `xhigh`. Do not send a final completion rollup while worker handles are running, queued as pending worktree ids, waiting for input, stale without a recorded stale verdict, missing terminal evidence, `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, missing cleanup/archive state, or a coordinator checkpoint has only recommended next briefs without a next dispatch/monitor/blocker state. Keep active status and next check-in plans in the ledger unless a visible blocker, decision, ownership handoff, stale/cancel/archive state, or final evidence packet is ready.
 
 ## Phase 6: Monitor
 
@@ -225,6 +233,10 @@ Check:
 - blockers surfaced early
 
 Do not duplicate in-flight work. Prepare next briefs, update ledger state, and dispatch review, verification, integration, or cleanup workers as needed.
+
+If a coordinator worker stops packet execution and returns recommended next worker briefs, do not treat that as progress by itself. Translate the recommendations into Director-owned worker launches when authorized. If launch tooling, approval, project targeting, branch/worktree state, or user authority prevents dispatch, record the exact blocker in the ledger and workflow artifact instead of ending the workflow as though the coordinator finished the task.
+
+Do not remove or pause a setup/pickup heartbeat until every pending worktree id has become a readable worker thread and a replacement worker monitor/callback path is recorded. If the heartbeat create/update API rejects the requested monitor, record `monitor_blocked:<reason>` in the ledger/workflow artifact and surface that blocker; do not return a final-looking status that leaves active handles unmonitored.
 
 If a worker asks for scope or authority:
 
@@ -254,6 +266,8 @@ For each terminal-signaled worker:
 
 If gaps exist, steer the same worker to fix them before starting dependent work. Do not start dependent work from an item that is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state.
 
+If the terminal report is a coordinator checkpoint rather than completed packet work, acceptance means only "checkpoint captured." Immediately transition the workflow to one of `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>`. A coordinator checkpoint never satisfies the task's done criteria unless the task itself was only coordination.
+
 Update the plan, ledger, packet file, or result artifact immediately after each accepted item. Marking a worker done in chat is not enough; the next worker needs an artifact or ledger checkpoint it can trust.
 
 ## Phase 8: Reconcile
@@ -261,6 +275,8 @@ Update the plan, ledger, packet file, or result artifact immediately after each 
 When items are accepted:
 
 - Confirm every required result came from a child-thread terminal report that was read back and reconciled, not only from callback payloads or artifact presence.
+- Confirm every coordinator checkpoint led to a real next dispatch, an active monitor, an explicit blocker, or an approval wait state.
+- Confirm every pending worktree id was picked up as a thread, or remains tracked by an active monitor/manual next-check state.
 - Dispatch or steer an integration worker to merge/cherry-pick/PR worktree output into the canonical repo/branch according to project practice.
 - Ensure conflicts are resolved deliberately by the owning integration worker.
 - Dispatch final verification.
@@ -280,7 +296,7 @@ Report:
 - blockers or deferred work
 - suggested next action
 
-Do not return partial deployment, readiness, or implementation verdicts before terminal worker evidence is captured through child-thread readback. Block final rollup while any worker is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state. If evidence is missing, say `pending-readback`, `readback_blocked:<reason>`, `stale`, or `insufficient-evidence` and name the missing evidence.
+Do not return partial deployment, readiness, or implementation verdicts before terminal worker evidence is captured through child-thread readback. Block final rollup while any worker is queued as a pending worktree id without monitor coverage, `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state. If evidence is missing, say `pending-readback`, `readback_blocked:<reason>`, `stale`, `monitor_blocked:<reason>`, or `insufficient-evidence` and name the missing evidence.
 
 ## Housekeeping
 
@@ -304,6 +320,11 @@ After evidence is captured:
 - Reusing a worker thread for a different material task.
 - Performing inline repo edits, pushes, deploys, or corrective execution in the Director thread because a worker stalled.
 - Letting a delegated worker create nested top-level Codex workers without explicit Director authority.
+- Letting a coordinator-only worker stop after returning recommended briefs while the Director does not dispatch the next packet worker or record a blocker.
+- Treating a "final checkpoint" as final task completion.
+- Clearing the only heartbeat/monitor while pending worktree ids, queued workers, or running packet workers remain active.
+- Returning a final-looking status after monitor creation failed instead of surfacing `monitor_blocked:<reason>`.
+- Letting worker title changes or queued worktree focus rename the parent Director and failing to restore or record `parent-title-blocked:<reason>`.
 - Claiming cleanup when archive is unavailable instead of recording `archive_blocked:<reason>`.
 - Marking an item complete from callback payload, expected final, stale summary, or artifact presence without child-thread readback.
 - Rolling up final status while any worker lacks evidence reconciliation, helper/direct-leaf acceptance, or cleanup/archive state.

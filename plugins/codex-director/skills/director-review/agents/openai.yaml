@@ -1,0 +1,7 @@
+interface:
+  display_name: "Director Review"
+  short_description: "Run an independent Director review gate"
+  default_prompt: "Use $director-review to review this Director worker output independently and return findings, verdict, evidence, and residual risks."
+
+policy:
+  allow_implicit_invocation: false

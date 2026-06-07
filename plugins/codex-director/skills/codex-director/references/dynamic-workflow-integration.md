@@ -23,6 +23,8 @@ For the full relationship between Director, dynamic workflow artifacts, self-con
 
 Short version: dynamic workflow owns complex-task orchestration; workflow playbooks define the phases; optional tools may implement those phases; the Director remains the portfolio-level coordinator.
 
+Coordinator checkpoints are state transitions, not task endings. When a coordinator-only worker returns packet briefs, integration notes, or a final checkpoint, the Director must record one of: `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>`. Recommended briefs without one of those states are routing output only.
+
 ## When To Invoke
 
 Check dynamic workflow mode before selecting build or orchestrate for every non-trivial task.
@@ -65,22 +67,25 @@ A single short worker can remain in the visible Director transcript only if the 
 - Director worker thread brief -> packet file under `packets/`
 - Codex worker thread output -> candidate evidence until Director readback/reconciliation; accepted output -> result file under `results/`
 - Director ledger checkpoint -> Director ledger, with packet/result evidence reflected in workflow artifacts
+- Coordinator checkpoint -> orchestration state plus next dispatch/monitor/blocker/approval record, not accepted packet output
 - Director sequencing rules -> `orchestration.md`
 - Director final status -> `final-report.md`
 
 The Director creates real Codex worker threads for packets that benefit from isolation. The dynamic workflow packet plan defines what each worker owns. Packets too small for their own thread are combined with neighboring packets or handled by steering an existing worker; packet work is never executed in the Director thread.
 
+A coordinator-only worker does not own implementation packets merely because it created the packet files. If coordinator scope is selected, packet execution must move to Director-created packet workers or remain blocked/awaiting approval in the workflow state.
+
 A packet result is not durable accepted output merely because a worker callback arrived or an artifact exists. Worker outputs become `results/` only after the Director reads the child thread with `codex_app.read_thread`, captures the terminal child report, reconciles done criteria, review/oracle status, helper/direct-leaf acceptance, and records cleanup/archive state. Before that, store them as candidate evidence in the ledger, orchestration notes, or scratch/candidate artifacts.
 
-Workers should use the matching self-contained workflow and thinking policy inside their packet:
+Workers should use the matching explicit workflow skill and thinking policy inside their packet:
 
-- investigate/research workflow for research or diagnosis packets; use low/medium for narrow scouts and high for synthesis that affects the plan
-- deep plan workflow for planning packets; use high by default and xhigh for high-risk architecture/security/data plans
-- build workflow for implementation packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code, and latest-main/xhigh for risky architecture/security/data/production/cross-repo changes
-- orchestration workflow for packet-internal decomposition; use latest-main/high for decomposition/integration and medium/`gpt-5.3-codex-spark` for packet drafting/status
-- review workflow for review packets; use latest-main/high by default and latest-main/xhigh for risky final verdicts or conflicting evidence
-- refactor workflow for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
-- optimize workflow for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
+- `$director-investigate` for research or diagnosis packets; use low/medium for narrow scouts and high for synthesis that affects the plan
+- `$director-deep-plan` for planning packets; use high by default and xhigh for high-risk architecture/security/data plans
+- `$director-build` for implementation packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code, and latest-main/xhigh for risky architecture/security/data/production/cross-repo changes
+- `$director-orchestrate` for packet-internal decomposition; use latest-main/high for decomposition/integration and medium/`gpt-5.3-codex-spark` for packet drafting/status
+- `$director-review` for review packets; use latest-main/high by default and latest-main/xhigh for risky final verdicts or conflicting evidence
+- `$director-refactor` for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
+- `$director-optimize` for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
 
 Do not let a worker's local workflow overwrite the top-level `.workflow/` task artifacts. It may produce subplans and local scratch artifacts, but packet status and integration records belong to the parent workflow. A local worker report can update packet status only through the Director readback and reconciliation sequence.
 
@@ -111,6 +116,8 @@ Before creating packet briefs, record:
 - helper/direct-leaf policy and acceptance fields per packet worker
 - cleanup/archive state per packet worker
 - heartbeat/wake cadence for active packet workers
+- monitor status, including `monitor_blocked:<reason>` when monitor create/update fails
+- pending worktree ids until they become readable worker thread ids
 - evidence and artifact retention policy
 
 Minimum artifact tree:
@@ -124,7 +131,7 @@ Minimum artifact tree:
 `-- final-report.md
 ```
 
-`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. The Director ledger must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, terminal signal, readback status, captured final report path, helper/direct-leaf acceptance, cleanup/archive state, next wake time, monitor interval, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
+`plan.md` must define success criteria, constraints, approval gates, verification, and packet list. The Director ledger must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, terminal signal, readback status, captured final report path, helper/direct-leaf acceptance, cleanup/archive state, pending worktree id before thread pickup, next wake time, monitor interval, monitor status, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
 
 Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private data in workflow artifacts. Store large/sensitive evidence outside the repo or in ignored local scratch artifacts, then reference only redacted summaries.
 
@@ -146,6 +153,8 @@ Evidence required:
 Helper/subagent lanes required:
 Direct-leaf exception rationale: not-applicable | tiny:<why>; mechanical:<why>; low-risk:<why>
 Readback/acceptance fields: terminal signal, readback status, final report captured, evidence reconciled, helper policy accepted, acceptance status, cleanup/archive state
+Coordinator checkpoint fields: coordinator authority, next packet worker to dispatch, dispatch/monitor/blocker/approval state
+Monitor fields: pending worktree id, thread pickup status, monitor mechanism/id/status, next wake
 Verbosity limit: visible update gate; final evidence or blocker/decision only; no poll/wait/rerun narration
 Git/worktree:
 ```
@@ -186,8 +195,10 @@ Before marking the task complete:
 10. Confirm any worker Codex Goals were audited against their verification surfaces.
 11. Confirm commits/worktrees reconciled into the canonical repo/branch.
 12. Confirm final report captures accepted/rejected results, conflicts, remaining risks, cleanup/archive state, and next actions.
+13. Confirm every coordinator checkpoint either dispatched the next packet/review/oracle worker, recorded the monitor already covering it, or recorded `blocked-on-dispatch:<reason>` / `awaiting-approval:<reason>`.
+14. Confirm no pending worktree id or running worker is left without callback coverage, an active monitor, manual next-check state, or `monitor_blocked:<reason>`.
 
-If any required worker remains `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state, the dynamic workflow is not complete.
+If any required worker remains `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, missing cleanup/archive state, a pending worktree id is unmonitored, or a coordinator checkpoint has only recommendations without dispatch/monitor/blocker/approval state, the dynamic workflow is not complete.
 
 If a verification helper is available from an installed dynamic-workflow skill, use it as a convenience only. The Director still owns the completion decision and must audit the evidence directly.
 

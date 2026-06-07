@@ -24,7 +24,19 @@ Use this thread as the Director thread. Read the project instructions, identify 
 
 `$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate.
 
-After the Director thread is established, give it outcomes, not workflow mechanics. You should not need to say "use dynamic workflow", "orchestrate", "use workers", or "run subagents". The Director should decide that based on scope, risk, parallelism, evidence needs, and token economy. Every worker or packet it routes must have a selected workflow/playbook and top-level control loop recorded before dispatch, whether or not you asked for the structure. If it cannot name the workflow yet, it is still routing and should not launch the worker.
+The Director skill and its workflow subskills are explicit-invocation skills. The user starts the coordinator with `$codex-director`; the Director then forces each worker lane to activate the right workflow by naming the matching subskill in the worker brief:
+
+- `$director-orchestrate` for worker-internal coordination, sequencing, helper lanes, and evidence reconciliation.
+- `$director-build` for bounded implementation.
+- `$director-review` for independent review and acceptance gates.
+- `$director-investigate` for read-only diagnosis and research.
+- `$director-deep-plan` for durable plans without implementation.
+- `$director-refactor` for behavior-preserving cleanup.
+- `$director-optimize` for measurement-led performance or efficiency work.
+- `$director-dynamic-workflow` for packetized `.workflow/<slug>/` task state.
+- `$director-browser-oracle` for delegated Browser ChatGPT Pro oracle review.
+
+After the Director thread is established, give it outcomes, not workflow mechanics. You should not need to say "use dynamic workflow", "orchestrate", "use workers", or "run subagents". The Director should decide that based on scope, risk, parallelism, evidence needs, and token economy. Every worker or packet it routes must have a selected workflow/playbook and top-level control loop recorded before dispatch, whether or not you asked for the structure. If it cannot name the workflow yet, it is still routing and should not launch the worker. If a coordinator returns a final checkpoint or recommended worker briefs, that is not completion; the Director must dispatch the next worker, record an active monitor, or record the exact blocker/approval wait. Pending worktree ids count as active handles until their worker threads are visible.
 
 ```text
 Coordinate the Discord invite work.
@@ -44,13 +56,15 @@ For a multi-repo workspace, name the scope directly:
 Start $codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
 ```
 
-The Director titles and pins its coordination thread as the stable `<Project Display Name> Director` handle, then creates separate Codex worker threads for project work. Task-specific focus belongs in the ledger and worker titles, not by retitling the parent Director. Local material-focus title rules apply to ordinary task threads and child workers, not to the parent Director. On setup, heartbeat/callback/resume, worker title changes, and final checkpoints, the Director restores the parent title if the app auto-title layer has drifted it toward the latest task. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. Director-created workers are accepted only after the Director reads the child thread and reconciles the worker's evidence. Non-trivial Director-created workers use helper/subagent lanes; direct leaf is worker-internal only for tiny, mechanical, low-risk work. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
+The Director titles and pins its coordination thread as the stable `<Project Display Name> Director` handle, then creates separate Codex worker threads for project work. Task-specific focus belongs in the ledger and worker titles, not by retitling the parent Director. Local material-focus title rules apply to ordinary task threads and child workers, not to the parent Director. On setup, heartbeat/callback/resume, worker title changes, queued worktree pickup, and final checkpoints, the Director restores the parent title if the app auto-title layer has drifted it toward the latest task. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. Director-created workers are accepted only after the Director reads the child thread and reconciles the worker's evidence. Non-trivial Director-created workers use helper/subagent lanes; direct leaf is worker-internal only for tiny, mechanical, low-risk work. Coordinator-only workers produce packet briefs, integration notes, and checkpoints; packet execution still belongs to Director-created packet workers unless explicitly authorized as a tiny direct-leaf slice. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.
 
 ### Director boundary
 
 The Director thread coordinates only. It may answer from its existing ledger or conversation state, draft worker briefs, monitor and steer worker threads, reconcile evidence, and produce final status. It must delegate repo/docs/code inspection, tests, smoke checks, production/service checks, file edits, deploys, external project/service writes, migrations, schema/data fixes, rollback/repair, and reviews to Codex worker threads or dynamic workflow packets. If worker thread tools are unavailable for required project work, it reports a runtime blocker instead of doing the work inline.
 
 Status, checkup, and lookup requests follow the same rule: ledger-only status can be answered inline; repo/prod-backed status must be delegated.
+
+Monitoring is part of dispatch. The Director must not clear the only heartbeat or monitor while pending worktree ids, queued workers, or running workers remain. If the app rejects monitor creation or update, the Director records `monitor_blocked:<reason>` instead of presenting the work as watched.
 
 Examples:
 
@@ -81,6 +95,7 @@ The Director is optimized for rapid-fire intake: each distinct ask should be rou
 - `plugins/codex-director/skills/codex-director/SKILL.md` is the compact entrypoint Codex reads when selecting the skill.
 - `plugins/codex-director/skills/codex-director/REFERENCE.md` contains the full operating brief, worker templates, evidence rules, and status formats.
 - `plugins/codex-director/skills/codex-director/references/` contains workflow playbooks for build, review, research, dynamic workflow integration, Browser ChatGPT oracle, and related execution modes.
+- `plugins/codex-director/skills/director-*/SKILL.md` contains explicit workflow activation surfaces for Director worker lanes. These files are intentionally short but complete enough for a worker to execute the lane before loading deeper references.
 - `plugins/codex-director/skills/codex-director/agents/` contains optional model/profile guidance that travels with the skill.
 
 ## Operating Model
