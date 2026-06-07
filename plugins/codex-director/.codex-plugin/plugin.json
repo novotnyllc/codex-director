@@ -1,6 +1,6 @@
 {
   "name": "codex-director",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Project-scoped director workflow for Codex worker-thread coordination, explicit worker workflow skills, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
