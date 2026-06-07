@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Refactor"
   short_description: "Run a behavior-preserving refactor lane"
-  default_prompt: "Use $director-refactor to complete this behavior-preserving Director worker refactor with verification and concise evidence."
+  default_prompt: "Use $director-refactor to complete this behavior-preserving Director worker refactor with verification, native helper runtime reporting when exposed, verified helper evidence, and concise evidence."
 
 policy:
   allow_implicit_invocation: false

@@ -44,6 +44,12 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - The parent then records `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>`.
    - A final checkpoint with recommended briefs is not task completion.
 
+8. Native helper tooling stays worker-internal.
+   - The Director parent still creates only durable Codex worker threads through the exposed `codex_app` contract.
+   - Worker briefs require native helper runtime surface reporting: `available:<tools>`, `namespaced:<namespace>`, `v1-only`, `unavailable:<reason>`, or `ambiguous:<reason>`.
+   - When V2 helpers are used, worker evidence records RP-style profile (`explore`, `pair`, `engineer`, or `design`), model/thinking/fork rationale when exposed, helper task paths, owner spot-check evidence, and `close_agent` or `close_blocked:<reason>`.
+   - `wait_agent`, `list_agents`, helper final-status notifications, and unread helper prose are not accepted as evidence.
+
 ## Evidence To Capture
 
 For each regression pass, record:
@@ -54,5 +60,6 @@ For each regression pass, record:
 - Director thinking/effort setting used for parent continuations
 - one worker brief showing exact `$director-*` invocation
 - one worker activation showing `workflow-skill-loaded:<$director-skill>`
+- one worker activation/evidence record showing native helper runtime surface and, when used, V2 helper profile/evidence/cleanup
 - one pending-worktree or monitor ledger row when applicable
 - one child-thread readback acceptance record

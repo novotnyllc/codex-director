@@ -37,6 +37,8 @@ If a `codex-dynamic-workflows` run exists for the task, treat its plan, packets,
    - required skills/workflows
    - commit authority
    - evidence required
+   - native helper runtime surface and V2 profile policy when exposed
+   - V2 helper task paths, owner verification state, and cleanup state when used
    - callback policy and terminal signal
    - monitor mechanism, monitor id, and monitor status
    - `read_cursor` or `last_turn_seen`
@@ -54,7 +56,7 @@ Codex lifecycle examples:
 `codex_app` thread tools: create worker thread when authorized -> send bounded brief -> poll with `read_thread` -> capture terminal child report -> reconcile evidence/helper policy -> steer with `send_message_to_thread` if gaps remain -> archive with `set_thread_archived` after evidence is recorded.
 Worker callback signal: when explicitly authorized and exposed in the worker runtime, worker sends one Director-thread callback for final/blocker/needs-user/oracle-request/handoff; the callback only marks `terminal_signal` and `pending-readback` until the Director reads the child thread.
 Heartbeat monitor: after dispatch, schedule or update a watchdog Director thread heartbeat instead of keeping the Director turn open solely to poll.
-Worker-internal sub-agents: spawn bounded helper -> wait/poll according to that helper's concrete tool contract -> roll up evidence into owning worker.
+Worker-internal sub-agents: map RP-style role (`explore`, `pair`, `engineer`, `design`) to native helper schema when exposed -> spawn bounded helper with explicit model/thinking/fork rationale when fields exist -> wait/poll according to that helper's concrete tool contract -> read and spot-check helper output -> close helper -> roll up verified evidence into owning worker.
 ```
 
 Do not proceed until the ledger records worker handles for all project work.
@@ -103,6 +105,7 @@ Each item needs:
 - Selected workflow/playbook.
 - Top-level worker control loop.
 - Helper/subagent lanes, or direct-leaf tiny/mechanical/low-risk rationale.
+- Native helper runtime surface plus planned V2 profile when exposed.
 - Key files/modules.
 - Dependencies.
 - Size.
@@ -165,6 +168,7 @@ Every worker brief must include:
 - selected workflow/playbook and top-level control loop
 - context/oracle/review tools
 - worker helper/context policy: mandatory real helper/subagent lanes for non-trivial work, blocked helper capability if unavailable, or direct-leaf only with separate tiny/mechanical/low-risk rationale
+- native helper runtime surface to check and report; if V2 is available, RP-style helper profile plan with role/model/thinking/fork rationale and cleanup requirement
 - oracle request policy: workers return Oracle Request Packets to the Director unless explicitly delegated oracle-runner authority
 - Browser Pro suitability: no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested
 - plan review and adversarial review gate
@@ -200,6 +204,9 @@ Top-level worker control loop:
 Research/context required:
 Worker helper/context policy:
 Helper/subagent lanes required:
+Native helper runtime surface:
+V2 helper profile plan:
+V2 helper evidence/cleanup:
 Direct-leaf exception rationale: not-applicable | tiny:<why>; mechanical:<why>; low-risk:<why>
 Goal policy:
 Git/worktree:
@@ -230,6 +237,7 @@ Check:
 - plan followed
 - verification running
 - evidence concise and sufficient
+- native V2 helper output, if used, has been read from the helper itself, spot-checked by the owning worker, summarized as verified evidence, and closed or marked `close_blocked:<reason>`
 - blockers surfaced early
 
 Do not duplicate in-flight work. Prepare next briefs, update ledger state, and dispatch review, verification, integration, or cleanup workers as needed.

@@ -10,7 +10,7 @@ For Director-created investigation workers, non-trivial research is coordinator 
 
 ## Phase 0: Triage
 
-Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, helper/direct-leaf policy, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
+Confirm the launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, helper/direct-leaf policy, native helper runtime surface, and expected evidence. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
 
 Classify the request:
 
@@ -65,6 +65,8 @@ Possible implementations:
 - Web browsing for current external facts.
 - Any available context engine or worker-internal sub-agent that can answer the narrow scout question without bloating the owning thread.
 
+When native `multi_agent_v2` is exposed, prefer `explore` for one-question scouts and `pair` only for a disjoint deeper hypothesis that needs multi-step reasoning. Give each helper one narrow question, model/thinking/fork rationale when exposed, and sibling boundaries. Treat helper messages as candidate evidence until the owning investigator reads them, spot-checks cited sources, synthesizes contradictions, and closes the helpers or records `close_blocked:<reason>`.
+
 Keep scout output brief. The coordinator synthesizes; scouts do not write the final voice.
 
 Scout result format:
@@ -112,7 +114,7 @@ Report:
 
 - Summary.
 - Evidence with file:line or links.
-- Helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
+- Helper/subagent lanes used, native helper surface, V2 helper profiles/evidence/owner verification/cleanup when used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
 - Review/oracle status when used or required.
 - Root cause or answer.
 - Eliminated hypotheses.
@@ -145,6 +147,7 @@ For Director acceptance, this report is only a candidate terminal report until t
 - External research without dates/sources for unstable facts.
 - Treating inference as confirmed fact.
 - Running overlapping scouts on the same question.
+- Treating V2 helper status or unread helper finals as findings.
 - Omitting contradictions because they make the answer less tidy.
 - Accepting non-trivial research without scout/helper evidence or a valid direct-leaf rationale.
 - Treating external oracle output, callback text, or stale summaries as accepted worker evidence before child-thread readback.

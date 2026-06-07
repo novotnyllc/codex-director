@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Build"
   short_description: "Run a bounded Director implementation lane"
-  default_prompt: "Use $director-build to complete this Director worker implementation packet with plan, edits, verification, review, and concise evidence."
+  default_prompt: "Use $director-build to complete this Director worker implementation packet with plan, edits, verification, review, native helper runtime reporting when exposed, verified helper evidence, and concise evidence."
 
 policy:
   allow_implicit_invocation: false

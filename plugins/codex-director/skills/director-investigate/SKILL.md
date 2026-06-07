@@ -15,6 +15,19 @@ Use only when explicitly invoked by a Director brief or by the user.
 4. Gather facts from the narrowest authoritative sources.
 5. Separate confirmed evidence, inference, uncertainty, and recommended next actions.
 
+## Native Helper Mapping
+
+During activation, report `native helper runtime surface`, `V2 helper policy`, planned RP-style helper profiles, and helper cleanup. `multi_agent_v2` is the worker-internal equivalent of RP `agent_run`/`agent_manage`, not a substitute for Director-created top-level worker threads.
+
+When V2 is available:
+
+- Treat `spawn_agent` as RP `agent_run op=start`: choose a stable lowercase `task_name`, set `agent_type`, `model`, `reasoning_effort`, `service_tier`, and `fork_turns` when exposed, and otherwise state those choices in the helper prompt.
+- Treat `wait_agent` as RP wait/poll: it is only a mailbox wake signal. Use `send_message` for queued context, `followup_task` to steer or continue a helper turn, `list_agents` for status/path checks, and `close_agent` for cleanup after evidence is consumed.
+- Helper briefs must include role/profile, one narrow hypothesis or evidence question, source boundaries, leave-alone instructions, sibling lanes, model/thinking/fork rationale, expected output, confidence format, and cleanup expectation.
+- Use `explore` helpers for one-question scouts such as git archaeology, code-path tracing, docs/spec checks, log checks, or current external facts.
+- Use `pair` only for a disjoint deeper hypothesis that needs multi-step reasoning. Cap parallel pair-style helpers to genuinely disjoint hypotheses and avoid duplicating in-flight work.
+- V2 evidence counts only after this worker reads the helper output, spot-checks material claims against cited sources, synthesizes contradictions, and records `close_agent` or `close_blocked:<reason>`.
+
 ## Workflow
 
 1. Activate: restate the question, read-only boundary, selected workflow, top-level loop, source types, helper policy, and evidence contract.
@@ -37,8 +50,9 @@ Every material claim should have a source: file path, command/check, artifact, t
 - Use helper/subagent scout lanes for non-trivial or parallelizable investigation, or record a blocked helper capability.
 - Do not turn investigation into implementation or review acceptance.
 - Treat callbacks and final-looking messages as wake signals for Director readback.
+- Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as findings.
 - Stop for secrets, private raw data, production writes, destructive actions, or unclear scope.
 
 ## Output
 
-Return concise findings with source paths/commands, confidence, contradictions, open questions, recommended workflow for next work, and cleanup/archive state.
+Return concise findings with source paths/commands, confidence, contradictions, open questions, recommended workflow for next work, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, and cleanup/archive state.

@@ -82,6 +82,8 @@ Owns:
 
 Context and helper tools are not the durable project ledger and are not the `codex_app` thread/project layer. They can support self-contained workflow phases, but they do not replace latest-Codex worker lifecycle tooling. See [Latest Codex runtime tooling](runtime-adapters.md) for the concrete Codex tool contract and project-target rules.
 
+When native `multi_agent_v2` helper tools are exposed inside a worker, map them to RP-style helper roles: `explore` for narrow scouts, `pair` for complex/default helper reasoning, `engineer` for bounded execution slices after the plan is known, and `design` for critique or user-facing polish. The worker must record the active V2 surface, role/model/thinking/fork rationale when exposed, helper task paths, verified evidence consumed, and cleanup status. These helpers never become top-level Director worker threads or accepted packet owners.
+
 ### Codex worker threads
 
 Own:
@@ -142,7 +144,7 @@ Use orchestration without a durable `.workflow/` run when the task is multi-step
 
 - invoke `$director-orchestrate` and follow the Director orchestrate workflow reference
 - create multiple Codex worker threads only for disjoint items
-- require each worker to choose a helper/context strategy and use worker-internal sub-agents for disjoint scouting, model/function selection, context mapping, verification, or review when they reduce risk, context load, or token cost
+- require each worker to choose a helper/context strategy and use worker-internal sub-agents for disjoint scouting, model/function selection, context mapping, verification, or review when they reduce risk, context load, or token cost; when native V2 is available, require an RP-style profile choice plus cleanup evidence
 - keep the Director ledger as the state
 
 ### 4. Complex, risky, long-running, or reusable
@@ -167,13 +169,20 @@ When optional context/delegation tools are also available, use them as implement
 2. Director uses the dynamic workflow plan and artifacts as the task source of truth.
 3. For each dynamic workflow packet, Director dispatches a Codex worker thread.
 4. The worker uses the relevant self-contained workflow playbook for its assigned work item.
-5. For work-item complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that work item.
+5. For work-item complexity, the worker chooses a helper/context strategy and may use the orchestration workflow, nested dynamic workflow artifacts, or native sub-agents only under that work item. Native V2 helpers must remain advisory until the owning worker spot-checks and summarizes their evidence.
 6. Worker writes concise result evidence into `results/` only through the workflow's accepted-result path.
 7. Director reads back each child worker thread, reconciles evidence and helper/direct-leaf policy, dispatches any integration, verification, or reconciliation work to workers, records accepted evidence, and writes final report.
 
 ## How Recursive Helpers Fit
 
 Worker-internal helpers are implementation helpers. They are best when the current worker needs to decompose work, select likely models/functions/files/tests, map context slices, delegate a bounded subtask, verify items, review a narrow surface, or package context without bloating the owning worker thread.
+
+For native `multi_agent_v2`, helper task shape matters:
+
+- `explore`: one narrow question, no edits, low/medium effort, usually minimal forked context.
+- `pair`: complex synthesis or default ambiguous helper, latest-main/high or xhigh when final authority could depend on it.
+- `engineer`: clear bounded edit/refactor/verification slice, explicit file ownership, latest-main/high unless truly mechanical.
+- `design`: critique/polish/report lane for plans, UX, copy, or user-facing design.
 
 `codex-dynamic-workflows` is task-level orchestration. It is best when the task needs success criteria, packetization, approval gates, worker-thread packet passes, integration, verification tracking, and a final audit trail.
 

@@ -331,15 +331,43 @@ Allowed uses:
 - a dynamic workflow packet recursively needs its own mini-orchestration
 - the helper's output can be rolled up into the worker's result file or evidence summary
 
+### Native `multi_agent_v2` Helper Tooling
+
+When the active worker tool schema exposes `multi_agent_v2`, treat it as the concrete native implementation of worker-internal helper lanes. The Director still creates the top-level Codex worker thread with `codex_app`; V2 helpers sit below that worker.
+
+Detect V2 from the active tool schema, not from config assumptions. Record `multi_agent_v2 surface: available:<tools>`, `namespaced:<namespace>`, `v1-only`, `unavailable:<reason>`, or `ambiguous:<reason>`. `ambiguous` means the schema is partial or conflicting, such as `spawn_agent` missing required `task_name`, wait/follow-up tools renamed, or namespace support unclear.
+
+Map RP-style delegation roles to V2 helper profiles:
+
+| RP role pattern | V2 helper profile | Typical V2 shape |
+|---|---|---|
+| `explore` | read-only scout for one narrow question | `task_name` like `context_scout`, low/medium effort, `fork_turns:"none"` when prompt is self-contained |
+| `pair` | deep reasoning or main helper for complex subwork | latest-main/high by default, xhigh for risky/final authority, one bounded lane |
+| `engineer` | clear implementation/refactor helper after the plan is known | latest-main/high, or Spark/medium only for mechanical low-risk edits |
+| `design` | bounded critique, UX/copy/design review, or plan review | latest-main/high or xhigh; output should be a concise report path or finding list |
+
+Use active schema names and fields. If `agent_type`, `model`, `reasoning_effort`, or `service_tier` are exposed, set them from the profile. If they are hidden, encode the role, model/effort rationale, and lane boundary in the helper prompt and evidence.
+
+V2 helper lifecycle:
+
+1. Decide helper lanes during activation before broad context loading.
+2. Spawn helpers with stable lowercase task names and self-contained briefs. For parallel helpers, each brief must name sibling lanes and file/module boundaries.
+3. Prefer `fork_turns:"none"` for scouts and explicit handoffs; use a small numeric value only when recent worker context is necessary; use `"all"` only when the helper truly needs inherited context.
+4. Use `wait_agent` as a mailbox wake signal only. It is not final evidence.
+5. Use `send_message` for queued context that should not trigger a turn; use `followup_task` when a child should run another turn.
+6. After a mailbox or final-status signal, process the helper message, spot-check claims against cited files, commands, artifacts, or transcript evidence, and roll only the verified summary into the worker result.
+7. Use `list_agents` for helper status/path checks and `close_agent` once helper evidence is consumed. Completed helpers that remain open count as cleanup debt.
+8. If a helper is still running, unread, or unsummarized, the owning worker is not ready for accepted final evidence. `close_blocked:<reason>` is acceptable only after helper evidence is consumed, no helper work remains active, and cleanup was attempted.
+
 Rules:
 
 1. Start non-trivial work items with an orchestration control loop and a helper/context strategy: what must be scouted, which phase playbook is active, which helper/subagent lane will run, what should stay in the owning worker, and what context should be excluded. Ordinary tool use, self-checks, or saying helpers were considered does not satisfy the helper gate. Direct leaf execution is worker-internal only, never Director-inline, and is allowed only for tiny, mechanical, low-risk work with separate activation rationale for tiny, mechanical, and low-risk.
 2. Only parallelize disjoint work.
 3. Tell each sub-agent what sibling helpers are doing and what files/modules to avoid.
-4. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, latest-main/high for code-writing/review handoff, latest-main/xhigh for high-risk review or final authority. Spark means `gpt-5.3-codex-spark`; main means the latest non-Spark model exposed by the active schema.
+4. Assign model/thinking by task shape: Spark/low for narrow probes, Spark/medium for bounded research or mechanical edits, latest-main/high for code-writing/review handoff, latest-main/xhigh for high-risk review or final authority. Spark means `gpt-5.3-codex-spark`; main means the latest non-Spark model exposed by the active schema. When V2 role/model fields are hidden, state the intended profile in the helper prompt and final evidence.
 5. Use helpers to reduce context load, not to create more transcript mass; ask for file paths, line refs, facts, commands, and confidence.
 6. Wait or poll regularly; do not leave helpers unattended.
-7. Verify helper output before the owning worker claims its work item is complete. If non-trivial work lacks helper/subagent capability, report `blocked:<reason>` or request Director/user direction instead of silently continuing as a monolithic executor.
+7. Verify helper output before the owning worker claims its work item is complete. V2 helper claims must be spot-checked against cited evidence before they appear in terminal worker evidence. If non-trivial work lacks helper/subagent capability, report `blocked:<reason>` or request Director/user direction instead of silently continuing as a monolithic executor.
 8. Roll up helper evidence into the worker summary; do not expose helper transcripts as the Director ledger.
 9. Do not let a sub-agent create a second top-level dynamic workflow plan. Nested plans must stay under the owning work item or dynamic workflow packet.
 10. Do not let a worker-internal helper create nested top-level Codex worker threads unless the Director brief explicitly delegated that authority.

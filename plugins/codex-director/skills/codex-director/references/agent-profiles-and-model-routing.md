@@ -52,6 +52,21 @@ When a concrete helper/delegation tool exposes generic role labels, map Director
 
 Fresh worker is the default for independent bounded work items. Steer one existing worker only for tightly coupled sequential work, many tiny items, or when preserving working memory reduces risk.
 
+## Native `multi_agent_v2` Helper Profiles
+
+When a worker thread exposes native `multi_agent_v2` tools, treat them as the concrete worker-internal implementation of the runtime role labels above. The Director parent still creates only durable Codex worker threads through `codex_app`; it does not replace worker creation with `spawn_agent`, `followup_task`, `wait_agent`, `list_agents`, or `close_agent`.
+
+Record the active helper surface in activation and evidence: `multi_agent_v2 surface: available:<tools>`, `namespaced:<namespace>`, `v1-only`, `unavailable:<reason>`, or `ambiguous:<reason>`. Use only fields exposed by the active helper schema. When `agent_type`, `model`, `reasoning_effort`, `service_tier`, or `fork_turns` are available, set them deliberately; when hidden, write the intended role/model/thinking/fork rationale into the helper prompt.
+
+| RP role | Use it for | Model/effort default | Fork/context guidance |
+| --- | --- | --- | --- |
+| `explore` | one-question code, docs, git, test, external-fact, or prior-art scouting; no edits | Spark or latest-main at low/medium depending on risk and source freshness | prefer `fork_turns: "none"` plus exact paths/questions when self-contained |
+| `pair` | default complex helper, ambiguous planning, root-cause synthesis, baseline/instrumentation loops, final reconciliation input | latest main/high; xhigh when the helper's answer could become final authority | fork enough recent context to preserve constraints, but pass artifact paths instead of transcript mass |
+| `engineer` | clear bounded implementation or mechanical refactor slice after the owning worker has a plan | latest main/high for code; Spark/medium only for truly mechanical low-risk edits | assign explicit file/module ownership and sibling boundaries |
+| `design` | bounded plan critique, UX/copy/design review, adversarial polish pass, report artifact | latest main/high or xhigh for high-impact critique | request a concise findings list or report path, not open-ended redesign |
+
+RP-style lifecycle maps directly to V2 lifecycle: spawn with a narrow task name, detach/continue the owning worker, wait for mailbox signals, read the helper's actual message or final report, spot-check claims against source evidence, summarize only verified evidence, and close the helper. `wait_agent` and `list_agents` are status signals only. A completed helper left open is cleanup debt; an unread helper final is not evidence.
+
 ## Spark Routing
 
 Use Spark for bounded, evidence-oriented throughput work:

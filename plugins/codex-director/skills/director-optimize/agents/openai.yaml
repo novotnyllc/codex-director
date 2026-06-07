@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Optimize"
   short_description: "Run a measurement-led optimization lane"
-  default_prompt: "Use $director-optimize to measure, improve, and verify this Director worker performance or efficiency assignment."
+  default_prompt: "Use $director-optimize to measure, improve, and verify this Director worker performance or efficiency assignment with native helper runtime reporting when exposed and verified helper evidence."
 
 policy:
   allow_implicit_invocation: false

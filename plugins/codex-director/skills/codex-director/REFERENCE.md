@@ -91,6 +91,9 @@ Context/oracle/review tools: <context engine/browser oracle/review lane/etc.>
 Research lane: <none/local/thread/context engine/web/other available lane>
 Worker helper policy: <required helper/subagent lanes for non-trivial work; direct-leaf only with tiny/mechanical/low-risk rationale>
 Helper/subagent lanes required: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
+Native helper runtime surface: <multi_agent_v2 available:<tools>|namespaced:<namespace>|v1-only|unavailable:<reason>|ambiguous:<reason>|not-checked-yet>
+V2 helper profile plan: <explore scout|pair deep helper|engineer execution helper|design critique helper|none|blocked:<reason>; include model/thinking/fork_turns rationale when exposed>
+V2 helper cleanup policy: <close_agent after evidence|close_blocked:<reason>|not-applicable>
 Work-item coordination policy: <own mini-orchestration over subwork/helpers/review gates|coordinate sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
 Direct-leaf exception rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Coordinator authority: <coordinator-only|packet-executor:<packet-id>|tiny-direct-leaf:<rationale>>
@@ -115,6 +118,8 @@ Worker expectations:
 - Get the plan reviewed before continuing into implementation when the task is multi-item, cross-module, user-facing, data/auth/security-sensitive, or ownership is unclear.
 - Use the selected workflow/playbook as the control loop for the work item. Optional tools can implement workflow phases, but they should not replace the defined workflow.
 - Act as a work-item coordinator when the task is non-trivial: choose narrow helper functions/models, keep context deliberately small, and use at least one real worker-internal helper/subagent lane for scouting, model/function selection, context mapping, verification, review, or contained subwork before final evidence. Ordinary tool use, self-checks, or saying helpers were considered does not satisfy this gate. If helper/subagent capability is unavailable for non-trivial work, report `blocked:<reason>` or ask the Director for direction instead of continuing as a monolithic executor. Direct leaf execution is worker-internal only, never Director-inline, and is allowed only for tiny, mechanical, low-risk work with separate activation rationale for tiny, mechanical, and low-risk.
+- When `multi_agent_v2` is exposed inside the worker, map RP-style roles to V2 helper profiles: `explore` for narrow read-only scouts, `pair` for complex/deep helper work, `engineer` for well-scoped execution after the plan is clear, and `design` for bounded critique or user-facing design/copy review. Use active schema role/model/effort fields when exposed; otherwise state the intended profile in the helper prompt and evidence.
+- V2 helper results satisfy the helper gate only after the owning worker reads the helper message, spot-checks material claims against cited files, commands, artifacts, or transcript evidence, summarizes the verified result, and closes the helper or records an acceptable cleanup blocker.
 - If assigned coordinator-only authority, do not implement packets yourself. Return packet briefs, integration notes, blockers, or a checkpoint. A checkpoint is not task completion; it must name the next packet/review/oracle worker to dispatch, the monitor already covering it, or the blocker/approval preventing dispatch.
 - Treat oracle as a role, not a vendor. Use a separate Codex worker thread, browser oracle, review workflow, or other second-opinion lane when available and useful.
 - If oracle input is needed, return an Oracle Request Packet to the Director with mode, exact question, evidence paths, diff/test summary, constraints, and why oracle judgment is needed. Do not create, continue, or message oracle threads directly unless the Director explicitly delegates that authority.
@@ -163,6 +168,10 @@ Checkpoint continuation: <next-packet-dispatched|monitor-scheduled|blocked-on-di
 Worker helper policy: <required helper/subagent lanes for non-trivial work; direct-leaf only with tiny/mechanical/low-risk rationale>
 Helper/subagent lanes: <research scout|code/context scout|verification helper|critique/review helper|implementation helper|oracle/review lane|blocked:<reason>|not-needed-direct-leaf>
 Blocked helper capability: <no|blocked:<reason>>
+Native helper runtime surface: <multi_agent_v2 available:<tools>|namespaced:<namespace>|v1-only|unavailable:<reason>|ambiguous:<reason>>
+V2 helper profile plan: <none|explore:<task_names>|pair:<task_names>|engineer:<task_names>|design:<task_names>|blocked:<reason>>
+V2 helper evidence plan: <what each helper must return and what the owning worker will spot-check>
+V2 helper cleanup: <close_agent planned|close_blocked:<reason>|not-applicable>
 Work-item coordination policy: <own mini-orchestration over subwork/helpers/review gates|coordinate sibling-thread requests|direct-leaf worker-internal execution only because tiny/mechanical/low-risk>
 Direct-leaf rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Oracle lane: <none/tool/thread and why>
@@ -345,6 +354,8 @@ Worker evidence should be sufficient to audit completion without replaying the w
 - Files changed or artifacts produced, with paths.
 - Commands/tests/checks run, with pass/fail summary, or explicit verification-not-run reason.
 - Helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
+- Native helper runtime surface observed, including V2 tool names or namespace when used.
+- V2 helper paths/task names, profile used, evidence consumed, owner spot-check performed, and helper cleanup/close status when V2 helpers were used.
 - Review gates used and verdicts, including review/oracle status when required by the workflow.
 - Screenshots, URLs, or local artifact paths when relevant.
 - Requirements or done criteria satisfied.
@@ -678,6 +689,9 @@ Treat this as `$director-dynamic-workflow` by default. First record the ledger i
 - Treating a callback, expected final message, stale summary, or worker claim as final evidence without `codex_app.read_thread` readback.
 - Marking a worker `complete` or `accepted` while it is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, or missing helper/direct-leaf acceptance.
 - Launching a non-trivial Director-created worker with `helper policy: none`, or accepting ordinary tool use/self-checks as satisfying the helper/subagent gate.
+- Treating `multi_agent_v2` helpers as top-level Director-created worker threads, or letting the Director parent use V2 helper tools instead of creating durable Codex worker threads.
+- Accepting `wait_agent`, `list_agents`, a helper final-status notification, or unverified helper prose as terminal evidence.
+- Leaving V2 helpers running/open after evidence is consumed without `close_agent` success or `close_blocked:<reason>`.
 - Using direct leaf to disguise Director-inline repo/docs/code/prod work instead of worker-internal tiny, mechanical, low-risk execution.
 - Treating coordinator output or a "final checkpoint" with recommended next briefs as workflow completion without dispatching the next worker or recording `blocked-on-dispatch:<reason>` / `awaiting-approval:<reason>`.
 - Clearing the only heartbeat/monitor while pending worktree ids, queued workers, or running workers remain active.

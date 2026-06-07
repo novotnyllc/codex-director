@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Browser Oracle"
   short_description: "Run a delegated Browser oracle lane"
-  default_prompt: "Use $director-browser-oracle to run this delegated Browser ChatGPT Pro oracle review with privacy checks and concise evidence."
+  default_prompt: "Use $director-browser-oracle to run this delegated Browser ChatGPT Pro oracle review with privacy checks, native helper runtime reporting when exposed, verified helper evidence, and concise evidence."
 
 policy:
   allow_implicit_invocation: false

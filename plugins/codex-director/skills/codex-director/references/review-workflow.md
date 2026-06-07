@@ -10,7 +10,7 @@ When reviewing Director-created worker output, the review must challenge the Dir
 
 ## Phase 0: Confirm Scope
 
-Start by confirming the worker launch contract: model, thinking level plus rationale, commit authority, relevant Codex skills, and the required review workflow. Record skills considered, loaded, skipped, and not loaded in activation.
+Start by confirming the worker launch contract: model, thinking level plus rationale, commit authority, relevant Codex skills, native helper runtime surface, and the required review workflow. Record skills considered, loaded, skipped, and not loaded in activation.
 
 Determine what is being reviewed:
 
@@ -55,6 +55,7 @@ For plans/workers:
 - Read claimed evidence.
 - Confirm the Director or owning orchestrator read the child thread with `codex_app.read_thread` after the terminal signal and captured the terminal report from the child thread itself.
 - Check `read_cursor` or `last_turn_seen`, `readback_status`, `final_report_captured`, `evidence_reconciled`, `helper_policy_accepted`, `acceptance_status`, and cleanup/archive state when the output came from a Director-created worker.
+- If V2 helpers were used, check helper task paths, profiles, model/thinking/fork rationale when exposed, owner spot-check evidence, and `close_agent` or `close_blocked:<reason>`.
 - Identify unverified claims.
 
 ## Phase 2: Build Review Context
@@ -65,6 +66,7 @@ Build review context with the lightest adequate path:
 - Use git diff, targeted reads, code structure, tests, and local instructions.
 - Use a review-oriented context engine if available and useful.
 - If the change is broad, create a separate review-oriented Codex worker thread.
+- When native `multi_agent_v2` is exposed inside this review worker, use `explore` helpers for targeted evidence checks, `design` helpers for bounded UX/copy/design critique, and `pair` helpers only for complex cross-cutting review hypotheses. The review worker owns source spot-checking and helper cleanup.
 
 Do not manually deep-read the whole repo before review context is built.
 
@@ -85,6 +87,7 @@ Challenge:
 - Commit coherence.
 - Callback-only, expected-final-only, or stale-summary-only acceptance without child-thread readback.
 - Missing, weak, or implausible helper/subagent evidence for non-trivial Director-created work.
+- V2 helper evidence that is only a `wait_agent`, `list_agents`, final-status notification, or unverified helper prose.
 - Direct-leaf claims that do not separately justify tiny, mechanical, and low-risk.
 - Missing archive/cleanup state for accepted, stale, superseded, review, oracle, verification, or cleanup workers.
 
@@ -130,6 +133,7 @@ When this review workflow is itself run by a Director-created review worker, its
 - explicit review scope and comparison/artifact reviewed;
 - findings/verdict and residual risk;
 - helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail;
+- native helper surface and V2 helper profiles/evidence/owner verification/cleanup when used;
 - review/oracle status if another lane was used or requested;
 - cleanup/archive expectation.
 
@@ -145,4 +149,5 @@ If no issues are found, say that clearly and name remaining test gaps.
 - Skipping changed call sites or tests when API behavior changed.
 - Saying "looks good" without naming residual risk or unverified surfaces.
 - Approving Director-created worker output when it is still `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, or missing cleanup/archive state.
+- Approving Director-created worker output with V2 helpers still unread, unverified, or open without `close_blocked:<reason>`.
 - Treating ordinary tool use or self-checks as the mandatory helper/subagent lane for non-trivial work.

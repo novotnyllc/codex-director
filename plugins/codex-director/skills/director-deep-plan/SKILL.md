@@ -15,6 +15,19 @@ Use only when explicitly invoked by a Director brief or by the user.
 4. Gather enough context to make the plan executable.
 5. Produce the durable plan and run a review gate before finalizing.
 
+## Native Helper Mapping
+
+During activation, report `native helper runtime surface`, `V2 helper policy`, planned RP-style helper profiles, and helper cleanup. `multi_agent_v2` is the worker-internal equivalent of RP `agent_run`/`agent_manage`, not a substitute for Director-created top-level worker threads.
+
+When V2 is available:
+
+- Treat `spawn_agent` as RP `agent_run op=start`: choose a stable lowercase `task_name`, set `agent_type`, `model`, `reasoning_effort`, `service_tier`, and `fork_turns` when exposed, and otherwise state those choices in the helper prompt.
+- Treat `wait_agent` as RP wait/poll: it is only a mailbox wake signal. Use `send_message` for queued context, `followup_task` to steer or continue a helper turn, `list_agents` for status/path checks, and `close_agent` for cleanup after evidence is consumed.
+- Helper briefs must include role/profile, one narrow question or critique scope, plan/artifact paths, leave-alone boundaries, model/thinking/fork rationale, expected output, evidence standard, and cleanup expectation.
+- Use `explore` helpers for ambiguity scouting, seam mapping, prior-art checks, and external-fact research. Each explore gets one narrow question and returns sources, conflicts, confidence, and plan implication.
+- Use exactly one bounded `design` helper for critique when non-trivial planning needs independent review. Use `pair` only when a planning ambiguity needs deeper synthesis inside the worker.
+- V2 evidence counts only after this worker reads the helper output, spot-checks material claims, folds useful findings into the plan in its own voice, and records `close_agent` or `close_blocked:<reason>`.
+
 ## Workflow
 
 1. Activate: restate planning objective, scope, selected workflow, top-level loop, non-implementation boundary, helper policy, and expected plan artifact.
@@ -37,8 +50,9 @@ Include objective, context, constraints, proposed phases/packets, owner/workflow
 - Use helper/subagent lanes for non-trivial planning, or record a blocked helper capability.
 - If the plan requires packets or multiple worker handles, recommend `$director-dynamic-workflow` or `$director-orchestrate`.
 - Treat callbacks and final-looking messages as wake signals for Director readback.
+- Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as plan review or final evidence.
 - Keep the final plan concise enough to execute without re-discovery.
 
 ## Output
 
-Return the plan path or inline plan, review verdict, key decisions, risks, verification surface, packet/worker recommendations, and cleanup/archive state.
+Return the plan path or inline plan, review verdict, key decisions, risks, verification surface, packet/worker recommendations, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, and cleanup/archive state.

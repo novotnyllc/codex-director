@@ -10,7 +10,7 @@ For Director-created optimization workers, non-trivial optimization requires rea
 
 ## Phase 0: Target And Stop Rule
 
-Confirm the worker launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, helper/direct-leaf policy, and evidence format. Record skills considered, loaded, skipped, and not loaded in activation.
+Confirm the worker launch contract first: model, thinking level plus rationale, commit authority, required skills/workflows, repo/path, helper/direct-leaf policy, native helper runtime surface, and evidence format. Record skills considered, loaded, skipped, and not loaded in activation.
 
 Translate the user request into:
 
@@ -36,6 +36,8 @@ Run scouts before planning. For non-trivial Director-created optimization, at le
 - Scope boundary: files in and out.
 
 The bottleneck scout should look beyond the named function. The expensive part may be a caller, repeated input construction, sync I/O, locking, serialization, rendering, or cache miss pattern.
+
+When native `multi_agent_v2` is exposed, use `explore` helpers for bottleneck, benchmark, and verification-surface scouting; use `pair` helpers for baseline/instrumentation or one optimize-and-harden loop; use `design` only for bounded UX/perceived-performance critique. Keep attribution serial unless explicitly evaluating disjoint alternatives. V2 measurement claims are not evidence until the owning worker verifies commands/results and closes helpers or records `close_blocked:<reason>`.
 
 Scout output:
 
@@ -150,7 +152,7 @@ Report:
 - commit hash per attributed change
 - tests/checks
 - review verdict
-- helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail
+- helper/subagent lanes used, native helper surface, V2 helper profiles/evidence/owner verification/cleanup when used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail
 - cleanup/archive expectation and worktree/branch reconciliation state
 - reason for stopping
 
@@ -164,4 +166,5 @@ For Director acceptance, final optimization evidence is not complete until the D
 - Combining unrelated performance ideas in one iteration.
 - Continuing iterations after stop criteria are met.
 - Claiming optimization success from a callback, oracle verdict, or stale summary before child-thread readback.
+- Treating V2 helper status, unread helper finals, or unverified measurement prose as performance evidence.
 - Treating non-trivial optimization as complete without helper/subagent evidence or valid direct-leaf rationale.

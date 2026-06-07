@@ -4,7 +4,7 @@ Use when the director thread or a Codex worker thread is deciding whether to cre
 
 ## Relationship To The Director Stack
 
-Codex Goals are persistence and completion-pressure for a single thread objective. They are not a replacement for director coordination, dynamic workflow orchestration, worker helper/subagent policy, child-thread readback, evidence reconciliation, cleanup/archive state, or review gates.
+Codex Goals are persistence and completion-pressure for a single thread objective. They are not a replacement for director coordination, dynamic workflow orchestration, worker helper/subagent policy, child-thread readback, evidence reconciliation, cleanup/archive state, or review gates. Native V2 helpers are subordinate to the worker Goal: they can support evidence gathering or verification, but only the owning worker can claim Goal progress after checking and summarizing their output.
 
 ```text
 Director ledger = portfolio state
@@ -58,6 +58,8 @@ Worker activation should state:
 Codex Goal: <none/create/continue/inspect/clear> because <fit test>
 Worker role: <coordinator|direct-leaf>
 Helper/subagent lanes: <lanes|blocked:<reason>|not-needed-direct-leaf>
+Native helper runtime surface: <multi_agent_v2 available:<tools>|namespaced:<namespace>|v1-only|unavailable:<reason>|ambiguous:<reason>|not-checked-yet>
+V2 helper profile/evidence/cleanup: <none|explore/pair/engineer/design plan plus model/thinking/fork rationale and close policy>
 Direct-leaf rationale: <not-applicable|tiny:<why>; mechanical:<why>; low-risk:<why>>
 Goal outcome: <measurable end state>
 Verification surface: <commands/artifacts/files/review>
@@ -91,6 +93,7 @@ Outcome:
 Verification surface:
 Evidence:
 Helper/direct-leaf status:
+Native helper evidence status:
 Readback status if Director-created worker:
 Constraints checked:
 Next iteration rule:
@@ -124,7 +127,7 @@ Before the Director accepts a worker Goal as complete:
 3. Compare the stated outcome to evidence.
 4. Confirm named verification surfaces were run or inspected.
 5. Confirm constraints did not regress.
-6. Confirm helper/subagent lanes were used for non-trivial work, or direct-leaf tiny/mechanical/low-risk rationale is valid.
+6. Confirm helper/subagent lanes were used for non-trivial work, including V2 helper owner verification and cleanup when used, or direct-leaf tiny/mechanical/low-risk rationale is valid.
 7. Confirm review gates passed or residual risk is accepted.
 8. Confirm dynamic workflow packet/result state is updated if applicable.
 9. Confirm commits/worktrees are reconciled when repo changes were made.
@@ -139,6 +142,7 @@ Completion must answer:
 - Did constraints remain true?
 - Did the review/adversarial gate pass or record accepted residual risk?
 - Did helper/direct-leaf policy pass?
+- If V2 helpers were used, did the owning worker verify cited evidence and close helpers or record `close_blocked:<reason>`?
 - Did the Director record child-thread readback and cleanup/archive state before accepting the worker Goal?
 - Is remaining uncertainty explicitly named?
 
@@ -163,7 +167,7 @@ When dynamic workflow mode is active:
 
 - Overall task success criteria belong in `.workflow/<slug>/plan.md`.
 - Packet-level persistent objectives may become worker Goals.
-- Packet result files should include Goal outcome, verification surface, completion evidence, helper/direct-leaf status, readback status, and blockers.
+- Packet result files should include Goal outcome, verification surface, completion evidence, helper/direct-leaf status, native helper surface and V2 helper verification/cleanup when used, readback status, and blockers.
 - Packet outputs become durable `results/` only after Director readback and reconciliation, not merely after callback.
 - Director completion requires Goal audit, child-thread readback, helper/direct-leaf acceptance, cleanup/archive state, and dynamic workflow completion audit.
 

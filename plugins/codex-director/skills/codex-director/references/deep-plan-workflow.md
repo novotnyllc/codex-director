@@ -14,7 +14,7 @@ For Director-created planning workers, non-trivial planning is coordinator work:
 2. Decide where the plan artifact belongs according to project conventions.
 3. Confirm model, thinking level plus rationale, commit authority, required skills/workflows, and evidence format from the launch contract.
 4. Discover applicable Codex skills; record skills considered, loaded, skipped, and not loaded in activation.
-5. Record worker role, helper/subagent lanes, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale in activation.
+5. Record worker role, helper/subagent lanes, native helper runtime surface, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale in activation.
 6. Ask the user for input only when an ambiguity would change architecture, order, scope, or risk.
 7. If the user asks to be involved at a checkpoint, honor that promise. Do not silently continue past a chosen checkpoint.
 
@@ -52,6 +52,8 @@ Run research lanes before drafting. For non-trivial Director-created planning wo
 - Constraints: deployment, data, auth, privacy, migration, operational rules.
 
 Each scout gets one narrow question and returns sources, conflicts, confidence, and implications.
+
+When native `multi_agent_v2` is exposed, map RP-style planning helpers deliberately: `explore` for seam/prior-art/current-fact scouts, one bounded `design` helper for critique, and `pair` only when a planning ambiguity needs deeper synthesis inside the worker. Record model/thinking/fork rationale when fields are exposed. Helper output is draft input until the planner spot-checks the evidence, folds useful findings into the plan, and closes helpers or records `close_blocked:<reason>`.
 
 Curate findings into the plan's background. Do not paste raw scout transcripts.
 
@@ -153,7 +155,7 @@ Final plan should be tight and executable:
 
 ## Evidence
 
-Return plan path, summary, reviewed status, open questions, suggested next workflow, helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
+Return plan path, summary, reviewed status, open questions, suggested next workflow, helper/subagent lanes used, native helper surface, V2 helper profiles/evidence/owner verification/cleanup when used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail.
 
 For Director acceptance, this evidence is only a candidate final report until the Director reads the child thread with `codex_app.read_thread`, captures the terminal child report from the thread itself, reconciles done criteria/review/helper status, and records archive/cleanup state. A callback, expected final, or plan path alone must leave the worker `pending-readback` or `insufficient-evidence`.
 
@@ -166,4 +168,5 @@ For Director acceptance, this evidence is only a candidate final report until th
 - Over-specifying tactical choices that implementation workers should own.
 - Leaving plan work items without done criteria, dependencies, or verification.
 - Finalizing non-trivial planning without scout/helper and critique/review evidence.
+- Treating V2 helper status, unread final messages, or unverified helper prose as plan evidence.
 - Treating a callback, plan artifact, or stale summary as accepted Director evidence before child-thread readback.

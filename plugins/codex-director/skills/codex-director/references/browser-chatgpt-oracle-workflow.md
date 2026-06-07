@@ -8,7 +8,7 @@ The Browser ChatGPT Pro oracle is an implementation of the oracle lane. It shoul
 
 Do not require a separate prompt file just because Browser ChatGPT Pro is the selected oracle lane. Write a prompt artifact only when it adds real value: durable audit trail, large payload/upload, resumability after Browser failure, cross-thread handoff, or explicit user request. When this workflow is selected for a delegated oracle-runner worker, that runner must complete the Browser round trip unless blocked by sign-in, Pro availability, safety, or browser automation failure. Other workers should request this lane through the Director. Do not run a non-Pro ChatGPT model and report it as a Pro oracle; when Pro is unavailable, prefer the built-in Codex oracle/review lane with main/`xhigh`.
 
-If the Browser oracle runner is a Director-created worker, its result artifact and callback are not accepted until the Director reads the runner's child thread with `codex_app.read_thread`, captures the terminal report, reconciles oracle evidence and helper/direct-leaf policy, and records cleanup/archive state.
+If the Browser oracle runner is a Director-created worker, its result artifact and callback are not accepted until the Director reads the runner's child thread with `codex_app.read_thread`, captures the terminal report, reconciles oracle evidence and helper/direct-leaf policy, and records cleanup/archive state. Native V2 helpers may support local fallback review, prompt preparation, or reconciliation inside the runner, but they must not bypass Browser/Pro suitability, privacy approval, or Director-mediated oracle routing.
 
 ## Safety Gate
 
@@ -18,7 +18,7 @@ Do not print sensitive payloads in chat. Prefer local files and concise status.
 
 ## Phase 0: Decide Whether Browser ChatGPT Pro Oracle Is Appropriate
 
-Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, helper/direct-leaf policy, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
+Confirm the launch contract first: model/thinking plus rationale for the runner, requested ChatGPT model or tier, required skills/workflows, sensitivity boundary, commit authority, helper/direct-leaf policy, native helper runtime surface, and evidence format. Discover applicable Codex skills and record skills considered, loaded, skipped, and not loaded in activation.
 
 Use Browser ChatGPT Pro oracle when a Pro web-model second opinion is materially better than the local oracle/review lane, even if the user did not explicitly say Pro:
 
@@ -99,6 +99,8 @@ Review this plan adversarially. Return:
 ```
 
 Model/effort guidance: ChatGPT Pro oracle is normally a high-quality second-opinion lane. Use it when the expected critique is worth the Browser round trip, whether or not the user named Pro. Do not use it as a cheap first-pass scout.
+
+When native V2 helpers are exposed, keep them local and bounded: `explore` for prompt-source or fallback evidence checks, `pair` for reconciliation if Browser and local oracle disagree, `engineer` only for mechanical prompt artifact preparation, and `design` for critique-shape/polish. Record helper role/model/thinking/fork rationale when exposed, verify helper output locally, and close helpers or record `close_blocked:<reason>`.
 
 ```text
 Review this implementation summary and evidence. Return only findings that could change whether this should ship.
@@ -191,6 +193,7 @@ Return:
 - must-fix findings count
 - whether the plan/work was updated
 - delegated runner readback status, helper/direct-leaf acceptance, and cleanup/archive state when applicable
+- native helper surface and V2 helper profiles/evidence/owner verification/cleanup when used
 - any blockers or caveats
 
 Do not paste the full oracle response unless the user asks.
@@ -204,6 +207,7 @@ Do not paste the full oracle response unless the user asks.
 - Sensitive payload detected: pause for permission or redact.
 - Page structure changes make capture unreliable.
 - Reporting a delegated oracle-runner callback or result artifact as accepted before `codex_app.read_thread` readback and evidence reconciliation.
+- Treating V2 helper output as an oracle result or Browser/Pro availability proof.
 
 ## Evidence
 
@@ -216,3 +220,4 @@ The final evidence bundle should include:
 - follow-up edits or decisions made from the result
 - unresolved caveats
 - delegated runner thread id, child-thread readback status, helper/direct-leaf status, and cleanup/archive state when applicable
+- native helper surface and V2 helper profiles/evidence/owner verification/cleanup when used

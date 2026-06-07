@@ -4,7 +4,7 @@ Use when a project director thread needs task-level orchestration for a complex 
 
 ## Relationship
 
-The director thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktree/commit policy, reconciliation decisions, worker check-ins, child-thread readback, helper/direct-leaf acceptance, cleanup/archive state, and final user-facing status. Workers perform project work and repo-changing operations.
+The director thread owns the project portfolio: routing, prioritization, Codex worker thread lifecycle, cross-task coordination, worktree/commit policy, reconciliation decisions, worker check-ins, child-thread readback, helper/direct-leaf acceptance, cleanup/archive state, and final user-facing status. Workers perform project work and repo-changing operations. Native `multi_agent_v2` helpers, when available, sit below those workers and never become packet owners or accepted `results/` writers by themselves.
 
 The `codex-dynamic-workflows` skill owns the orchestration protocol for one complex task: success criteria, approvals, packets, Codex worker-thread packet work, integration, verification, reusable recipes, and the run artifact. In this reference, `packet` means a concrete work-item file under `.workflow/<slug>/packets/`:
 
@@ -66,6 +66,7 @@ A single short worker can remain in the visible Director transcript only if the 
 - Director active goal -> `.workflow/<slug>/plan.md`
 - Director worker thread brief -> packet file under `packets/`
 - Codex worker thread output -> candidate evidence until Director readback/reconciliation; accepted output -> result file under `results/`
+- Worker-internal V2 helper output -> candidate packet evidence only after the owning packet worker spot-checks it and records helper cleanup
 - Director ledger checkpoint -> Director ledger, with packet/result evidence reflected in workflow artifacts
 - Coordinator checkpoint -> orchestration state plus next dispatch/monitor/blocker/approval record, not accepted packet output
 - Director sequencing rules -> `orchestration.md`
@@ -89,6 +90,8 @@ Workers should use the matching explicit workflow skill and thinking policy insi
 
 Do not let a worker's local workflow overwrite the top-level `.workflow/` task artifacts. It may produce subplans and local scratch artifacts, but packet status and integration records belong to the parent workflow. A local worker report can update packet status only through the Director readback and reconciliation sequence.
 
+Packet workers that expose native V2 helpers should map RP roles by packet type: `explore` for research/context/test scouts, `pair` for complex packet-internal synthesis, `engineer` for clear bounded execution slices, and `design` for critique/polish lanes. The packet brief should require the worker to report native helper surface, helper task paths, role/model/thinking/fork rationale when exposed, owner verification, and `close_agent` or `close_blocked:<reason>`.
+
 ## Recursive Use
 
 Dynamic workflow can recurse, but ownership must stay explicit:
@@ -108,6 +111,7 @@ Before creating packet briefs, record:
 - Codex skills loaded for Director-level routing
 - Codex skills each packet worker must consider
 - model and thinking level plus rationale per packet
+- native helper runtime surface to check per packet, plus V2 helper profile/evidence/cleanup fields when exposed
 - commit authority per packet
 - `codex_app` thread handle requirements
 - stale/cancel policy
@@ -151,6 +155,9 @@ Expected output:
 Verification:
 Evidence required:
 Helper/subagent lanes required:
+Native helper runtime surface:
+V2 helper profile plan:
+V2 helper evidence/cleanup:
 Direct-leaf exception rationale: not-applicable | tiny:<why>; mechanical:<why>; low-risk:<why>
 Readback/acceptance fields: terminal signal, readback status, final report captured, evidence reconciled, helper policy accepted, acceptance status, cleanup/archive state
 Coordinator checkpoint fields: coordinator authority, next packet worker to dispatch, dispatch/monitor/blocker/approval state
@@ -186,7 +193,7 @@ Before marking the task complete:
 1. Verify workflow artifacts exist and are non-empty.
 2. Confirm every packet worker has terminal signal state and child-thread readback recorded: `readback_complete` with a captured terminal report, or a blocking state such as `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, `blocked`, or `stale`.
 3. Confirm accepted packet outputs were promoted to `results/` only after Director readback and evidence reconciliation.
-4. Confirm helper/subagent lanes were accepted for non-trivial workers, or direct-leaf tiny/mechanical/low-risk rationale was accepted.
+4. Confirm helper/subagent lanes were accepted for non-trivial workers, including V2 helper owner verification and cleanup when used, or direct-leaf tiny/mechanical/low-risk rationale was accepted.
 5. Confirm review/oracle status is recorded and must-fix findings are resolved or explicitly accepted.
 6. Confirm cleanup/archive state is recorded for every packet, review, oracle, verification, stale, superseded, and cleanup worker.
 7. Confirm packet outputs are integrated.

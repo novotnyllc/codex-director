@@ -16,7 +16,7 @@ For Director-created refactor workers, non-trivial refactors require real helper
 4. Confirm commit authority from the worker brief.
 5. Discover applicable Codex skills and workflow references; record skills considered, loaded, skipped, and not loaded in activation.
 6. Confirm model and thinking level plus rationale from the launch contract.
-7. Record helper/subagent lanes, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale.
+7. Record helper/subagent lanes, native helper runtime surface, blocked helper capability if any, or direct-leaf tiny/mechanical/low-risk rationale.
 8. Identify tests that prove behavior is preserved.
 9. Define "out of scope" explicitly.
 
@@ -35,6 +35,8 @@ Scout questions:
 - Which public APIs or data contracts must not change?
 
 Use explore workers, worker-internal helper/subagent lanes, or local code-structure/search. Keep each scout to one area. For non-trivial Director-created refactors, at least one real helper/subagent lane must contribute structure, verification, or review evidence; ordinary tool use or self-checks do not satisfy this gate.
+
+When native `multi_agent_v2` is exposed, map refactor helpers to `explore` for call-site/test-gap/structure mapping, `engineer` for clear mechanical slices after the plan is known, `pair` for architectural ambiguity, and `design` only for user-facing copy/layout polish. Parallel V2 refactor helpers must have zero file overlap and explicit sibling boundaries. Their evidence counts only after the owning worker checks behavior-preservation claims and closes the helpers or records `close_blocked:<reason>`.
 
 ## Phase 2: Analyze Opportunities
 
@@ -125,7 +127,7 @@ Report:
 - changed files
 - commit hashes
 - review verdict
-- helper/subagent lanes used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail
+- helper/subagent lanes used, native helper surface, V2 helper profiles/evidence/owner verification/cleanup when used, or direct-leaf rationale with separate tiny, mechanical, and low-risk detail
 - cleanup/archive expectation and worktree/branch reconciliation state
 - residual risk
 
@@ -138,5 +140,6 @@ For Director acceptance, final refactor evidence remains unaccepted until the Di
 - Parallelizing overlapping refactors.
 - Skipping tests because the change "should be mechanical."
 - Leaving the code in a half-migrated style.
+- Treating V2 helper status, unread helper finals, or unverified helper claims as behavior-preservation evidence.
 - Treating a non-trivial refactor as complete without helper/subagent evidence or valid direct-leaf rationale.
 - Accepting callback-only, expected-final-only, or stale-summary evidence before child-thread readback.

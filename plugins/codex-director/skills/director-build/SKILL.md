@@ -15,6 +15,19 @@ Use only when explicitly invoked by a Director brief or by the user.
 4. Gather only the context needed for the bounded change.
 5. Plan, edit, verify, run the required review/self-check, and return concise evidence.
 
+## Native Helper Mapping
+
+During activation, report `native helper runtime surface`, `V2 helper policy`, planned RP-style helper profiles, and helper cleanup. `multi_agent_v2` is the worker-internal equivalent of RP `agent_run`/`agent_manage`, not a substitute for Director-created top-level worker threads.
+
+When V2 is available:
+
+- Treat `spawn_agent` as RP `agent_run op=start`: choose a stable lowercase `task_name`, set `agent_type`, `model`, `reasoning_effort`, `service_tier`, and `fork_turns` when exposed, and otherwise state those choices in the helper prompt.
+- Treat `wait_agent` as RP wait/poll: it is only a mailbox wake signal. Use `send_message` for queued context, `followup_task` to steer or continue a helper turn, `list_agents` for status/path checks, and `close_agent` for cleanup after evidence is consumed.
+- Helper briefs must include role/profile, goal, exact scope, leave-alone files/modules, sibling lanes, plan/artifact paths, model/thinking/fork rationale, expected output, evidence standard, and cleanup expectation.
+- Use `explore` helpers for context/test mapping, `engineer` helpers for clear bounded sub-edits after the plan is known, `pair` helpers for complex implementation reasoning, and `design` helpers only for bounded UX/copy/design critique.
+- For parallel helpers, require disjoint files/modules and sibling-awareness. For sequential helpers, use `followup_task` only inside the same bounded implementation decision path.
+- V2 evidence counts only after this worker reads the helper output, spot-checks material claims, summarizes verified evidence into final build evidence, and records `close_agent` or `close_blocked:<reason>`.
+
 ## Workflow
 
 1. Activate: restate the assigned outcome, repo/path, files likely involved, constraints, selected workflow, top-level loop, commit authority, helper policy, and done criteria.
@@ -37,8 +50,9 @@ Ask the Director to reroute to `$director-orchestrate` or `$director-dynamic-wor
 - Non-trivial work needs a real helper/subagent lane or a clear blocked helper capability. Direct leaf is allowed only with separate tiny, mechanical, and low-risk rationale.
 - If the task grows into multiple independent lanes, risky writes, cross-repo work, or packetization, stop and ask the Director to reroute to `$director-orchestrate` or `$director-dynamic-workflow`.
 - Do not create nested top-level Codex workers unless the Director explicitly delegates that authority.
+- Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as implementation evidence.
 - Treat final output as candidate evidence until the Director reads the worker thread and reconciles it.
 
 ## Output
 
-Report changed files, commands/tests, review verdict, commit status when authorized, unresolved risks, cleanup/archive state, and exact blockers.
+Report changed files, commands/tests, review verdict, commit status when authorized, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, unresolved risks, cleanup/archive state, and exact blockers.

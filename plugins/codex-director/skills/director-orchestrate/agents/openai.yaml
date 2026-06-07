@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Orchestrate"
   short_description: "Coordinate a bounded Director worker lane"
-  default_prompt: "Use $director-orchestrate to coordinate this Director worker assignment with helper lanes, sequencing, evidence reconciliation, and concise final status."
+  default_prompt: "Use $director-orchestrate to coordinate this Director worker assignment with helper lanes, native helper runtime reporting when exposed, sequencing, evidence reconciliation, helper cleanup, and concise final status."
 
 policy:
   allow_implicit_invocation: false
