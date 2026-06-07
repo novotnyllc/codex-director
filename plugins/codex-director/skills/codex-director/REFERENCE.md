@@ -225,6 +225,7 @@ Worker thread id:
 Pending worktree id:
 Worker title:
 Parent title status: verified | repaired:<old-title> | parent-title-blocked:<reason>
+Parent pin status: pinned | parent-pin-blocked:<reason> | pin-unavailable
 Project id / target:
 Repo/path:
 Branch:
@@ -296,7 +297,7 @@ After dispatch:
 
 1. Read a new worker once to confirm activation when practical.
 2. If creation returns a pending worktree id instead of a thread id, record it as an active handle and schedule a pickup monitor to find the eventual thread, title it, read activation, and restore the parent Director title if needed. The pickup record must include pending id, lookup query or matching strategy, owner task, next wake mechanism/time, pickup success condition, and stale threshold.
-3. Record `thread_id` or `pending_worktree_id`, `read_cursor` or last turn seen, `last_poll_at`, `callback_policy`, `next_wake`, `monitor_interval`, `monitor_status`, `parent_title_status`, and stale threshold.
+3. Record `thread_id` or `pending_worktree_id`, `read_cursor` or last turn seen, `last_poll_at`, `callback_policy`, `next_wake`, `monitor_interval`, `monitor_status`, `parent_title_status`, `parent_pin_status`, and stale threshold.
 4. If completion is likely within about a minute, use one short quiet polling burst.
 5. If callback signaling is available, stop the Director turn and use heartbeat only as a watchdog.
 6. If callback signaling is not active for a worker, stop the Director turn and use the lightest wake mechanism. Prefer a thread heartbeat attached to the Director thread for near-term follow-up; use a detached cron/workspace automation only for genuinely detached long-running monitoring.
@@ -326,6 +327,7 @@ A Director-created worker is not accepted until all of these are true:
 8. The Director recorded an explicit acceptance state: `accepted`, `insufficient-evidence`, `blocked`, or `stale`.
 9. Lifecycle closure was recorded separately as `archive_ready`, `archived`, or `archive_blocked:<reason>`.
 10. The Director recorded `parent-title: verified`, `parent-title: repaired:<old-title>`, or `parent-title-blocked:<reason>` before checkpoint/final output.
+11. The Director recorded `parent-pin: pinned`, `parent-pin-blocked:<reason>`, or `pin-unavailable` before checkpoint/final output.
 
 State transition:
 

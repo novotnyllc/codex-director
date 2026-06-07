@@ -15,9 +15,13 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - A downgraded Director turn records `director-effort-blocked:<effort>` before any planning, dispatch, steering, acceptance, or completion verdict.
 
 3. Parent title is stable and proven.
+   - `@codex-director`, plugin invocation, and `$codex-director` default skill invocation are equivalent entrypoints.
+   - On a bare invocation with no objective, the Director performs setup before asking for the objective.
    - The stable title is `<Project Display Name> Director`, with workspace title emoji convention when available.
+   - The Director calls `codex_app.set_thread_title` when exposed and records `parent-title: verified`, `parent-title: repaired:<old-title>`, or `parent-title-blocked:<reason>`.
+   - The Director calls `codex_app.set_thread_pinned` with `pinned: true` when exposed and records `parent-pin: pinned`, `parent-pin-blocked:<reason>`, or `pin-unavailable`.
    - Worker titles, queued worktree focus, local task-title rules, and auto-title updates do not become the parent title.
-   - Before checkpoint/final output, the ledger records `parent-title: verified`, `parent-title: repaired:<old-title>`, or `parent-title-blocked:<reason>`.
+   - Before checkpoint/final output, the ledger records title and pin status.
 
 4. Workflow skills are hard activation surfaces.
    - Worker briefs say `Invoke $director-build` or the exact matching workflow skill, never "if available".
@@ -46,6 +50,7 @@ For each regression pass, record:
 
 - plugin version and loaded skill path checked
 - parent title status before and after worker creation/title changes
+- parent pin status after bare plugin/default skill invocation
 - Director thinking/effort setting used for parent continuations
 - one worker brief showing exact `$director-*` invocation
 - one worker activation showing `workflow-skill-loaded:<$director-skill>`

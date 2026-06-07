@@ -57,7 +57,7 @@ Exclude these hits from `codex_app` thread detection:
 
 ## Thread And Project Tooling
 
-The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. Title the Director as `<Project Display Name> Director`, applying any stable workspace Director/title emoji convention when available, and keep it pinned when pinning is exposed. The Director title is a stable project handle; do not rename it for transient tasks, incidents, packets, callbacks, or worker focus changes. Rename it only to correct project identity or stable Director/title convention, on explicit user request, or when the Director intentionally changes project scope. Prefer explicit project/workspace names over the cwd basename. Local material-focus title rules apply to ordinary task threads and child workers, not to the parent Director. Track active task focus in the ledger and child-worker titles; child-worker titles must not overwrite, mask, or replace the parent Director focus. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
+The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. `@codex-director`, plugin invocation, and `$codex-director` default skill invocation are equivalent entrypoints. On a bare entrypoint invocation with no objective yet, perform current-thread Director setup first: resolve the stable Director title, call `codex_app.set_thread_title` when exposed, call `codex_app.set_thread_pinned` with `pinned: true` when exposed, record title/pin/runtime status, then ask for the objective. Do not answer only that the Director is available or in scope. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. Title the Director as `<Project Display Name> Director`, applying any stable workspace Director/title emoji convention when available, and keep it pinned when pinning is exposed. The Director title is a stable project handle; do not rename it for transient tasks, incidents, packets, callbacks, or worker focus changes. Rename it only to correct project identity or stable Director/title convention, on explicit user request, or when the Director intentionally changes project scope. Prefer explicit project/workspace names over the cwd basename. Local material-focus title rules apply to ordinary task threads and child workers, not to the parent Director. Track active task focus in the ledger and child-worker titles; child-worker titles must not overwrite, mask, or replace the parent Director focus. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
 
 ### Runtime Version And Reload
 
@@ -65,13 +65,14 @@ At Director setup and at the start of every resume, heartbeat, or callback turn,
 
 If the loaded path or manifest shows an older Director than the expected release, record `stale-director-runtime:<version-or-path>` and do not rely on newer split-skill or monitor guarantees in that thread. Correct by starting a fresh Director after the plugin is updated, or by explicitly re-invoking/reloading the skill only when the runtime exposes a way to prove the loaded path changed. If the path cannot be observed, record `director-runtime-unverified` and keep dispatch/acceptance conservative.
 
-Parent Director title guard:
+Parent Director title and pin guard:
 
 1. Resolve the stable parent title from project metadata and title convention, for example `💼 Example Project Director`.
 2. At setup, at the start of every heartbeat/callback/resume turn, after any worker `create_thread`, queued worktree creation, worker `set_thread_title` call, or pending-worktree pickup, and before final/checkpoint output, compare the parent thread title with the stable title when the active tool surface exposes title/read/list operations.
 3. If the parent title has drifted because of an app auto-title pass, local task-title convention, queued worktree focus, or a mistaken worker-title operation, call `codex_app.set_thread_title` on the parent thread id to restore the stable title. Record `parent_title_repaired:<old-title> -> <stable-title>` in the ledger.
-4. If title repair tooling is unavailable or fails, record `parent-title-blocked:<reason>` in the ledger and surface it when the user-visible status could otherwise imply the parent handle is stable.
-5. Do not use the parent title to expose task focus. Put current focus in the ledger, workflow artifact, and child worker titles.
+4. If pin tooling is exposed and the parent is not pinned or pin state is unknown during setup, call `codex_app.set_thread_pinned` on the parent thread id with `pinned: true`. Record `parent-pin: pinned` or `parent-pin-blocked:<reason>`.
+5. If title repair tooling is unavailable or fails, record `parent-title-blocked:<reason>` in the ledger and surface it when the user-visible status could otherwise imply the parent handle is stable.
+6. Do not use the parent title to expose task focus. Put current focus in the ledger, workflow artifact, and child worker titles.
 
 Current `codex_app` thread contract:
 
@@ -220,6 +221,7 @@ monitor_mechanism: heartbeat | cron | manual | none
 monitor_status: active | pending-create | monitor_blocked:<reason> | replaced | cleared | none
 monitor_id:
 parent_title_status: verified | repaired:<old-title> | parent-title-blocked:<reason>
+parent_pin_status: pinned | parent-pin-blocked:<reason> | pin-unavailable
 stale_after:
 callback_policy: none | director-thread-signal
 director_callback_thread_id:
