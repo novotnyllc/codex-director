@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Build Workflow](../codex-director/references/build-workflow.md).
-3. Report activation: selected workflow/playbook `director-build`, top-level control loop, scope, model/thinking rationale, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-build`, selected workflow/playbook `director-build`, top-level control loop, scope, model/thinking rationale, helper/subagent lane plan, and evidence contract.
 4. Gather only the context needed for the bounded change.
 5. Plan, edit, verify, run the required review/self-check, and return concise evidence.
 

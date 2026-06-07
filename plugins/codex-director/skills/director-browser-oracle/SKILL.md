@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions, the Oracle Request Packet, and the owning Director brief.
 2. Load [Browser ChatGPT Pro Oracle Workflow](../codex-director/references/browser-chatgpt-oracle-workflow.md).
-3. Report activation: selected workflow/playbook `director-browser-oracle`, top-level control loop, privacy classification, fallback plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-browser-oracle`, selected workflow/playbook `director-browser-oracle`, top-level control loop, privacy classification, fallback plan, and evidence contract.
 4. Confirm Browser/Pro suitability before submitting anything externally.
 5. Return the oracle result, confidence, and reconciliation notes without exposing secrets or raw private data.
 

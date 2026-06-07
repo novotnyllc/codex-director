@@ -108,7 +108,7 @@ Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
 - Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, selected workflow/playbook and why it matches this work item, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, work-item coordination policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
-- Load and report the explicit `$director-*` workflow skill from the brief. If the brief names only a generic workflow and no skill, report `workflow-skill-missing:<workflow>` before substantive work so the Director can correct the dispatch.
+- Load and report the explicit `$director-*` workflow skill from the brief. If the brief names only a generic workflow and no skill, report `workflow-skill-missing:<workflow>` before substantive work so the Director can correct the dispatch. Because the split workflow skills ship with the Director plugin, do not treat them as optional or "available if present"; report `workflow-skill-loaded:<$director-skill>` before substantive work, or `workflow-skill-load-failed:<$director-skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` as a hard runtime fault.
 - Treat the worker thread as the owning mini-orchestrator for non-trivial assignments. Use `orchestrate` as the top-level control loop unless the work is tiny, mechanical, low-risk, or genuinely single-lane; then call the specific build/review/research/refactor/optimize/oracle playbook as the current phase inside that control loop.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
@@ -218,9 +218,13 @@ Director-created worker: yes | no
 Director thread id:
 Owning Director task id:
 Codex thread/project tooling: confirmed
+Director runtime version:
+Director runtime path:
+Director runtime status: verified | director-runtime-unverified | stale-director-runtime:<version-or-path>
 Worker thread id:
 Pending worktree id:
 Worker title:
+Parent title status: verified | repaired:<old-title> | parent-title-blocked:<reason>
 Project id / target:
 Repo/path:
 Branch:
@@ -231,6 +235,7 @@ Thinking:
 Thinking rationale:
 Codex skills required:
 Explicit workflow skill:
+Workflow skill activation: workflow-skill-loaded:<$director-skill> | workflow-skill-load-failed:<$director-skill>:<reason> | pending
 Selected workflow/playbook:
 Top-level control loop:
 Commit authority:
@@ -243,6 +248,8 @@ Created:
 Updated:
 Last poll:
 Next wake:
+Pending worktree lookup query:
+Pending worktree pickup success:
 Monitor interval:
 Monitor mechanism: heartbeat | cron | manual | none
 Monitor id/status: <id plus active|pending-create|monitor_blocked:<reason>|replaced|cleared|none>
@@ -288,8 +295,8 @@ If the terminal child report is a coordinator checkpoint or handoff with recomme
 After dispatch:
 
 1. Read a new worker once to confirm activation when practical.
-2. If creation returns a pending worktree id instead of a thread id, record it as an active handle and schedule a pickup monitor to find the eventual thread, title it, read activation, and restore the parent Director title if needed.
-3. Record `thread_id` or `pending_worktree_id`, `read_cursor` or last turn seen, `last_poll_at`, `callback_policy`, `next_wake`, `monitor_interval`, `monitor_status`, and stale threshold.
+2. If creation returns a pending worktree id instead of a thread id, record it as an active handle and schedule a pickup monitor to find the eventual thread, title it, read activation, and restore the parent Director title if needed. The pickup record must include pending id, lookup query or matching strategy, owner task, next wake mechanism/time, pickup success condition, and stale threshold.
+3. Record `thread_id` or `pending_worktree_id`, `read_cursor` or last turn seen, `last_poll_at`, `callback_policy`, `next_wake`, `monitor_interval`, `monitor_status`, `parent_title_status`, and stale threshold.
 4. If completion is likely within about a minute, use one short quiet polling burst.
 5. If callback signaling is available, stop the Director turn and use heartbeat only as a watchdog.
 6. If callback signaling is not active for a worker, stop the Director turn and use the lightest wake mechanism. Prefer a thread heartbeat attached to the Director thread for near-term follow-up; use a detached cron/workspace automation only for genuinely detached long-running monitoring.
@@ -318,6 +325,7 @@ A Director-created worker is not accepted until all of these are true:
 7. Pending worktree ids or queued workers were picked up as threads, remain covered by active monitors/callbacks/manual next-check state, or are recorded as `monitor_blocked:<reason>`.
 8. The Director recorded an explicit acceptance state: `accepted`, `insufficient-evidence`, `blocked`, or `stale`.
 9. Lifecycle closure was recorded separately as `archive_ready`, `archived`, or `archive_blocked:<reason>`.
+10. The Director recorded `parent-title: verified`, `parent-title: repaired:<old-title>`, or `parent-title-blocked:<reason>` before checkpoint/final output.
 
 State transition:
 
@@ -563,7 +571,7 @@ Use these workflow playbooks first. They are the source of truth. Optional exter
 
 Check execution mode and dynamic workflow eligibility early for non-trivial work; do not bury dynamic workflow behind build/orchestrate once packetized artifacts would reduce drift.
 
-Worker dispatch should name the split skill as the activation surface and the reference as the full contract. Example: `Required skills/workflows: $director-build plus build-workflow reference`. If a worker starts without the expected explicit workflow skill, correct the brief before accepting activation.
+Worker dispatch should name the split skill as the activation surface and the reference as the full contract. Example: `Required skills/workflows: invoke $director-build plus build-workflow reference`. Do not say "if available" for shipped Director workflow skills. If a worker starts without `workflow-skill-loaded:<$director-skill>`, correct the brief before accepting activation; if it reports `workflow-skill-load-failed`, treat that as a stale runtime or install fault until proven otherwise.
 
 - [$director-orchestrate](../director-orchestrate/SKILL.md)
 - [$director-build](../director-build/SKILL.md)
@@ -589,6 +597,7 @@ Worker dispatch should name the split skill as the activation surface and the re
 - [Codex Goals integration](references/goals-integration.md)
 - [Agent profiles and model routing](references/agent-profiles-and-model-routing.md)
 - [Latest Codex runtime tooling](references/runtime-adapters.md)
+- [Director regression checklist](references/director-regression-checklist.md)
 
 ## Dispatch Examples
 
@@ -651,6 +660,7 @@ Treat this as `$director-dynamic-workflow` by default. First record the ledger i
 - Saying "worker" when you mean "Codex worker thread".
 - Creating vague worker threads without done criteria.
 - Letting worker threads choose skills or context workflows silently.
+- Treating shipped `$director-*` workflow skills as optional, or writing "if available" in a worker brief instead of requiring `workflow-skill-loaded:<$director-skill>`.
 - Skipping research before non-trivial planning, especially when external facts or prior decisions may matter.
 - Continuing into non-trivial implementation before the plan is reviewed.
 - Treating oracle as any single vendor/tool instead of a second-opinion role.
@@ -671,5 +681,7 @@ Treat this as `$director-dynamic-workflow` by default. First record the ledger i
 - Clearing the only heartbeat/monitor while pending worktree ids, queued workers, or running workers remain active.
 - Returning final-looking status after monitor creation/update failed instead of recording and surfacing `monitor_blocked:<reason>`.
 - Letting worker focus rename the parent Director thread and failing to restore it or record `parent-title-blocked:<reason>`.
+- Making routing, dispatch, acceptance, or completion decisions from a parent Director turn known to be below `xhigh`.
+- Assuming an existing Director thread reloaded a newer plugin version without verifying the loaded skill path/version.
 - Narrating polling, checking, rerunning, patching, or narrowing in user-visible chat.
 - Leaving completed worker threads visible or unarchived after evidence capture.

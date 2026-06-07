@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Optimize Workflow](../codex-director/references/optimize-workflow.md).
-3. Report activation: selected workflow/playbook `director-optimize`, top-level control loop, metric target, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-optimize`, selected workflow/playbook `director-optimize`, top-level control loop, metric target, helper/subagent lane plan, and evidence contract.
 4. Establish a baseline or explain why one cannot be captured.
 5. Change only after measurement, then verify improvement and regression risk.
 

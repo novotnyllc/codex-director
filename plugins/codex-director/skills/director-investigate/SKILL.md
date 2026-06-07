@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Investigate And Research Workflow](../codex-director/references/investigate-research-workflow.md).
-3. Report activation: selected workflow/playbook `director-investigate`, top-level control loop, read-only boundary, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-investigate`, selected workflow/playbook `director-investigate`, top-level control loop, read-only boundary, helper/subagent lane plan, and evidence contract.
 4. Gather facts from the narrowest authoritative sources.
 5. Separate confirmed evidence, inference, uncertainty, and recommended next actions.
 

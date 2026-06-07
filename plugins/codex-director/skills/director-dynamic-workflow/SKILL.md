@@ -12,7 +12,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 1. Read local instructions and the owning Director brief.
 2. Load [Dynamic Workflow Integration](../codex-director/references/dynamic-workflow-integration.md).
 3. Load `$codex-dynamic-workflows` when available and the task needs its artifact protocol.
-4. Report activation: selected workflow/playbook `director-dynamic-workflow`, top-level control loop, artifact path, approvals, helper/subagent lane plan, and evidence contract.
+4. Report activation: `workflow-skill-loaded:$director-dynamic-workflow`, selected workflow/playbook `director-dynamic-workflow`, top-level control loop, artifact path, approvals, helper/subagent lane plan, and evidence contract.
 5. Create or update `.workflow/<slug>/` artifacts only inside the approved project scope.
 
 ## Workflow

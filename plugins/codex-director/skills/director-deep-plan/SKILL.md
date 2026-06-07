@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Deep Plan Workflow](../codex-director/references/deep-plan-workflow.md).
-3. Report activation: selected workflow/playbook `director-deep-plan`, top-level control loop, planning scope, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-deep-plan`, selected workflow/playbook `director-deep-plan`, top-level control loop, planning scope, helper/subagent lane plan, and evidence contract.
 4. Gather enough context to make the plan executable.
 5. Produce the durable plan and run a review gate before finalizing.
 

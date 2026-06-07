@@ -59,6 +59,12 @@ Exclude these hits from `codex_app` thread detection:
 
 The active `codex_app` tool schema is the contract. Do not document or call thread lifecycle operations that are not present in that schema. A bare request to set up or use a Director makes the current thread the Director; create a separate Director thread only when the user clearly asks for a separate or new one. The Director may continue an existing active Director only when the user clearly asks to continue or reuse it, and must not resurrect or unarchive an archived prior Director by default. Title the Director as `<Project Display Name> Director`, applying any stable workspace Director/title emoji convention when available, and keep it pinned when pinning is exposed. The Director title is a stable project handle; do not rename it for transient tasks, incidents, packets, callbacks, or worker focus changes. Rename it only to correct project identity or stable Director/title convention, on explicit user request, or when the Director intentionally changes project scope. Prefer explicit project/workspace names over the cwd basename. Local material-focus title rules apply to ordinary task threads and child workers, not to the parent Director. Track active task focus in the ledger and child-worker titles; child-worker titles must not overwrite, mask, or replace the parent Director focus. A user request to set up or use the Director authorizes bounded worker threads inside that project scope; outside that scope, `codex_app.create_thread` still requires fresh authorization from the active tool instructions.
 
+### Runtime Version And Reload
+
+At Director setup and at the start of every resume, heartbeat, or callback turn, record the loaded Director runtime identity when visible: plugin version, `SKILL.md` path, and source/cache path. Existing threads may retain skill content or cache paths from the version they loaded earlier; do not assume that installing or publishing a newer plugin version reloads an already-running Director thread. The Director proves the active contract from the loaded path/version it can see, not from source repository state or marketplace metadata alone.
+
+If the loaded path or manifest shows an older Director than the expected release, record `stale-director-runtime:<version-or-path>` and do not rely on newer split-skill or monitor guarantees in that thread. Correct by starting a fresh Director after the plugin is updated, or by explicitly re-invoking/reloading the skill only when the runtime exposes a way to prove the loaded path changed. If the path cannot be observed, record `director-runtime-unverified` and keep dispatch/acceptance conservative.
+
 Parent Director title guard:
 
 1. Resolve the stable parent title from project metadata and title convention, for example `💼 Example Project Director`.
@@ -134,6 +140,8 @@ Lifecycle mapping:
 
 Before a Director records, reports, steers, or calls `codex_app.create_thread` for a worker/packet/review/oracle lane, the proposed structure must be complete enough to force a workflow choice. Each proposed worker or packet needs an explicit `$director-*` workflow skill, selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan, status item, or accepted worker entry.
 
+Workflow skill activation is not optional. The `$director-*` workflow skills ship with the Director plugin, so worker briefs must say `Invoke $director-build` or the exact matching skill, never "use if available". Worker activation must include `workflow-skill-loaded:<$director-skill>` before substantive work. If a worker cannot load the exact shipped workflow skill, treat it as `workflow-skill-load-failed:<$director-skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>`, stop substantive work, and let the Director correct, relaunch, or record the runtime fault.
+
 Before calling `codex_app.create_thread`, define:
 
 - worker title tied to the bounded material task
@@ -152,7 +160,7 @@ Before calling `codex_app.create_thread`, define:
 - evidence format and verbosity limit
 - Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
-Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. A separate Director thread defaults to latest-main/`xhigh` when the active schema supports those choices. Existing Director thread continuations, heartbeat wakeups, and worker callbacks into the Director also use `xhigh` when thinking selection is exposed; do not inherit or pass low/medium/high worker thinking into the Director thread. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with thinking selected by worker task shape and risk; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, scratch prompt artifact preparation, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Worker thinking defaults remain task-based: low/medium for routine probes or mechanical work, high for ordinary work-item coordination and implementation, and xhigh for high-risk or final-authority worker gates. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, then re-check the parent title guard. Keep the Director pinned, and pin worker threads only for an explicit user request or a durable lane that must remain visible.
+Use `create_thread.prompt` for the full launch prompt. Use `create_thread.model` with an exact model id allowed by the active schema when the selected worker profile calls for an override. A separate Director thread defaults to latest-main/`xhigh` when the active schema supports those choices. Existing Director thread continuations, heartbeat wakeups, and worker callbacks into the Director also use `xhigh` when thinking selection is exposed; do not inherit or pass low/medium/high worker thinking into the Director thread. If the current Director turn is known to be below `xhigh`, it may repair title state, read workers, recover monitors, pick up pending worktrees, and report blockers only; it must not make routing, dispatch, acceptance, completion, or substantive steering decisions from that downgraded turn. Director-created workers default to the latest non-Spark main model, for example `gpt-5.5` when it is exposed, with thinking selected by worker task shape and risk; never choose older main-family model ids just because the schema exposes them. The only older-numbered model exception is `gpt-5.3-codex-spark`, because Spark's latest available line is 5.3, and only when Spark is the right fit for a narrow scout, status/probe, scratch prompt artifact preparation, bounded research, Browser automation runner, or mechanical low-risk helper lane. If the Director writes a `Model:` field into the brief or passes `create_thread.model`, it must use the exact latest main id unless the lane is explicitly Spark-fit. Use `create_thread.thinking` only with active-schema values: `low`, `medium`, `high`, or `xhigh`. Worker thinking defaults remain task-based: low/medium for routine probes or mechanical work, high for ordinary work-item coordination and implementation, and xhigh for high-risk or final-authority worker gates. Otherwise mark the brief as inheriting default runtime settings only when the runtime default is known to resolve to the latest main model. After creation, title workers when useful, then re-check the parent title guard. Keep the Director pinned, and pin worker threads only for an explicit user request or a durable lane that must remain visible.
 
 Every real worker must start with an activation report. Record routine activation in the Director ledger; surface it to the user only when activation changes routing, exposes a blocker, or requires a decision. If the worker does not return activation, steer it once:
 
@@ -178,6 +186,9 @@ director_created_worker: yes | no
 director_thread_id:
 owning_director_task_id:
 codex_thread_project_tooling: verified
+director_runtime_version:
+director_runtime_path:
+director_runtime_status: verified | director-runtime-unverified | stale-director-runtime:<version-or-path>
 status: queued | running | needs_input | blocked | cancel_requested | stale | pending-readback | readback_blocked:<reason> | insufficient-evidence | accepted | archived
 project_id:
 target: local | worktree | projectless
@@ -191,6 +202,7 @@ thinking:
 thinking_rationale:
 starting_prompt_or_artifact:
 skills_required:
+workflow_skill_activation: workflow-skill-loaded:<$director-skill> | workflow-skill-load-failed:<$director-skill>:<reason> | pending
 selected_workflow_playbook:
 top_level_control_loop:
 coordinator_authority: coordinator-only | packet-executor:<packet-id> | tiny-direct-leaf:<rationale>
@@ -201,10 +213,13 @@ evidence_required:
 created_at:
 last_poll_at:
 next_wake_at:
+pending_worktree_lookup_query:
+pending_worktree_pickup_success:
 monitor_interval:
 monitor_mechanism: heartbeat | cron | manual | none
 monitor_status: active | pending-create | monitor_blocked:<reason> | replaced | cleared | none
 monitor_id:
+parent_title_status: verified | repaired:<old-title> | parent-title-blocked:<reason>
 stale_after:
 callback_policy: none | director-thread-signal
 director_callback_thread_id:

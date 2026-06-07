@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Refactor Workflow](../codex-director/references/refactor-workflow.md).
-3. Report activation: selected workflow/playbook `director-refactor`, top-level control loop, behavior-preservation contract, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-refactor`, selected workflow/playbook `director-refactor`, top-level control loop, behavior-preservation contract, helper/subagent lane plan, and evidence contract.
 4. Identify the smallest safe boundary and baseline verification.
 5. Refactor, verify unchanged behavior, run a review/self-check, and return concise evidence.
 

@@ -11,7 +11,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions, the review scope, and the owning Director brief.
 2. Load [Review Workflow](../codex-director/references/review-workflow.md).
-3. Report activation: selected workflow/playbook `director-review`, top-level control loop, review target, severity standard, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$director-review`, selected workflow/playbook `director-review`, top-level control loop, review target, severity standard, and evidence contract.
 4. Inspect only the approved files/artifacts/diffs/evidence.
 5. Return findings first, ordered by severity, with file/line references when applicable.
 
