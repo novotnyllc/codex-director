@@ -1,6 +1,6 @@
 {
   "name": "codex-director",
-  "version": "0.8.14",
+  "version": "0.8.15",
   "description": "Project-scoped director workflow for Codex worker-thread coordination, explicit worker workflow skills, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Codex Director",
     "shortDescription": "Coordinate project work across Codex worker threads with quiet, signal-first monitoring.",
-    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, explicit $director-* worker workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
+    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, explicit $codex-director:director-* worker workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
     "developerName": "Claire Novotny LLC",
     "category": "Productivity",
     "capabilities": [
@@ -33,9 +33,9 @@
     "privacyPolicyURL": "https://github.com/novotnyllc/codex-director/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/novotnyllc/codex-director/blob/main/TERMS.md",
     "defaultPrompt": [
-      "Start a Director for this project.",
-      "Coordinate this project with Director worker threads.",
-      "Audit this project's Director ledger."
+      "Use $codex-director:codex-director to start a Director for this project.",
+      "Use $codex-director:codex-director to coordinate this project with Director workers.",
+      "Use $codex-director:codex-director to audit this project's Director ledger."
     ],
     "composerIcon": "./assets/app-icon.png",
     "logo": "./assets/app-icon.png"
