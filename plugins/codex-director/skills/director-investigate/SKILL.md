@@ -1,6 +1,6 @@
 ---
 name: director-investigate
-description: Runs the Codex Director investigate/research lane for read-only diagnosis and evidence gathering. Use when a Director worker brief explicitly invokes $director-investigate for repo or docs reconnaissance, failure diagnosis, external fact checks, regression research, or current-state evidence.
+description: Runs the Codex Director investigate/research lane for read-only diagnosis and evidence gathering. Use when a Director worker brief explicitly invokes $codex-director:director-investigate for repo or docs reconnaissance, failure diagnosis, external fact checks, regression research, or current-state evidence.
 metadata:
   short-description: Run read-only research lane
 ---
@@ -13,7 +13,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Investigate And Research Workflow](../codex-director/references/investigate-research-workflow.md).
-3. Report activation: `workflow-skill-loaded:$director-investigate`, selected workflow/playbook `director-investigate`, top-level control loop, read-only boundary, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-investigate`, selected workflow/playbook `director-investigate`, top-level control loop, read-only boundary, helper/subagent lane plan, and evidence contract.
 4. Gather facts from the narrowest authoritative sources.
 5. Separate confirmed evidence, inference, uncertainty, and recommended next actions.
 

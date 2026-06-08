@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Dynamic Workflow"
   short_description: "Packetize complex Director tasks"
-  default_prompt: "Use $director-dynamic-workflow to packetize this complex task with approvals, monitors, and evidence gates."
+  default_prompt: "Use $codex-director:director-dynamic-workflow to packetize this complex task with approvals, monitors, and evidence gates."
 
 policy:
   allow_implicit_invocation: false

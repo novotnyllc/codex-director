@@ -23,15 +23,15 @@ Every Director-routed worker, packet, review lane, oracle lane, ledger item, lau
 
 Use explicit workflow skills in worker briefs so workers activate the right lane instead of inferring it from buried reference text:
 
-- `$director-orchestrate` for worker-internal coordination, decomposition, helper lanes, sequencing, and reconciliation.
-- `$director-build` for bounded implementation.
-- `$director-review` for independent review or acceptance gates.
-- `$director-investigate` for read-only diagnosis and research.
-- `$director-deep-plan` for durable plans without implementation.
-- `$director-refactor` for behavior-preserving cleanup.
-- `$director-optimize` for measurement-led performance or efficiency work.
-- `$director-dynamic-workflow` for complex packetized task state and `.workflow/<slug>/` artifacts.
-- `$director-browser-oracle` for delegated Browser ChatGPT Pro oracle work.
+- `$codex-director:director-orchestrate` for worker-internal coordination, decomposition, helper lanes, sequencing, and reconciliation.
+- `$codex-director:director-build` for bounded implementation.
+- `$codex-director:director-review` for independent review or acceptance gates.
+- `$codex-director:director-investigate` for read-only diagnosis and research.
+- `$codex-director:director-deep-plan` for durable plans without implementation.
+- `$codex-director:director-refactor` for behavior-preserving cleanup.
+- `$codex-director:director-optimize` for measurement-led performance or efficiency work.
+- `$codex-director:director-dynamic-workflow` for complex packetized task state and `.workflow/<slug>/` artifacts.
+- `$codex-director:director-browser-oracle` for delegated Browser ChatGPT Pro oracle work.
 
 For each request:
 1. Determine project/repo/path ownership.
@@ -75,7 +75,7 @@ Model: <latest main model id, inherited latest-main default, or `gpt-5.3-codex-s
 Thinking: <low|medium|high|xhigh>
 Thinking rationale: <why this level/model fits risk and task shape>
 Codex skills to consider: <exact skill names>
-Required skills/workflows: <exact `$director-*` workflow skill mention plus any other skill mentions and Director references to activate>
+Required skills/workflows: <exact `$codex-director:director-*` workflow skill mention plus any other skill mentions and Director references to activate>
 Starting prompt: <self-contained launch prompt or artifact path>
 Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only, derived from the user's request>
 Done when:
@@ -111,7 +111,7 @@ Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
 Worker expectations:
 - Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, selected workflow/playbook and why it matches this work item, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, work-item coordination policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
-- Load and report the explicit `$director-*` workflow skill from the brief. If the brief names only a generic workflow and no skill, report `workflow-skill-missing:<workflow>` before substantive work so the Director can correct the dispatch. Because the split workflow skills ship with the Director plugin, do not treat them as optional or "available if present"; report `workflow-skill-loaded:<$director-skill>` before substantive work, or `workflow-skill-load-failed:<$director-skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` as a hard runtime fault.
+- Load and report the explicit `$codex-director:director-*` workflow skill from the brief. If the brief names only a generic workflow and no skill, report `workflow-skill-missing:<workflow>` before substantive work so the Director can correct the dispatch. Because the split workflow skills ship with the Director plugin, do not treat them as optional or "available if present"; report `workflow-skill-loaded:<exact $codex-director:director-* skill>` before substantive work, or `workflow-skill-load-failed:<exact $codex-director:director-* skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` as a hard runtime fault.
 - Treat the worker thread as the owning mini-orchestrator for non-trivial assignments. Use `orchestrate` as the top-level control loop unless the work is tiny, mechanical, low-risk, or genuinely single-lane; then call the specific build/review/research/refactor/optimize/oracle playbook as the current phase inside that control loop.
 - Run or justify the research lane before non-trivial planning. Research should cover repo patterns, docs/specs, memory, prior decisions, and external facts if relevant.
 - Produce a plan before non-trivial implementation. Break work into appropriate items with dependencies, stop points, done criteria, and verification.
@@ -245,7 +245,7 @@ Thinking:
 Thinking rationale:
 Codex skills required:
 Explicit workflow skill:
-Workflow skill activation: workflow-skill-loaded:<$director-skill> | workflow-skill-load-failed:<$director-skill>:<reason> | pending
+Workflow skill activation: workflow-skill-loaded:<exact $codex-director:director-* skill> | workflow-skill-load-failed:<exact $codex-director:director-* skill>:<reason> | pending
 Selected workflow/playbook:
 Top-level control loop:
 Commit authority:
@@ -584,17 +584,17 @@ Use these workflow playbooks first. They are the source of truth. Optional exter
 
 Check execution mode and dynamic workflow eligibility early for non-trivial work; do not bury dynamic workflow behind build/orchestrate once packetized artifacts would reduce drift.
 
-Worker dispatch should name the split skill as the activation surface and the reference as the full contract. Example: `Required skills/workflows: invoke $director-build plus build-workflow reference`. Do not say "if available" for shipped Director workflow skills. If a worker starts without `workflow-skill-loaded:<$director-skill>`, correct the brief before accepting activation; if it reports `workflow-skill-load-failed`, treat that as a stale runtime or install fault until proven otherwise.
+Worker dispatch should name the split skill as the activation surface and the reference as the full contract. Example: `Required skills/workflows: invoke $codex-director:director-build plus build-workflow reference`. Do not say "if available" for shipped Director workflow skills. If a worker starts without `workflow-skill-loaded:<exact $codex-director:director-* skill>`, correct the brief before accepting activation; if it reports `workflow-skill-load-failed`, treat that as a stale runtime or install fault until proven otherwise.
 
-- [$director-orchestrate](../director-orchestrate/SKILL.md)
-- [$director-build](../director-build/SKILL.md)
-- [$director-review](../director-review/SKILL.md)
-- [$director-investigate](../director-investigate/SKILL.md)
-- [$director-deep-plan](../director-deep-plan/SKILL.md)
-- [$director-refactor](../director-refactor/SKILL.md)
-- [$director-optimize](../director-optimize/SKILL.md)
-- [$director-dynamic-workflow](../director-dynamic-workflow/SKILL.md)
-- [$director-browser-oracle](../director-browser-oracle/SKILL.md)
+- [$codex-director:director-orchestrate](../director-orchestrate/SKILL.md)
+- [$codex-director:director-build](../director-build/SKILL.md)
+- [$codex-director:director-review](../director-review/SKILL.md)
+- [$codex-director:director-investigate](../director-investigate/SKILL.md)
+- [$codex-director:director-deep-plan](../director-deep-plan/SKILL.md)
+- [$codex-director:director-refactor](../director-refactor/SKILL.md)
+- [$codex-director:director-optimize](../director-optimize/SKILL.md)
+- [$codex-director:director-dynamic-workflow](../director-dynamic-workflow/SKILL.md)
+- [$codex-director:director-browser-oracle](../director-browser-oracle/SKILL.md)
 
 - [Execution mode stack](references/execution-mode-stack.md)
 - [Dynamic workflow integration](references/dynamic-workflow-integration.md)
@@ -617,37 +617,37 @@ Worker dispatch should name the split skill as the activation surface and the re
 Research lane:
 
 ```text
-Create one research-oriented Codex worker thread before planning. Invoke `$director-investigate`. Use low/medium thinking for narrow scouting, or high when the research synthesis affects architecture, data, security, or product direction. It should scout repo patterns, docs/specs, memory, prior related work, and any relevant external facts using the best available research/context lane inside that worker. Output concise findings with sources, conflicts, confidence, and implications for the plan. Do not implement.
+Create one research-oriented Codex worker thread before planning. Invoke `$codex-director:director-investigate`. Use low/medium thinking for narrow scouting, or high when the research synthesis affects architecture, data, security, or product direction. It should scout repo patterns, docs/specs, memory, prior related work, and any relevant external facts using the best available research/context lane inside that worker. Output concise findings with sources, conflicts, confidence, and implications for the plan. Do not implement.
 ```
 
 Small bounded build:
 
 ```text
-Create one Codex worker thread in <repo>. Invoke `$director-build`. Use the latest main model with high thinking by default for code-writing; use `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code with clear tests; use latest-main/xhigh for architecture, auth/security, data/migration, production config, concurrency, payments/permissions, or cross-repo contract code. Use the build workflow: gather the minimum necessary context, produce a reviewed plan when non-trivial, implement, verify, and summarize concise evidence.
+Create one Codex worker thread in <repo>. Invoke `$codex-director:director-build`. Use the latest main model with high thinking by default for code-writing; use `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code with clear tests; use latest-main/xhigh for architecture, auth/security, data/migration, production config, concurrency, payments/permissions, or cross-repo contract code. Use the build workflow: gather the minimum necessary context, produce a reviewed plan when non-trivial, implement, verify, and summarize concise evidence.
 ```
 
 Deep planning:
 
 ```text
-Create one Codex worker thread in <repo or workspace>. Invoke `$director-deep-plan`. Use latest-main/high thinking by default for planning; use latest-main/xhigh for high-risk architecture/security/data plans or hard-to-reverse implementation strategy. Use the deep planning workflow: gather context, draft a durable plan document, review it, and do not implement.
+Create one Codex worker thread in <repo or workspace>. Invoke `$codex-director:director-deep-plan`. Use latest-main/high thinking by default for planning; use latest-main/xhigh for high-risk architecture/security/data plans or hard-to-reverse implementation strategy. Use the deep planning workflow: gather context, draft a durable plan document, review it, and do not implement.
 ```
 
 Multi-part work:
 
 ```text
-Create one Codex worker thread and invoke `$director-orchestrate`. Use latest-main/high for decomposition and integration decisions, medium/`gpt-5.3-codex-spark` for concrete packet drafting/status-only passes, and latest-main/xhigh for conflict resolution or high-risk integration. Decompose the work and return packet briefs/checkpoints as coordinator output. The Director must then staff bounded work items with Codex worker threads when ownership warrants it, verify each phase, and report back with completion evidence. A coordinator final checkpoint is not final task completion unless the task was only coordination.
+Create one Codex worker thread and invoke `$codex-director:director-orchestrate`. Use latest-main/high for decomposition and integration decisions, medium/`gpt-5.3-codex-spark` for concrete packet drafting/status-only passes, and latest-main/xhigh for conflict resolution or high-risk integration. Decompose the work and return packet briefs/checkpoints as coordinator output. The Director must then staff bounded work items with Codex worker threads when ownership warrants it, verify each phase, and report back with completion evidence. A coordinator final checkpoint is not final task completion unless the task was only coordination.
 ```
 
 Review:
 
 ```text
-Create one Codex worker thread in <repo>. Invoke `$director-review`. Use latest-main/high by default for code/doc review; use latest-main/xhigh for serious security/data/architecture concerns, conflicting evidence, or final acceptance when verification is indirect. Use the review workflow. Return findings first, ordered by severity, with file:line references.
+Create one Codex worker thread in <repo>. Invoke `$codex-director:director-review`. Use latest-main/high by default for code/doc review; use latest-main/xhigh for serious security/data/architecture concerns, conflicting evidence, or final acceptance when verification is indirect. Use the review workflow. Return findings first, ordered by severity, with file:line references.
 ```
 
 Oracle check:
 
 ```text
-Use an oracle lane to critique the plan/result before finalizing. Invoke `$director-review` for a Codex review worker or `$director-browser-oracle` for delegated Browser ChatGPT Pro oracle work. Use latest-main/`xhigh` by default for Director-level critique and final acceptance, medium/`gpt-5.3-codex-spark` only for quick low-risk first pass. Create a separate review-oriented Codex worker thread, browser oracle prompt, or other available second-opinion lane with the plan/result and exact questions to answer.
+Use an oracle lane to critique the plan/result before finalizing. Invoke `$codex-director:director-review` for a Codex review worker or `$codex-director:director-browser-oracle` for delegated Browser ChatGPT Pro oracle work. Use latest-main/`xhigh` by default for Director-level critique and final acceptance, medium/`gpt-5.3-codex-spark` only for quick low-risk first pass. Create a separate review-oriented Codex worker thread, browser oracle prompt, or other available second-opinion lane with the plan/result and exact questions to answer.
 ```
 
 Plan review gate:
@@ -665,7 +665,7 @@ Before marking complete, run an adversarial review pass in a separate review-ori
 Production incident / external project/service write:
 
 ```text
-Treat this as `$director-dynamic-workflow` by default. First record the ledger item and dispatch a read-only verifier worker with `$director-investigate` for current facts. Stop for any required production, destructive, secret, privacy, or external-write authority. Then dispatch a remediation/build worker with `$director-build` and bounded commit/deploy authority, route an independent `$director-review` or `$director-browser-oracle` lane before acceptance, dispatch final verification, reconcile evidence into the ledger or `.workflow/<slug>/final-report.md`, archive completed workers after evidence capture, and assign cleanup/reconciliation to workers when project work is needed. Final user status should report only evidence, decisions, risks, and next action.
+Treat this as `$codex-director:director-dynamic-workflow` by default. First record the ledger item and dispatch a read-only verifier worker with `$codex-director:director-investigate` for current facts. Stop for any required production, destructive, secret, privacy, or external-write authority. Then dispatch a remediation/build worker with `$codex-director:director-build` and bounded commit/deploy authority, route an independent `$codex-director:director-review` or `$codex-director:director-browser-oracle` lane before acceptance, dispatch final verification, reconcile evidence into the ledger or `.workflow/<slug>/final-report.md`, archive completed workers after evidence capture, and assign cleanup/reconciliation to workers when project work is needed. Final user status should report only evidence, decisions, risks, and next action.
 ```
 
 ## Anti-Patterns
@@ -673,7 +673,7 @@ Treat this as `$director-dynamic-workflow` by default. First record the ledger i
 - Saying "worker" when you mean "Codex worker thread".
 - Creating vague worker threads without done criteria.
 - Letting worker threads choose skills or context workflows silently.
-- Treating shipped `$director-*` workflow skills as optional, or writing "if available" in a worker brief instead of requiring `workflow-skill-loaded:<$director-skill>`.
+- Treating shipped `$codex-director:director-*` workflow skills as optional, or writing "if available" in a worker brief instead of requiring `workflow-skill-loaded:<exact $codex-director:director-* skill>`.
 - Skipping research before non-trivial planning, especially when external facts or prior decisions may matter.
 - Continuing into non-trivial implementation before the plan is reviewed.
 - Treating oracle as any single vendor/tool instead of a second-opinion role.

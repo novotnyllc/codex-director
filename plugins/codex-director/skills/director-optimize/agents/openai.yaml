@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Optimize"
   short_description: "Run a measurement-led optimization lane"
-  default_prompt: "Use $director-optimize to measure, improve, and verify this performance or efficiency assignment."
+  default_prompt: "Use $codex-director:director-optimize to measure, improve, and verify this performance or efficiency assignment."
 
 policy:
   allow_implicit_invocation: false

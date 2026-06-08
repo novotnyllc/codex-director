@@ -80,13 +80,13 @@ A packet result is not durable accepted output merely because a worker callback 
 
 Workers should use the matching explicit workflow skill and thinking policy inside their packet:
 
-- `$director-investigate` for research or diagnosis packets; use low/medium for narrow scouts and high for synthesis that affects the plan
-- `$director-deep-plan` for planning packets; use high by default and xhigh for high-risk architecture/security/data plans
-- `$director-build` for implementation packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code, and latest-main/xhigh for risky architecture/security/data/production/cross-repo changes
-- `$director-orchestrate` for packet-internal decomposition; use latest-main/high for decomposition/integration and medium/`gpt-5.3-codex-spark` for packet drafting/status
-- `$director-review` for review packets; use latest-main/high by default and latest-main/xhigh for risky final verdicts or conflicting evidence
-- `$director-refactor` for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
-- `$director-optimize` for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
+- `$codex-director:director-investigate` for research or diagnosis packets; use low/medium for narrow scouts and high for synthesis that affects the plan
+- `$codex-director:director-deep-plan` for planning packets; use high by default and xhigh for high-risk architecture/security/data plans
+- `$codex-director:director-build` for implementation packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for mechanical or very contained low-risk code, and latest-main/xhigh for risky architecture/security/data/production/cross-repo changes
+- `$codex-director:director-orchestrate` for packet-internal decomposition; use latest-main/high for decomposition/integration and medium/`gpt-5.3-codex-spark` for packet drafting/status
+- `$codex-director:director-review` for review packets; use latest-main/high by default and latest-main/xhigh for risky final verdicts or conflicting evidence
+- `$codex-director:director-refactor` for behavior-preserving cleanup packets; use latest-main/high by default, `gpt-5.3-codex-spark` only for narrow mechanical refactors, latest-main/xhigh for public contract or ownership-boundary changes
+- `$codex-director:director-optimize` for performance packets; use medium/`gpt-5.3-codex-spark` for measurement, latest-main/high for optimization code, and latest-main/xhigh for concurrency/data/production-risk changes
 
 Do not let a worker's local workflow overwrite the top-level `.workflow/` task artifacts. It may produce subplans and local scratch artifacts, but packet status and integration records belong to the parent workflow. A local worker report can update packet status only through the Director readback and reconciliation sequence.
 

@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Orchestrate"
   short_description: "Coordinate a bounded Director worker lane"
-  default_prompt: "Use $director-orchestrate to coordinate helper lanes, sequencing, evidence reconciliation, and final status."
+  default_prompt: "Use $codex-director:director-orchestrate to coordinate helper lanes, sequencing, evidence reconciliation, and final status."
 
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 ---
 name: director-deep-plan
-description: Runs the Codex Director deep planning lane for durable implementation or architecture plans. Use when a Director worker brief explicitly invokes $director-deep-plan for a plan document, migration strategy, architecture decision, decomposition, or reviewed implementation blueprint without code changes.
+description: Runs the Codex Director deep planning lane for durable implementation or architecture plans. Use when a Director worker brief explicitly invokes $codex-director:director-deep-plan for a plan document, migration strategy, architecture decision, decomposition, or reviewed implementation blueprint without code changes.
 metadata:
   short-description: Produce reviewed Director plan
 ---
@@ -13,7 +13,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Deep Plan Workflow](../codex-director/references/deep-plan-workflow.md).
-3. Report activation: `workflow-skill-loaded:$director-deep-plan`, selected workflow/playbook `director-deep-plan`, top-level control loop, planning scope, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-deep-plan`, selected workflow/playbook `director-deep-plan`, top-level control loop, planning scope, helper/subagent lane plan, and evidence contract.
 4. Gather enough context to make the plan executable.
 5. Produce the durable plan and run a review gate before finalizing.
 
@@ -50,7 +50,7 @@ Include objective, context, constraints, proposed phases/packets, owner/workflow
 - Do not implement unless the Director explicitly grants a tiny direct-leaf exception.
 - Make dependencies, approvals, risks, verification, rollback/recovery, and ownership boundaries explicit.
 - Use helper/subagent lanes for non-trivial planning, or record a blocked helper capability.
-- If the plan requires packets or multiple worker handles, recommend `$director-dynamic-workflow` or `$director-orchestrate`.
+- If the plan requires packets or multiple worker handles, recommend `$codex-director:director-dynamic-workflow` or `$codex-director:director-orchestrate`.
 - Treat callbacks and final-looking messages as wake signals for Director readback.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as plan review or final evidence.
 - Keep the final plan concise enough to execute without re-discovery.

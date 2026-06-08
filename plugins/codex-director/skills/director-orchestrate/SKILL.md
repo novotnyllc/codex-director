@@ -1,6 +1,6 @@
 ---
 name: director-orchestrate
-description: Runs the Codex Director worker orchestration lane for multi-item or ambiguous bounded assignments. Use when a Director worker brief explicitly invokes $director-orchestrate, or when a worker must coordinate subwork, helper/subagent lanes, sequencing, packet handoffs, or evidence reconciliation inside its assigned scope.
+description: Runs the Codex Director worker orchestration lane for multi-item or ambiguous bounded assignments. Use when a Director worker brief explicitly invokes $codex-director:director-orchestrate, or when a worker must coordinate subwork, helper/subagent lanes, sequencing, packet handoffs, or evidence reconciliation inside its assigned scope.
 metadata:
   short-description: Coordinate bounded worker lane
 ---
@@ -13,7 +13,7 @@ Use only when explicitly invoked by a Director brief or by the user. This skill 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Orchestrate Workflow](../codex-director/references/orchestrate-workflow.md).
-3. Report activation: `workflow-skill-loaded:$director-orchestrate`, selected workflow/playbook, top-level control loop, scope, helper/subagent lane plan, direct-leaf status, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-orchestrate`, selected workflow/playbook, top-level control loop, scope, helper/subagent lane plan, direct-leaf status, and evidence contract.
 4. Build or update a compact ledger for the bounded assignment.
 5. Decompose into the fewest safe items, run helper/subagent lanes for non-trivial work, reconcile evidence, and return concise final evidence.
 

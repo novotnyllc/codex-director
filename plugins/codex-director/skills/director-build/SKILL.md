@@ -1,6 +1,6 @@
 ---
 name: director-build
-description: Runs the Codex Director build lane for bounded implementation packets. Use when a Director worker brief explicitly invokes $director-build for code, docs, configuration, tests, commits, or other implementation work that one worker can plan, edit, verify, and report.
+description: Runs the Codex Director build lane for bounded implementation packets. Use when a Director worker brief explicitly invokes $codex-director:director-build for code, docs, configuration, tests, commits, or other implementation work that one worker can plan, edit, verify, and report.
 metadata:
   short-description: Run bounded implementation lane
 ---
@@ -13,7 +13,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions and the owning Director brief.
 2. Load [Build Workflow](../codex-director/references/build-workflow.md).
-3. Report activation: `workflow-skill-loaded:$director-build`, selected workflow/playbook `director-build`, top-level control loop, scope, model/thinking rationale, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-build`, selected workflow/playbook `director-build`, top-level control loop, scope, model/thinking rationale, helper/subagent lane plan, and evidence contract.
 4. Gather only the context needed for the bounded change.
 5. Plan, edit, verify, run the required review/self-check, and return concise evidence.
 
@@ -43,14 +43,14 @@ When V2 is available:
 
 ## Escalate Or Stop
 
-Ask the Director to reroute to `$director-orchestrate` or `$director-dynamic-workflow` if implementation splits into independent lanes, crosses repos, needs approval gates, touches production/external writes, or requires long-lived monitoring. Stop for secrets, destructive operations, unclear commit authority, or ownership ambiguity.
+Ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex-director:director-dynamic-workflow` if implementation splits into independent lanes, crosses repos, needs approval gates, touches production/external writes, or requires long-lived monitoring. Stop for secrets, destructive operations, unclear commit authority, or ownership ambiguity.
 
 ## Required Invariants
 
 - Stay inside the assigned repo/path, done criteria, commit authority, and constraints.
 - Use orchestration as the top-level control loop for non-trivial build work unless the brief records a direct-leaf exception.
 - Non-trivial work needs a real helper/subagent lane or a clear blocked helper capability. Direct leaf is allowed only with separate tiny, mechanical, and low-risk rationale.
-- If the task grows into multiple independent lanes, risky writes, cross-repo work, or packetization, stop and ask the Director to reroute to `$director-orchestrate` or `$director-dynamic-workflow`.
+- If the task grows into multiple independent lanes, risky writes, cross-repo work, or packetization, stop and ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex-director:director-dynamic-workflow`.
 - Do not create nested top-level Codex workers unless the Director explicitly delegates that authority.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as implementation evidence.
 - Treat final output as candidate evidence until the Director reads the worker thread and reconciles it.

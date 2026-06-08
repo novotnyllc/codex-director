@@ -25,9 +25,9 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - Before checkpoint/final output, the ledger records title and pin status.
 
 4. Workflow skills are hard activation surfaces.
-   - Worker briefs say `Invoke $director-build` or the exact matching workflow skill, never "if available".
-   - Worker activation reports `workflow-skill-loaded:<$director-skill>` before substantive work.
-   - Failure to load a shipped workflow skill is recorded as `workflow-skill-load-failed:<$director-skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` and blocks work until corrected or relaunched.
+   - Worker briefs say `Invoke $codex-director:director-build` or the exact matching workflow skill, never "if available".
+   - Worker activation reports `workflow-skill-loaded:<exact $codex-director:director-* skill>` before substantive work.
+   - Failure to load a shipped workflow skill is recorded as `workflow-skill-load-failed:<exact $codex-director:director-* skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` and blocks work until corrected or relaunched.
 
 5. Pending worktree handles remain monitored.
    - A `pendingWorktreeId` is recorded as an active handle before any final-looking user status.
@@ -59,8 +59,8 @@ For each regression pass, record:
 - parent title status before and after worker creation/title changes
 - parent pin status after plugin/default starter invocation
 - Director thinking/effort setting used for parent continuations
-- one worker brief showing exact `$director-*` invocation
-- one worker activation showing `workflow-skill-loaded:<$director-skill>`
+- one worker brief showing exact `$codex-director:director-*` invocation
+- one worker activation showing `workflow-skill-loaded:<exact $codex-director:director-* skill>`
 - one worker activation/evidence record showing native helper runtime surface and, when used, V2 helper profile/evidence/cleanup
 - one pending-worktree or monitor ledger row when applicable
 - one child-thread readback acceptance record

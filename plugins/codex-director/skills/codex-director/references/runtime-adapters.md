@@ -139,9 +139,9 @@ Lifecycle mapping:
 
 ### Launch Contract
 
-Before a Director records, reports, steers, or calls `codex_app.create_thread` for a worker/packet/review/oracle lane, the proposed structure must be complete enough to force a workflow choice. Each proposed worker or packet needs an explicit `$director-*` workflow skill, selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan, status item, or accepted worker entry.
+Before a Director records, reports, steers, or calls `codex_app.create_thread` for a worker/packet/review/oracle lane, the proposed structure must be complete enough to force a workflow choice. Each proposed worker or packet needs an explicit `$codex-director:director-*` workflow skill, selected workflow/playbook, top-level control loop, helper/subagent or direct-leaf policy, oracle/review gate, dependencies or blockers, and acceptance evidence/readback/cleanup requirements. A role list without these fields is still routing, not a launch plan, status item, or accepted worker entry.
 
-Workflow skill activation is not optional. The `$director-*` workflow skills ship with the Director plugin, so worker briefs must say `Invoke $director-build` or the exact matching skill, never "use if available". Worker activation must include `workflow-skill-loaded:<$director-skill>` before substantive work. If a worker cannot load the exact shipped workflow skill, treat it as `workflow-skill-load-failed:<$director-skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>`, stop substantive work, and let the Director correct, relaunch, or record the runtime fault.
+Workflow skill activation is not optional. The `$codex-director:director-*` workflow skills ship with the Director plugin, so worker briefs must say `Invoke $codex-director:director-build` or the exact matching skill, never "use if available". Worker activation must include `workflow-skill-loaded:<exact $codex-director:director-* skill>` before substantive work. If a worker cannot load the exact shipped workflow skill, treat it as `workflow-skill-load-failed:<exact $codex-director:director-* skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>`, stop substantive work, and let the Director correct, relaunch, or record the runtime fault.
 
 Before calling `codex_app.create_thread`, define:
 
@@ -150,7 +150,7 @@ Before calling `codex_app.create_thread`, define:
 - explicit authorization basis for creating a new/separate thread under the active tool instructions; for a Director thread itself, this requires a clear separate/new-thread request
 - resolved target project/worktree or projectless directory, including the project id/target and resolution basis
 - model and thinking level plus rationale
-- explicit `$director-*` workflow skill, selected workflow/playbook, and top-level worker control loop
+- explicit `$codex-director:director-*` workflow skill, selected workflow/playbook, and top-level worker control loop
 - required skills or workflow references
 - context artifacts or source files to read first
 - mandatory helper/subagent lanes for non-trivial Director-created work, or direct-leaf exception with separate tiny, mechanical, and low-risk rationale
@@ -170,7 +170,7 @@ Before continuing, return the activation report required by the Director brief:
 instructions read, task shape, selected workflow, research lane, helper/subagent lanes or direct-leaf tiny/mechanical/low-risk rationale, oracle lane, review gate, evidence, git/worktree handling, Goal fit, done criteria.
 ```
 
-If the worker reports only a generic workflow and not the explicit `$director-*` skill from the brief, steer it to load the missing skill before accepting activation.
+If the worker reports only a generic workflow and not the explicit `$codex-director:director-*` skill from the brief, steer it to load the missing skill before accepting activation.
 
 If the worker still skips activation, broadens scope, becomes stale, or is superseded, send a stop/no-further-changes instruction, record the reason and any usable evidence, archive the worker after evidence capture or superseded-state recording, and re-brief only if the task is still needed. Do not reuse that worker for a different material task; create a fresh worker handle for the new assignment.
 
@@ -203,7 +203,7 @@ thinking:
 thinking_rationale:
 starting_prompt_or_artifact:
 skills_required:
-workflow_skill_activation: workflow-skill-loaded:<$director-skill> | workflow-skill-load-failed:<$director-skill>:<reason> | pending
+workflow_skill_activation: workflow-skill-loaded:<exact $codex-director:director-* skill> | workflow-skill-load-failed:<exact $codex-director:director-* skill>:<reason> | pending
 selected_workflow_playbook:
 top_level_control_loop:
 coordinator_authority: coordinator-only | packet-executor:<packet-id> | tiny-direct-leaf:<rationale>

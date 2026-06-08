@@ -126,13 +126,13 @@ Create one Codex worker thread. Do not do it directly in the Director thread.
 
 Use the selected explicit workflow skill and its matching reference:
 
-- `$director-build` for build
-- `$director-review` for review
-- `$director-investigate` for investigate/research
-- `$director-deep-plan` for deep plan
-- `$director-refactor` for refactor
-- `$director-optimize` for optimize
-- `$director-browser-oracle` for Browser ChatGPT Pro oracle
+- `$codex-director:director-build` for build
+- `$codex-director:director-review` for review
+- `$codex-director:director-investigate` for investigate/research
+- `$codex-director:director-deep-plan` for deep plan
+- `$codex-director:director-refactor` for refactor
+- `$codex-director:director-optimize` for optimize
+- `$codex-director:director-browser-oracle` for Browser ChatGPT Pro oracle
 
 Use optional tooling only to implement these playbooks; do not substitute tool names for the workflow itself.
 
@@ -142,7 +142,7 @@ No dynamic workflow unless durable packet/result artifacts are useful; the singl
 
 Use orchestration without a durable `.workflow/` run when the task is multi-step but not large enough to need long-lived artifacts.
 
-- invoke `$director-orchestrate` and follow the Director orchestrate workflow reference
+- invoke `$codex-director:director-orchestrate` and follow the Director orchestrate workflow reference
 - create multiple Codex worker threads only for disjoint items
 - require each worker to choose a helper/context strategy and use worker-internal sub-agents for disjoint scouting, model/function selection, context mapping, verification, or review when they reduce risk, context load, or token cost; when native V2 is available, require an RP-style profile choice plus cleanup evidence
 - keep the Director ledger as the state
@@ -205,13 +205,13 @@ Latest Codex `codex_app` worker/thread/project tooling is the premise of this sk
 
 Use the narrow self-contained workflow that matches each assigned work item. When the work item is a concrete dynamic workflow packet, keep the packet artifact as the durable source of truth:
 
-- Research packet -> `$director-investigate`
-- Plan packet -> `$director-deep-plan`
-- Build packet -> `$director-build`
-- Review packet -> `$director-review`
-- Refactor packet -> `$director-refactor`
-- Optimize packet -> `$director-optimize`
-- Browser/external oracle packet -> `$director-browser-oracle`; use optional local prompt artifacts only for oversized payloads, upload/chunking, retry, audit, or handoff needs; if Pro is unavailable or ambiguous, route to built-in main/`xhigh` oracle/review fallback unless Pro-only was explicit
+- Research packet -> `$codex-director:director-investigate`
+- Plan packet -> `$codex-director:director-deep-plan`
+- Build packet -> `$codex-director:director-build`
+- Review packet -> `$codex-director:director-review`
+- Refactor packet -> `$codex-director:director-refactor`
+- Optimize packet -> `$codex-director:director-optimize`
+- Browser/external oracle packet -> `$codex-director:director-browser-oracle`; use optional local prompt artifacts only for oversized payloads, upload/chunking, retry, audit, or handoff needs; if Pro is unavailable or ambiguous, route to built-in main/`xhigh` oracle/review fallback unless Pro-only was explicit
 
 The Director should predict likely skills in the worker brief, but the worker must re-run skill activation after reading local instructions. Oracle packets flow through the Director: `worker -> Director -> oracle lane -> Director -> worker/result`.
 

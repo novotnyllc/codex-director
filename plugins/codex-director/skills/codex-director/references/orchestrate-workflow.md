@@ -197,7 +197,7 @@ Sibling work:
 Model: latest main id, inherited latest-main default, or `gpt-5.3-codex-spark` for a Spark-fit lane only
 Thinking plus rationale:
 Codex skills to consider:
-Required skills/workflows: exact `$director-*` workflow skill mention plus any other skills/references
+Required skills/workflows: exact `$codex-director:director-*` workflow skill mention plus any other skills/references
 Explicit workflow skill:
 Required workflow:
 Top-level worker control loop:

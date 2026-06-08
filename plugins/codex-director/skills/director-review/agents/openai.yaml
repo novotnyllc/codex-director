@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Review"
   short_description: "Run an independent Director review gate"
-  default_prompt: "Use $director-review to independently review worker output and return findings, verdict, and residual risks."
+  default_prompt: "Use $codex-director:director-review to independently review worker output and return findings, verdict, and residual risks."
 
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 ---
 name: director-browser-oracle
-description: Runs the Codex Director Browser ChatGPT Pro oracle lane for external second-opinion review through the signed-in browser. Use when a Director brief explicitly invokes $director-browser-oracle for delegated oracle review, Pro-only comparison, external critique, or Browser-mediated plan/result validation.
+description: Runs the Codex Director Browser ChatGPT Pro oracle lane for external second-opinion review through the signed-in browser. Use when a Director brief explicitly invokes $codex-director:director-browser-oracle for delegated oracle review, Pro-only comparison, external critique, or Browser-mediated plan/result validation.
 metadata:
   short-description: Run delegated Browser oracle
 ---
@@ -13,7 +13,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 
 1. Read local instructions, the Oracle Request Packet, and the owning Director brief.
 2. Load [Browser ChatGPT Pro Oracle Workflow](../codex-director/references/browser-chatgpt-oracle-workflow.md).
-3. Report activation: `workflow-skill-loaded:$director-browser-oracle`, selected workflow/playbook `director-browser-oracle`, top-level control loop, privacy classification, fallback plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-browser-oracle`, selected workflow/playbook `director-browser-oracle`, top-level control loop, privacy classification, fallback plan, and evidence contract.
 4. Confirm Browser/Pro suitability before submitting anything externally.
 5. Return the oracle result, confidence, and reconciliation notes without exposing secrets or raw private data.
 

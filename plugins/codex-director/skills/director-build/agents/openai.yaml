@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Build"
   short_description: "Run a bounded Director implementation lane"
-  default_prompt: "Use $director-build to complete this bounded implementation packet with edits, verification, review, and evidence."
+  default_prompt: "Use $codex-director:director-build for bounded implementation with edits, verification, review, and evidence."
 
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 ---
 name: director-dynamic-workflow
-description: Runs the Codex Director dynamic workflow bridge for complex task-level packetization and durable orchestration artifacts. Use when a Director brief explicitly invokes $director-dynamic-workflow for approvals, packets, multi-repo or multi-worker work, risky writes, integration tracking, or resumable .workflow state.
+description: Runs the Codex Director dynamic workflow bridge for complex task-level packetization and durable orchestration artifacts. Use when a Director brief explicitly invokes $codex-director:director-dynamic-workflow for approvals, packets, multi-repo or multi-worker work, risky writes, integration tracking, or resumable .workflow state.
 metadata:
   short-description: Packetize complex Director work
 ---
@@ -14,7 +14,7 @@ Use only when explicitly invoked by a Director brief or by the user.
 1. Read local instructions and the owning Director brief.
 2. Load [Dynamic Workflow Integration](../codex-director/references/dynamic-workflow-integration.md).
 3. Load `$codex-dynamic-workflows` when available and the task needs its artifact protocol.
-4. Report activation: `workflow-skill-loaded:$director-dynamic-workflow`, selected workflow/playbook `director-dynamic-workflow`, top-level control loop, artifact path, approvals, helper/subagent lane plan, and evidence contract.
+4. Report activation: `workflow-skill-loaded:$codex-director:director-dynamic-workflow`, selected workflow/playbook `director-dynamic-workflow`, top-level control loop, artifact path, approvals, helper/subagent lane plan, and evidence contract.
 5. Create or update `.workflow/<slug>/` artifacts only inside the approved project scope.
 
 ## Native Helper Mapping

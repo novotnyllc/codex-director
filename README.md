@@ -28,15 +28,15 @@ Plugin manifest `defaultPrompt` entries are composer starter prompts, not an ins
 
 The main Director skill activates from the Codex Director plugin entrypoint, starter prompts, or a plain request to start or operate a Director. Do not rely on a bare `$codex-director` skill mention; plugin-provided skills are namespaced by the runtime. Workflow subskills remain explicit-invocation skills. The user starts the coordinator with `@codex-director` or a Codex Director starter prompt; the Director then forces each worker lane to activate the right workflow by naming the matching subskill in the worker brief:
 
-- `$director-orchestrate` for worker-internal coordination, sequencing, helper lanes, and evidence reconciliation.
-- `$director-build` for bounded implementation.
-- `$director-review` for independent review and acceptance gates.
-- `$director-investigate` for read-only diagnosis and research.
-- `$director-deep-plan` for durable plans without implementation.
-- `$director-refactor` for behavior-preserving cleanup.
-- `$director-optimize` for measurement-led performance or efficiency work.
-- `$director-dynamic-workflow` for packetized `.workflow/<slug>/` task state.
-- `$director-browser-oracle` for delegated Browser ChatGPT Pro oracle review.
+- `$codex-director:director-orchestrate` for worker-internal coordination, sequencing, helper lanes, and evidence reconciliation.
+- `$codex-director:director-build` for bounded implementation.
+- `$codex-director:director-review` for independent review and acceptance gates.
+- `$codex-director:director-investigate` for read-only diagnosis and research.
+- `$codex-director:director-deep-plan` for durable plans without implementation.
+- `$codex-director:director-refactor` for behavior-preserving cleanup.
+- `$codex-director:director-optimize` for measurement-led performance or efficiency work.
+- `$codex-director:director-dynamic-workflow` for packetized `.workflow/<slug>/` task state.
+- `$codex-director:director-browser-oracle` for delegated Browser ChatGPT Pro oracle review.
 
 After the Director thread is established, give it outcomes, not workflow mechanics. You should not need to say "use dynamic workflow", "orchestrate", "use workers", or "run subagents". The Director should decide that based on scope, risk, parallelism, evidence needs, and token economy. Every worker or packet it routes must have a selected workflow/playbook and top-level control loop recorded before dispatch, whether or not you asked for the structure. If it cannot name the workflow yet, it is still routing and should not launch the worker. If a coordinator returns a final checkpoint or recommended worker briefs, that is not completion; the Director must dispatch the next worker, record an active monitor, or record the exact blocker/approval wait. Pending worktree ids count as active handles until their worker threads are visible.
 
