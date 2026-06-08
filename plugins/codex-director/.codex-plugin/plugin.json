@@ -1,7 +1,7 @@
 {
   "name": "codex-director",
-  "version": "0.8.10",
-  "description": "On invocation, first set up the current thread as the project Director: title and pin it with thread tools before any ready response. Project-scoped workflow for Codex worker coordination, explicit workflow skills, monitoring, research, oracle, review, goals, and evidence gates.",
+  "version": "0.8.11",
+  "description": "Project-scoped director workflow for Codex worker-thread coordination, explicit worker workflow skills, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
     "url": "https://github.com/novotnyllc"
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Director",
-    "shortDescription": "Invocation starts by titling/pinning the current Director thread, then coordinating workers.",
-    "longDescription": "On invocation, Codex Director must first make the current thread the stable project Director: title it, pin it, and avoid ready/loaded prose until title/pin status is recorded or blocked. It then coordinates routing, planning, Codex worker threads, explicit $director-* workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
+    "shortDescription": "Coordinate project work across Codex worker threads with quiet, signal-first monitoring.",
+    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, explicit $director-* worker workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
     "developerName": "Claire Novotny LLC",
     "category": "Productivity",
     "capabilities": [
@@ -33,9 +33,9 @@
     "privacyPolicyURL": "https://github.com/novotnyllc/codex-director/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/novotnyllc/codex-director/blob/main/TERMS.md",
     "defaultPrompt": [
-      "Start $codex-director for this project.",
-      "Coordinate this project with Director workers.",
-      "Audit active Director work from the ledger."
+      "Use $codex-director to start this project.",
+      "Use $codex-director to coordinate this project.",
+      "Use $codex-director to audit the Director ledger."
     ],
     "composerIcon": "./assets/app-icon.png",
     "logo": "./assets/app-icon.png"

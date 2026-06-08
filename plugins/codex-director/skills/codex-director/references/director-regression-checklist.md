@@ -16,7 +16,7 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
 
 3. Parent title is stable and proven.
    - `@codex-director`, plugin invocation, and `$codex-director` default skill invocation are equivalent entrypoints.
-   - Plugin manifest `defaultPrompt` entries are treated as composer starter prompts, not enforcement instructions; title/pin startup rules must appear in metadata and skill descriptions that the invocation path can see.
+   - Plugin manifest `defaultPrompt` entries are treated as composer starter prompts, not enforcement instructions; user-visible descriptions remain product copy, and the main Director skill keeps `policy.allow_implicit_invocation: true` so the plugin entrypoint can activate the skill instructions.
    - On a bare invocation with no objective, the Director performs setup before asking for the objective.
    - The stable title is `<Project Display Name> Director`, with workspace title emoji convention when available.
    - The Director calls `codex_app.set_thread_title` when exposed and records `parent-title: verified`, `parent-title: repaired:<old-title>`, or `parent-title-blocked:<reason>`.
