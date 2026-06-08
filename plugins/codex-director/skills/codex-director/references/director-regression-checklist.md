@@ -15,9 +15,9 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - A downgraded Director turn records `director-effort-blocked:<effort>` before any planning, dispatch, steering, acceptance, or completion verdict.
 
 3. Parent title is stable and proven.
-   - `$codex-director:codex-director`, plugin/default starter prompts, and plain Director requests all load the main Director skill before ready/loaded prose.
-   - Bare `@codex-director` plugin mentions are treated as plugin handles, not proven skill activation; packaged starter/default prompts include `$codex-director:codex-director` so the main skill is explicit.
-   - Plugin manifest `defaultPrompt` entries are treated as composer starter prompts, not enforcement instructions; user-visible descriptions remain product copy, and the main Director skill keeps `policy.allow_implicit_invocation: true` for plain-language fallbacks.
+   - Plugin-link-only `[@codex-director](plugin://codex-director@novotnyllc)`, `$codex-director:codex-director`, plugin/default starter prompts, and plain Director requests all load the main Director skill before ready/loaded prose.
+   - A bare plugin-link-only invocation that answers only "Codex Director is available" or asks for the objective before title/pin setup fails this regression.
+   - Plugin manifest `defaultPrompt` entries are treated as composer starter prompts, not enforcement instructions; user-visible descriptions remain product copy aligned with startup behavior, and the main Director skill keeps `policy.allow_implicit_invocation: true` for plugin-link and plain-language fallbacks.
    - On a bare invocation with no objective, the Director performs setup before asking for the objective.
    - The stable title is `<Project Display Name> Director`, with workspace title emoji convention when available.
    - The Director calls `codex_app.set_thread_title` when exposed and records `parent-title: verified`, `parent-title: repaired:<old-title>`, or `parent-title-blocked:<reason>`.

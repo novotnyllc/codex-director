@@ -1,7 +1,7 @@
 {
   "name": "codex-director",
-  "version": "0.8.15",
-  "description": "Project-scoped director workflow for Codex worker-thread coordination, explicit worker workflow skills, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
+  "version": "0.8.16",
+  "description": "Start and operate a project-scoped Codex Director that titles and pins a coordinator thread, then routes work to bounded worker threads.",
   "author": {
     "name": "Claire Novotny LLC",
     "url": "https://github.com/novotnyllc"
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Director",
-    "shortDescription": "Coordinate project work across Codex worker threads with quiet, signal-first monitoring.",
-    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, explicit $codex-director:director-* worker workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
+    "shortDescription": "Start a pinned Director thread for project coordination.",
+    "longDescription": "Codex Director starts a stable, pinned project coordinator thread, then routes project work to bounded Codex worker threads with explicit $codex-director:director-* workflow skills, signal-first callbacks, child-thread readback, helper/subagent lanes, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
     "developerName": "Claire Novotny LLC",
     "category": "Productivity",
     "capabilities": [
