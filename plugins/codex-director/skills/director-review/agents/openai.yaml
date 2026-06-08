@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Review"
   short_description: "Run an independent Director review gate"
-  default_prompt: "Use $director-review to review this Director worker output independently and return findings, verdict, evidence, native helper runtime status when exposed, verified helper evidence, and residual risks."
+  default_prompt: "Use $director-review to independently review worker output and return findings, verdict, and residual risks."
 
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,8 @@
 ---
 name: director-review
 description: Runs the Codex Director review lane for adversarial plan, code, branch, PR, or worker-output review. Use when a Director worker brief explicitly invokes $director-review for independent critique, acceptance gates, must-fix findings, or verification of worker evidence.
+metadata:
+  short-description: Run independent review gate
 ---
 
 # Director Review

@@ -1,7 +1,7 @@
 interface:
   display_name: "Director Investigate"
   short_description: "Run a read-only Director research lane"
-  default_prompt: "Use $director-investigate to gather read-only evidence for this Director worker assignment and report findings, confidence, native helper runtime status when exposed, verified helper evidence, and next actions."
+  default_prompt: "Use $director-investigate to gather read-only evidence and report findings, confidence, and next actions."
 
 policy:
   allow_implicit_invocation: false

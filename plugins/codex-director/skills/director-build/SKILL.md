@@ -1,6 +1,8 @@
 ---
 name: director-build
 description: Runs the Codex Director build lane for bounded implementation packets. Use when a Director worker brief explicitly invokes $director-build for code, docs, configuration, tests, commits, or other implementation work that one worker can plan, edit, verify, and report.
+metadata:
+  short-description: Run bounded implementation lane
 ---
 
 # Director Build

@@ -1,6 +1,8 @@
 ---
 name: director-deep-plan
 description: Runs the Codex Director deep planning lane for durable implementation or architecture plans. Use when a Director worker brief explicitly invokes $director-deep-plan for a plan document, migration strategy, architecture decision, decomposition, or reviewed implementation blueprint without code changes.
+metadata:
+  short-description: Produce reviewed Director plan
 ---
 
 # Director Deep Plan

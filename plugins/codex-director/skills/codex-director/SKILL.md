@@ -1,9 +1,15 @@
 ---
 name: codex-director
-description: On explicit invocation, first set up the current thread as the Director: title and pin it before any ready/loaded response. Coordinates project-scoped Codex Director threads for worker routing, research, oracle/review gates, worktrees, goals, and concise evidence. Use when explicitly invoked to set up or operate a Director, dispatch Codex worker threads, choose dynamic workflows, enforce review/oracle gates, or reconcile worker evidence.
+description: "Use when the user mentions @codex-director or asks to start, coordinate, resume, audit, dispatch, monitor, or operate a Codex Director for a project. On activation, set up the current thread as Director before any ready/loaded response."
+metadata:
+  short-description: Coordinate Codex worker threads
 ---
 
 # Codex Director
+
+Use this skill when the user mentions `@codex-director`, selects a Codex Director starter prompt, or asks to start or operate a Director.
+
+For bare or general `@codex-director` requests, do not ask a clarification question because the request is ambiguous. Set up the current thread as the Director first, then ask for the objective.
 
 ## Load Strategy
 
@@ -17,7 +23,7 @@ RepoPrompt/context engines, browsers, and sub-agents may assist with context, re
 
 ## Core Contract
 
-- Bare `$codex-director`, `@codex-director`, plugin invocation, or `codex-director` makes the current thread the Director unless the user clearly asks for separate/new/continue/reuse. Plugin invocation and default skill invocation are equivalent. On a bare invocation with no objective yet, make this current thread the Director for this project before any local guidance check, memory lookup, orientation, capability check, or ready/loaded prose: resolve the stable Director title; if thread tools are not already visible, search/load the `set_thread_title` and `set_thread_pinned` tools first; call `codex_app.set_thread_title` when exposed; call `codex_app.set_thread_pinned` with `pinned: true` when exposed; record title/pin/runtime status; and only then ask for the objective. If title or pin tooling is unavailable or fails, record `parent-title-blocked:<reason>` or `parent-pin-blocked:<reason>` and report that blocker instead of a ready/available status. Do not answer only that the Director is in scope.
+- When this skill is loaded from `@codex-director`, the main Director skill entry, a plugin/default starter prompt, or a plain request to use Codex Director, make the current thread the Director unless the user clearly asks for separate/new/continue/reuse. On an invocation with no objective yet, make this current thread the Director for this project before any local guidance check, memory lookup, orientation, capability check, or ready/loaded prose: resolve the stable Director title; if thread tools are not already visible, search/load the `set_thread_title` and `set_thread_pinned` tools first; call `codex_app.set_thread_title` when exposed; call `codex_app.set_thread_pinned` with `pinned: true` when exposed; record title/pin/runtime status; and only then ask for the objective. If title or pin tooling is unavailable or fails, record `parent-title-blocked:<reason>` or `parent-pin-blocked:<reason>` and report that blocker instead of a ready/available status. Do not answer only that the Director is in scope.
 - The Director/coordinator thread defaults to latest-main with `xhigh` reasoning; worker model/thinking choices remain task-specific.
 - At Director setup and at the start of every resume, heartbeat, or callback turn, record the loaded Director runtime identity when visible: plugin version, skill path, and cache/source path. If the runtime path or manifest proves the thread is running an older Director than the expected release, record `stale-director-runtime:<version-or-path>` and do not assume newer rules are active until the user or runtime updates the installed plugin.
 - If the Director turn is known to be below `xhigh`, it may only perform safety bookkeeping: title repair, worker readback, pending-worktree pickup, monitor recovery, or blocker reporting. It must not plan, dispatch, steer substantively, accept evidence, or return a completion verdict from a downgraded parent turn; record `director-effort-blocked:<effort>` or schedule/wake an `xhigh` Director continuation when the runtime exposes thinking selection.

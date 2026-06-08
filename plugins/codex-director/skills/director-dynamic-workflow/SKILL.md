@@ -1,6 +1,8 @@
 ---
 name: director-dynamic-workflow
 description: Runs the Codex Director dynamic workflow bridge for complex task-level packetization and durable orchestration artifacts. Use when a Director brief explicitly invokes $director-dynamic-workflow for approvals, packets, multi-repo or multi-worker work, risky writes, integration tracking, or resumable .workflow state.
+metadata:
+  short-description: Packetize complex Director work
 ---
 
 # Director Dynamic Workflow

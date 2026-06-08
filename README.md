@@ -18,15 +18,15 @@ After installing, open Codex in the project you want the Director to own. The pr
 Start a new Codex thread and send a setup prompt like:
 
 ```text
-Start $codex-director for this project.
+Start @codex-director for this project.
 Use this thread as the Director thread. Read the project instructions, identify the project scope, set up the Director operating brief, and tell me what you need from me before coordinating work.
 ```
 
-`$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate.
+`@codex-director` is the plugin entrypoint, not a terminal command. Use it, or select one of the Codex Director starter prompts, when setting up the Director or when you want to force the plugin entrypoint to activate.
 
-Plugin manifest `defaultPrompt` entries are composer starter prompts, not an instruction-enforcement surface. Keep them short and make the first starter include `$codex-director` so selecting it activates the skill. Operational invocation rules belong in `skills/codex-director/SKILL.md` and the main skill's `agents/openai.yaml` activation policy, not in user-visible plugin descriptions.
+Plugin manifest `defaultPrompt` entries are composer starter prompts, not an instruction-enforcement surface. Keep them short, natural, and built-in-style. Operational invocation rules belong in `skills/codex-director/SKILL.md` and the main skill's `agents/openai.yaml` activation policy, not in user-visible plugin descriptions.
 
-The main Director skill may activate implicitly from the plugin entrypoint or explicitly from `$codex-director`. Workflow subskills remain explicit-invocation skills. The user starts the coordinator with `$codex-director` or the Codex Director plugin entrypoint; the Director then forces each worker lane to activate the right workflow by naming the matching subskill in the worker brief:
+The main Director skill activates from the Codex Director plugin entrypoint, starter prompts, or a plain request to start or operate a Director. Do not rely on a bare `$codex-director` skill mention; plugin-provided skills are namespaced by the runtime. Workflow subskills remain explicit-invocation skills. The user starts the coordinator with `@codex-director` or a Codex Director starter prompt; the Director then forces each worker lane to activate the right workflow by naming the matching subskill in the worker brief:
 
 - `$director-orchestrate` for worker-internal coordination, sequencing, helper lanes, and evidence reconciliation.
 - `$director-build` for bounded implementation.
@@ -55,7 +55,7 @@ Plan the next implementation slice, run research and adversarial review first, t
 For a multi-repo workspace, name the scope directly:
 
 ```text
-Start $codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
+Start @codex-director for this workspace. Treat admin/, website/, and ops/ as separate child repos under one project scope.
 ```
 
 The Director titles and pins its coordination thread as the stable `<Project Display Name> Director` handle, then creates separate Codex worker threads for project work. Task-specific focus belongs in the ledger and worker titles, not by retitling the parent Director. Local material-focus title rules apply to ordinary task threads and child workers, not to the parent Director. On setup, heartbeat/callback/resume, worker title changes, queued worktree pickup, and final checkpoints, the Director restores the parent title if the app auto-title layer has drifted it toward the latest task. The user's request to set up or use a Director for the project is the explicit separate-thread authorization for bounded worker threads inside that project scope; outside that scope, the active `codex_app` thread contract still governs. Director-created workers are accepted only after the Director reads the child thread and reconciles the worker's evidence. Non-trivial Director-created workers use helper/subagent lanes; direct leaf is worker-internal only for tiny, mechanical, low-risk work. Coordinator-only workers produce packet briefs, integration notes, and checkpoints; packet execution still belongs to Director-created packet workers unless explicitly authorized as a tiny direct-leaf slice. The Director thread stays available for instructions, check-ins, steering, evidence integration, and final status.

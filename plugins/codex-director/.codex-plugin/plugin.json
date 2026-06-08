@@ -1,6 +1,6 @@
 {
   "name": "codex-director",
-  "version": "0.8.11",
+  "version": "0.8.12",
   "description": "Project-scoped director workflow for Codex worker-thread coordination, explicit worker workflow skills, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
@@ -33,9 +33,9 @@
     "privacyPolicyURL": "https://github.com/novotnyllc/codex-director/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/novotnyllc/codex-director/blob/main/TERMS.md",
     "defaultPrompt": [
-      "Use $codex-director to start this project.",
-      "Use $codex-director to coordinate this project.",
-      "Use $codex-director to audit the Director ledger."
+      "Start a Director for this project.",
+      "Coordinate this project with Director worker threads.",
+      "Audit this project's Director ledger."
     ],
     "composerIcon": "./assets/app-icon.png",
     "logo": "./assets/app-icon.png"

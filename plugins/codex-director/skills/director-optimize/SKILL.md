@@ -1,6 +1,8 @@
 ---
 name: director-optimize
 description: Runs the Codex Director optimization lane for performance, cost, memory, bundle size, throughput, or latency work. Use when a Director worker brief explicitly invokes $director-optimize for measurement-led improvement, bottleneck diagnosis, optimization patches, or performance verification.
+metadata:
+  short-description: Run measurement-led optimization
 ---
 
 # Director Optimize

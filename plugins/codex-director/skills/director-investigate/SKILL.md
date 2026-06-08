@@ -1,6 +1,8 @@
 ---
 name: director-investigate
 description: Runs the Codex Director investigate/research lane for read-only diagnosis and evidence gathering. Use when a Director worker brief explicitly invokes $director-investigate for repo or docs reconnaissance, failure diagnosis, external fact checks, regression research, or current-state evidence.
+metadata:
+  short-description: Run read-only research lane
 ---
 
 # Director Investigate

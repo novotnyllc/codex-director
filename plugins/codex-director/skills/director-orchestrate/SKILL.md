@@ -1,6 +1,8 @@
 ---
 name: director-orchestrate
 description: Runs the Codex Director worker orchestration lane for multi-item or ambiguous bounded assignments. Use when a Director worker brief explicitly invokes $director-orchestrate, or when a worker must coordinate subwork, helper/subagent lanes, sequencing, packet handoffs, or evidence reconciliation inside its assigned scope.
+metadata:
+  short-description: Coordinate bounded worker lane
 ---
 
 # Director Orchestrate

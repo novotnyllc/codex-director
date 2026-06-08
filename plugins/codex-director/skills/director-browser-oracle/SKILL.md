@@ -1,6 +1,8 @@
 ---
 name: director-browser-oracle
 description: Runs the Codex Director Browser ChatGPT Pro oracle lane for external second-opinion review through the signed-in browser. Use when a Director brief explicitly invokes $director-browser-oracle for delegated oracle review, Pro-only comparison, external critique, or Browser-mediated plan/result validation.
+metadata:
+  short-description: Run delegated Browser oracle
 ---
 
 # Director Browser Oracle

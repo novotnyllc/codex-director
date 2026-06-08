@@ -29,8 +29,8 @@ Use only model and thinking overrides accepted by the active `codex_app` thread 
 | `artifact-packager` | Package optional scratch/handoff context artifacts only when a stable file path is explicitly useful | Spark | medium |
 | `chatgpt-pro-oracle-runner` | Assemble the prompt payload, open chatgpt.com with Browser only for a selected oracle run, prompt the user to log in if needed, start a new chat, minimally detect Pro availability, select ChatGPT Pro or the requested Pro-tier model when available, submit prompt, wait, capture result, or route to built-in main/`xhigh` fallback when Pro is unavailable | Spark | medium |
 | `work-item-coordinator` | Own a non-trivial assigned work item, run the matching workflow/playbook, choose and use required context/helper lanes, select models/functions/files/tests, and roll up verified evidence | latest main | high |
-| `implementation-worker` | Bounded build/refactor/test work item with code-writing or verification | current main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
-| `adversarial-reviewer` | Challenge plan/code/evidence before continuation | current main by default; Spark only for quick low-risk first pass | high/xhigh |
+| `implementation-worker` | Bounded build/refactor/test work item with code-writing or verification | latest main by default; Spark only for mechanical or very contained low-risk code | high by default; medium only for mechanical edits; xhigh for risky code |
+| `adversarial-reviewer` | Challenge plan/code/evidence before continuation | latest main by default; Spark only for quick low-risk first pass | high/xhigh |
 | `planner` | Turn research into work items, dependencies, gates | latest main | high |
 | `integration-auditor` | Integrate packet results, reconcile commits/worktrees, audit evidence | latest main | high/xhigh |
 | `security-data-reviewer` | Auth, data, migration, secrets, production-risk review | latest main | xhigh |

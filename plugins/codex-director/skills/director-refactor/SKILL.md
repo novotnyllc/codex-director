@@ -1,6 +1,8 @@
 ---
 name: director-refactor
 description: Runs the Codex Director refactor lane for behavior-preserving code or documentation cleanup. Use when a Director worker brief explicitly invokes $director-refactor for simplifying structure, removing duplication, clarifying ownership boundaries, or reorganizing implementation without intended behavior change.
+metadata:
+  short-description: Run behavior-preserving refactor
 ---
 
 # Director Refactor
