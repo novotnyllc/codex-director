@@ -24,6 +24,8 @@ Use this thread as the Director thread. Read the project instructions, identify 
 
 `$codex-director` is a Codex skill mention, not a terminal command. Use it explicitly when setting up the Director or when you want to force the skill to activate.
 
+Plugin manifest `defaultPrompt` entries are composer starter prompts, not an instruction-enforcement surface. Keep them short and make the first starter include `$codex-director` so selecting it activates the skill. Operational invocation rules belong in the plugin description metadata and `skills/codex-director/SKILL.md`.
+
 The Director skill and its workflow subskills are explicit-invocation skills. The user starts the coordinator with `$codex-director`; the Director then forces each worker lane to activate the right workflow by naming the matching subskill in the worker brief:
 
 - `$director-orchestrate` for worker-internal coordination, sequencing, helper lanes, and evidence reconciliation.

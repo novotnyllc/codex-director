@@ -1,7 +1,7 @@
 {
   "name": "codex-director",
-  "version": "0.8.9",
-  "description": "Project-scoped director workflow for Codex worker-thread coordination, explicit worker workflow skills, signal-first monitoring, research, oracle, review, goals, and evidence gates.",
+  "version": "0.8.10",
+  "description": "On invocation, first set up the current thread as the project Director: title and pin it with thread tools before any ready response. Project-scoped workflow for Codex worker coordination, explicit workflow skills, monitoring, research, oracle, review, goals, and evidence gates.",
   "author": {
     "name": "Claire Novotny LLC",
     "url": "https://github.com/novotnyllc"
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Director",
-    "shortDescription": "Coordinate project work across Codex worker threads with quiet, signal-first monitoring.",
-    "longDescription": "A project-scoped director workflow for routing, planning, Codex worker-thread coordination, explicit $director-* worker workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
+    "shortDescription": "Invocation starts by titling/pinning the current Director thread, then coordinating workers.",
+    "longDescription": "On invocation, Codex Director must first make the current thread the stable project Director: title it, pin it, and avoid ready/loaded prose until title/pin status is recorded or blocked. It then coordinates routing, planning, Codex worker threads, explicit $director-* workflow skills, signal-first worker callbacks with child-thread readback, helper/subagent lanes for non-trivial workers, heartbeat watchdogs, research, oracle checks, adversarial review, goals, git/worktree policy, and concise evidence reporting.",
     "developerName": "Claire Novotny LLC",
     "category": "Productivity",
     "capabilities": [
@@ -33,9 +33,9 @@
     "privacyPolicyURL": "https://github.com/novotnyllc/codex-director/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/novotnyllc/codex-director/blob/main/TERMS.md",
     "defaultPrompt": [
-      "Make this current thread the Director for this project before any local guidance check, memory lookup, orientation, capability check, or ready/loaded prose. First title it as <Project Display Name> Director using the stable workspace Director/title emoji convention when available, using set_thread_title or codex_app.set_thread_title; pin it using set_thread_pinned or codex_app.set_thread_pinned with pinned true; if those thread tools are not already visible, search/load set_thread_title and set_thread_pinned before any other tool use. Record parent-title/parent-pin/runtime status. If title or pin tooling is unavailable or fails, report parent-title-blocked:<reason> or parent-pin-blocked:<reason> instead of a ready/available status. Only after title/pin are verified or explicitly blocked should you ask for the objective. Keep that parent title stable across task focus changes, coordinate only, and do not inspect, edit, test, deploy, or query production inline.",
-      "Use $codex-director to coordinate this task with Codex worker threads, explicit $director-* workflow skills, dynamic workflow when warranted, helper/subagent lanes for non-trivial workers, and review/oracle gates; record loaded Director runtime version/path when visible, never phrase shipped $director-* skills as optional or if-available, require workflow-skill-loaded activation before substantive worker work, and always record each worker or packet's selected workflow/playbook and top-level control loop before dispatch and in ledger/status entries. Accept Director-created workers only after child-thread readback and evidence reconciliation. Direct leaf is worker-internal only for tiny/mechanical/low-risk work. A coordinator final checkpoint is not final task completion until the Director dispatches the next worker, records its monitor, or records a dispatch blocker/approval wait. Pending worktree ids count as active handles and must stay monitored with pickup state.",
-      "Use $codex-director to audit active project work from the Director ledger; dispatch workers with explicit $director-* workflow skills for any repo/docs/code/prod-backed status."
+      "Start $codex-director for this project.",
+      "Coordinate this project with Director workers.",
+      "Audit active Director work from the ledger."
     ],
     "composerIcon": "./assets/app-icon.png",
     "logo": "./assets/app-icon.png"

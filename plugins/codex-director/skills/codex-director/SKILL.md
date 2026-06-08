@@ -1,6 +1,6 @@
 ---
 name: codex-director
-description: Coordinates project-scoped Codex Director threads for worker routing, research, oracle/review gates, worktrees, goals, and concise evidence. Use when explicitly invoked to set up or operate a Director, dispatch Codex worker threads, choose dynamic workflows, enforce review/oracle gates, or reconcile worker evidence.
+description: On explicit invocation, first set up the current thread as the Director: title and pin it before any ready/loaded response. Coordinates project-scoped Codex Director threads for worker routing, research, oracle/review gates, worktrees, goals, and concise evidence. Use when explicitly invoked to set up or operate a Director, dispatch Codex worker threads, choose dynamic workflows, enforce review/oracle gates, or reconcile worker evidence.
 ---
 
 # Codex Director
