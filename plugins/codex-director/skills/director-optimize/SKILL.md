@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Optimize Workflow](../codex-director/references/optimize-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-optimize`, selected workflow/playbook `director-optimize`, top-level control loop, metric target, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-optimize`, selected workflow/playbook `director-optimize`, top-level control loop, metric target, user-outcome fit, helper/subagent lane plan, and evidence contract.
 4. Establish a baseline or explain why one cannot be captured.
 5. Change only after measurement, then verify improvement and regression risk.
 
@@ -34,7 +34,7 @@ When V2 is available:
 
 ## Workflow
 
-1. Activate: restate optimization goal, metric, target threshold if any, selected workflow, top-level loop, helper policy, and verification contract.
+1. Activate: restate optimization goal, metric, target threshold if any, selected workflow, top-level loop, user outcome, helper policy, and verification contract.
 2. Baseline: measure or locate existing reliable measurements. Record command, dataset, environment, sample size, and noise caveats.
 3. Diagnose: identify likely bottlenecks using profiling, traces, logs, code inspection, or targeted experiments.
 4. Helper lane: for non-trivial work, use a helper/subagent lane for profiling interpretation, hypothesis review, benchmark design, or regression review.
@@ -55,6 +55,7 @@ Prefer repeatable commands and comparable inputs. If measurement is impossible o
 - Use helper/subagent lanes for non-trivial bottleneck search, measurement, or review, or record a blocked helper capability.
 - Stop for production load tests, destructive actions, cost-incurring experiments, or ambiguous metrics.
 - If the work becomes broad or multi-lane, ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex-director:director-dynamic-workflow`.
+- Do not treat an improved metric as completion of a broader user outcome unless the metric is the final verification surface. Report checkpoint evidence and remaining proof separately when optimization supports a larger task.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as measurement evidence.
 - Treat final output as candidate evidence until Director readback and reconciliation.
 

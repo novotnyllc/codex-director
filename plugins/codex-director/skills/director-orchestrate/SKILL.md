@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Orchestrate Workflow](../codex-director/references/orchestrate-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-orchestrate`, selected workflow/playbook, top-level control loop, scope, helper/subagent lane plan, direct-leaf status, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-orchestrate`, selected workflow/playbook, top-level control loop, scope, user-outcome fit, helper/subagent lane plan, direct-leaf status, and evidence contract.
 4. Build or update a compact ledger for the bounded assignment.
 5. Decompose into the fewest safe items, run helper/subagent lanes for non-trivial work, reconcile evidence, and return concise final evidence.
 
@@ -34,9 +34,9 @@ When V2 is available:
 
 ## Workflow
 
-1. Scope and ledger: restate the assignment, done criteria, owning repo/path, constraints, commit authority, worker handle, and selected workflow.
+1. Scope and ledger: restate the assignment, done criteria, owning repo/path, constraints, commit authority, worker handle, selected workflow, and the final user outcome this assignment helps prove.
 2. Contextualize: identify project nouns, likely files/modules, risks, instructions, and missing facts. Use only narrow direct inspection before delegating deeper context.
-3. Decide task shape: direct single-playbook, worker-internal orchestration, or dynamic workflow packetization. Default to orchestration for non-trivial work.
+3. Decide task shape: direct single-playbook, worker-internal orchestration, or dynamic workflow packetization. Default to orchestration for non-trivial work. If the task mixes browser/desktop flow, provider config, logs, code, deploys, auth, secrets, or final E2E proof, stop and ask the Director to use dynamic workflow or separate goal-bearing workers instead of absorbing the whole incident.
 4. Research: run a scout/helper lane for unknowns that affect the plan. Summarize confirmed facts, uncertainty, and plan constraints.
 5. Decompose: create up to five work items, preferably two or three. Each item needs done criteria, owner, workflow/playbook, helper lane, dependencies, review gate, and evidence.
 6. Plan review: challenge item boundaries, dependency order, parallel safety, risk, tests, and acceptance criteria before execution continues.
@@ -54,6 +54,8 @@ Ask the Director to reroute when the work needs separate top-level Codex workers
 - Name `director-orchestrate` and the top-level control loop in activation, checkpoints, and final evidence.
 - Non-trivial work needs a real helper/subagent lane or a clear blocked helper capability. Direct leaf is allowed only with separate tiny, mechanical, and low-risk rationale.
 - A coordinator checkpoint is not task completion. It must include `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>`.
+- Do not report the user's goal complete from a prerequisite checkpoint. Name the final verification surface, checkpoint evidence proved here, and remaining proof before Director completion.
+- Do not become a monolithic incident executor. Browser/desktop operation, provider/dashboard repair, app-code patching, direct deploy/alias work, security review, and final E2E proof need separate packets/workers when more than one is in scope.
 - Do not create nested top-level Codex workers unless the Director explicitly delegates that authority.
 - Treat callbacks and final-looking messages as wake signals for Director readback, not acceptance.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as accepted item evidence.

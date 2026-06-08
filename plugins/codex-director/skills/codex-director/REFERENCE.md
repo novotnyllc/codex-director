@@ -15,6 +15,14 @@ If this Director was invoked in the current thread without an explicit request f
 
 Before any tool use or answer, classify the next action as: allowed inline coordination; worker-only inspection; or worker-only execution. Worker-thread lifecycle/status, ledger/conversation state, routing, briefing, reconciliation, and narrow coordination-metadata reads are allowed inline. Repo/docs/code-backed status, production smoke checks, deployment probes, service dashboard/API checks, Browser/Chrome/Computer Use state checks for project/service work, env/token probing, tests/builds, file edits, schema/data hotfixes, deploys, rollback, repair, browser/desktop/provider UI actions, env/secret manager changes, and external project/service writes are worker-owned. Latest-Codex worker/thread/project tooling is the premise of this skill and is confirmed during Director setup.
 
+Translate the user's request into an outcome and verification surface before dispatch. A prerequisite proof such as "redirect URL uses the right client id", "provider config saved", "health endpoint is green", "invite email proof completed", or "worker found the likely cause" is a checkpoint, not completion, when the user asked for end-to-end behavior. The Director can mark completion only when evidence matches the user's finish line or when it records a blocker with the exact remaining proof step.
+
+Treat live incidents with browser/desktop flow, hosted provider config, logs, app code, deploys, auth, secrets, user accounts, or external writes as incident-mode work. Route them to dynamic workflow, or at minimum separate goal-bearing workers for diagnosis, config repair, browser/E2E proof, code patching, deployment/alias work, and security/review as needed. The parent Director must not perform the visible browser flow while workers "watch", and a single implementation worker must not absorb all incident command, provider repair, rollout, and review responsibilities unless the brief proves the task is tiny, mechanical, and low-risk.
+
+For credential/provider repair, workers first check approved project-local sources: repo-local env files by key name/presence, docs/runbooks, service-token paths, and hosted env metadata. Only after those are exhausted should they propose provider dashboards, secret-manager access, or credential rotation. If the user rejects a source or says it needs interactive password/unlock, record it as unavailable and stop probing that source until re-authorized.
+
+For hosted config, direct preview deployments, alias moves, or dashboard/API writes, require a worker-owned plan that separates local source config from live provider state, temporary local changes from intended durable repo changes, direct hotfix state from git/PR follow-up, and live verification from local proof. Any temporary local config edit used to patch live settings must be restored and verified before completion evidence.
+
 Default to proactive delegation when it is beneficial. A user request to set up or use the Director authorizes bounded Codex worker threads in the named project scope, but it does not imply creating a separate Director thread unless the user clearly asks for one. Do not wait for the user to say subagents, oracle, or Pro; choose those lanes when task shape, risk, context pressure, or review value warrants them.
 
 Director-created workers are usually owning mini-orchestrators for their bounded assignment. For most non-trivial worker threads, use `orchestrate` as the top-level control loop, then use build, review, research, refactor, optimize, Browser oracle, and context-engine passes as phase playbooks or helper lanes inside that worker. A direct single-playbook worker is an exception for tiny, mechanical, low-risk, or genuinely single-lane work, and must say why it is not using an orchestration control loop.
@@ -83,6 +91,7 @@ Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only, derive
 Done when:
 - <criterion>
 - <criterion>
+User outcome fit: <original user outcome, final verification surface, prerequisite checkpoints this worker may prove, and remaining evidence needed before Director completion>
 Constraints:
 - Read local instruction files first.
 - Do not touch unrelated dirty changes.
@@ -111,6 +120,7 @@ Archive/cleanup expectation: <archive after final evidence; stop/archive stale o
 Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
+Live config / credential-source policy: <not-applicable|project-local env/docs/service-token first; provider/dashboard/secret-manager path; reset/rotation authority; direct deploy/alias authority; temporary local config restore proof>
 Worker expectations:
 - Start with an activation report for the Director ledger: instructions read, task shape, Codex skills considered/loaded/skipped/not loaded, selected workflow/playbook and why it matches this work item, resolved project target, project resolution basis, repo/path, model/thinking rationale, context/oracle/review tools, worker helper policy, work-item coordination policy, research lane, mandatory review/oracle triggers, evidence required, archive/cleanup expectation, git/worktree handling, Goal fit, done criteria, and whether activation is complete.
 - Load and report the explicit `$codex-director:director-*` workflow skill from the brief. If the brief names only a generic workflow and no skill, report `workflow-skill-missing:<workflow>` before substantive work so the Director can correct the dispatch. Because the split workflow skills ship with the Director plugin, do not treat them as optional or "available if present"; report `workflow-skill-loaded:<exact $codex-director:director-* skill>` before substantive work, or `workflow-skill-load-failed:<exact $codex-director:director-* skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` as a hard runtime fault.
@@ -182,10 +192,12 @@ Mandatory review/oracle triggers: <trigger list or explicit low-risk rationale f
 Browser Pro suitability: <no/local lane enough/yes if available/yes but sensitive approval needed/pro-only requested>
 Adversarial review: <fast self-check/review thread/oracle/review workflow and why>
 Evidence required: <files/tests/review verdict/artifacts/blockers>
+User outcome fit: <final proof/checkpoints/remaining proof>
 Verbosity limit: <visible update gate/final-or-blocker only/no logs unless asked/max bullets>
 Git/worktree: <main checkout/worktree/branch/commit cadence/reconciliation>
 Commit authority: <no-commit|commit-when-green|ask-before-commit|pr-only, derived from the user's request>
 Codex Goal fit: <none/create/continue/inspect/clear plus outcome/verification surface>
+Live config / credential-source policy: <not-applicable|source order, unavailable sources, provider/dashboard write authority, direct deploy/alias authority, restore/durable follow-up proof>
 Delegation: <coordination-only/Codex worker thread/worker-internal sub-agent/dynamic workflow and why>
 Launch contract: <starting prompt/model/thinking plus rationale/skills/context artifacts/commit authority/evidence format>
 Archive/cleanup expectation: <archive after final evidence; stop/archive stale or superseded workers after state is recorded; record archive_blocked:<reason> when archive tooling is unavailable; cleanup worker needed/none and why; worker pinning state>
@@ -254,6 +266,10 @@ Top-level control loop:
 Commit authority:
 Done criteria:
 Evidence required:
+User outcome:
+Final verification surface:
+Checkpoint evidence:
+Remaining proof before Director completion:
 Latest evidence:
 Blockers:
 Next action:

@@ -16,7 +16,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 1. Read local instructions and the owning Director brief.
 2. Load [Dynamic Workflow Integration](../codex-director/references/dynamic-workflow-integration.md).
 3. Load `$codex-dynamic-workflows` when available and the task needs its artifact protocol.
-4. Report activation: `workflow-skill-loaded:$codex-director:director-dynamic-workflow`, selected workflow/playbook `director-dynamic-workflow`, top-level control loop, artifact path, approvals, helper/subagent lane plan, and evidence contract.
+4. Report activation: `workflow-skill-loaded:$codex-director:director-dynamic-workflow`, selected workflow/playbook `director-dynamic-workflow`, top-level control loop, artifact path, user-outcome fit, approvals, helper/subagent lane plan, and evidence contract.
 5. Create or update `.workflow/<slug>/` artifacts only inside the approved project scope.
 
 ## Native Helper Mapping
@@ -34,10 +34,10 @@ When V2 is available:
 
 ## Workflow
 
-1. Activate: restate complex task, selected workflow, top-level loop, artifact root, approvals, worker/monitor expectations, and evidence contract.
-2. Confirm trigger: identify hard or soft triggers for dynamic workflow: packets, approvals, multi-repo/multi-worker work, high risk, integration tracking, long-lived monitors, or reusable recipe.
+1. Activate: restate complex task, selected workflow, top-level loop, artifact root, final user outcome, approvals, worker/monitor expectations, and evidence contract.
+2. Confirm trigger: identify hard or soft triggers for dynamic workflow: packets, approvals, multi-repo/multi-worker work, high risk, incident-mode surfaces, integration tracking, long-lived monitors, or reusable recipe.
 3. Create state: establish `.workflow/<slug>/plan.md`, `orchestration.md`, `packets/`, `results/`, and `final-report.md` when durable state is warranted.
-4. Plan packets: each packet needs objective, owner, repo/path, workflow skill, files/sources, do/do-not, verification, helper policy, direct-leaf rationale, and readback/acceptance fields.
+4. Plan packets: each packet needs objective, user-outcome contribution, owner, repo/path, workflow skill, files/sources, do/do-not, verification, helper policy, live-config/credential-source policy when relevant, direct-leaf rationale, and readback/acceptance fields.
 5. Sequence: define dependencies, parallel safety, approval gates, monitor cadence, stale/cancel policy, and integration order.
 6. Staff or checkpoint: dispatch authorized packet workers, record active pending worktree/thread handles, or return coordinator-only packet briefs with an explicit dispatch/blocker/approval state.
 7. Reconcile results: promote worker output to `results/` only after child-thread readback, evidence reconciliation, review/oracle status, helper/direct-leaf acceptance, and cleanup/archive state.
@@ -48,6 +48,8 @@ When V2 is available:
 
 `plan.md` defines success criteria, constraints, approvals, verification, and packets. `orchestration.md` defines sequencing, monitors, state transitions, and integration. Packet files define work ownership. Result files hold accepted evidence only. `final-report.md` captures final status, risks, and next actions.
 
+Incident workflows should separate only the packets needed for the actual task, but the common packet classes are: read-only evidence/log trace, provider or hosted-config repair, browser/E2E proof, app-code patch, deploy/alias rollout, security/privacy review, and durable git/PR follow-up. Do not collapse diagnosis, provider mutation, code patching, direct deployment, and final proof into one monolithic packet without a recorded tiny/mechanical/low-risk exception.
+
 ## Required Invariants
 
 - Dynamic workflow owns one complex task, not the whole project portfolio.
@@ -57,7 +59,9 @@ When V2 is available:
 - Promote V2 helper findings only through this worker's packet/coordination evidence, never directly into accepted `results/`.
 - Keep secrets, raw private data, bulky transcripts, and credentials out of workflow artifacts.
 - If monitor or dispatch cannot be created, record the exact blocker instead of presenting the task as monitored or complete.
+- Accepted results must prove the user's final verification surface or record the remaining proof step. Prerequisites such as redirect checks, provider saves, test passes, health checks, or email-proof checkpoints are not completion by themselves.
+- Direct preview deploys, alias moves, or hosted dashboard/API writes must record live state, durable source/PR follow-up, and any temporary local config restore proof before final acceptance.
 
 ## Output
 
-Return artifact paths, packet list, approvals, worker/monitor handles, readback/evidence state, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, integration status, blockers, and next dispatch or acceptance action.
+Return artifact paths, packet list, approvals, user-outcome fit, worker/monitor handles, readback/evidence state, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, integration status, direct hotfix/durable follow-up state when relevant, blockers, and next dispatch or acceptance action.

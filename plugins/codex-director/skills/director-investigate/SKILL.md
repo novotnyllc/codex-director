@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Investigate And Research Workflow](../codex-director/references/investigate-research-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-investigate`, selected workflow/playbook `director-investigate`, top-level control loop, read-only boundary, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-investigate`, selected workflow/playbook `director-investigate`, top-level control loop, read-only boundary, user-outcome fit, helper/subagent lane plan, and evidence contract.
 4. Gather facts from the narrowest authoritative sources.
 5. Separate confirmed evidence, inference, uncertainty, and recommended next actions.
 
@@ -35,7 +35,7 @@ When V2 is available:
 ## Workflow
 
 1. Activate: restate the question, read-only boundary, selected workflow, top-level loop, source types, helper policy, and evidence contract.
-2. Map sources: identify the smallest authoritative sources: local instructions, code/docs, logs, git history, tests, live read-only endpoints, user-provided artifacts, or official external docs.
+2. Map sources: identify the smallest authoritative sources: local instructions, code/docs, logs, git history, tests, live read-only endpoints, user-provided artifacts, official external docs, and approved local credential/config sources by key name or presence only.
 3. Gather facts: query/read sources in a traceable order. Prefer primary sources and exact commands/paths over memory or summaries.
 4. Use scout lanes: for non-trivial investigations, delegate independent questions such as history, code path, docs/spec, log evidence, or external current facts.
 5. Compare evidence: separate confirmed facts, inference, contradictions, stale/unknown areas, and confidence.
@@ -56,7 +56,9 @@ Every material claim should have a source: file path, command/check, artifact, t
 - Treat callbacks and final-looking messages as wake signals for Director readback.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as findings.
 - Stop for secrets, private raw data, production writes, destructive actions, or unclear scope.
+- For credential/provider questions, check approved project-local sources before recommending dashboard edits or secret rotation: repo-local env/config files by key name and presence, runbooks/docs, service-token paths, hosted env metadata, and branch/ref mappings. If a source requires interactive password/unlock or the user rejects it, record it as unavailable and do not keep probing it.
+- Separate confirmed evidence from inference when diagnosing live OAuth/auth flow. A stale authorize page, expired state, redirect check, or provider-exchange log is not proof of app completion.
 
 ## Output
 
-Return concise findings with source paths/commands, confidence, contradictions, open questions, recommended workflow for next work, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, and cleanup/archive state.
+Return concise findings with source paths/commands, confidence, contradictions, open questions, user-outcome checkpoint vs remaining proof, recommended workflow for next work, native helper surface, V2 helper paths/evidence/owner verification/cleanup when used, and cleanup/archive state.

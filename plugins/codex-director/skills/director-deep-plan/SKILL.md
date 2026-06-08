@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Deep Plan Workflow](../codex-director/references/deep-plan-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-deep-plan`, selected workflow/playbook `director-deep-plan`, top-level control loop, planning scope, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-deep-plan`, selected workflow/playbook `director-deep-plan`, top-level control loop, planning scope, user-outcome fit, helper/subagent lane plan, and evidence contract.
 4. Gather enough context to make the plan executable.
 5. Produce the durable plan and run a review gate before finalizing.
 
@@ -34,7 +34,7 @@ When V2 is available:
 
 ## Workflow
 
-1. Activate: restate planning objective, scope, selected workflow, top-level loop, non-implementation boundary, helper policy, and expected plan artifact.
+1. Activate: restate planning objective, scope, selected workflow, top-level loop, non-implementation boundary, user outcome, helper policy, and expected plan artifact.
 2. Gather context: inspect only enough code/docs/history to plan accurately. Use helper/scout lanes for architecture, data, security, test, or migration questions.
 3. Define success: write success criteria, non-goals, constraints, approvals, dependencies, risks, and verification surfaces.
 4. Decompose: split into implementation packets or phases with ownership, files/modules, done criteria, tests, review gates, rollback/recovery notes, and sequencing.
@@ -54,6 +54,7 @@ Include objective, context, constraints, proposed phases/packets, owner/workflow
 - Use helper/subagent lanes for non-trivial planning, or record a blocked helper capability.
 - If the plan requires packets or multiple worker handles, recommend `$codex-director:director-dynamic-workflow` or `$codex-director:director-orchestrate`.
 - Treat callbacks and final-looking messages as wake signals for Director readback.
+- A plan is a checkpoint, not user-goal completion. Name the final verification surface the plan is meant to enable and any proof still required after planning.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as plan review or final evidence.
 - Keep the final plan concise enough to execute without re-discovery.
 

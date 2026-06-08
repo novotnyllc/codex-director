@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Build Workflow](../codex-director/references/build-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-build`, selected workflow/playbook `director-build`, top-level control loop, scope, model/thinking rationale, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-build`, selected workflow/playbook `director-build`, top-level control loop, scope, user-outcome fit, model/thinking rationale, helper/subagent lane plan, and evidence contract.
 4. Gather only the context needed for the bounded change.
 5. Plan, edit, verify, run the required review/self-check, and return concise evidence.
 
@@ -34,9 +34,9 @@ When V2 is available:
 
 ## Workflow
 
-1. Activate: restate the assigned outcome, repo/path, files likely involved, constraints, selected workflow, top-level loop, commit authority, helper policy, and done criteria.
+1. Activate: restate the assigned outcome, repo/path, files likely involved, constraints, selected workflow, top-level loop, commit authority, helper policy, done criteria, and whether this build proves the final user outcome or only a prerequisite checkpoint.
 2. Baseline: read local instructions, check git status, identify existing patterns, and run or inspect the narrowest relevant baseline when useful.
-3. Plan: outline the implementation steps, verification commands, review gate, rollback/recovery notes when relevant, and any files to avoid.
+3. Plan: outline the implementation steps, verification commands, review gate, rollback/recovery notes when relevant, any files to avoid, and the remaining proof still needed if the user asked for end-to-end behavior.
 4. Helper lane: for non-trivial work, use a real helper/subagent lane for context mapping, implementation sketch, risky-area review, or verification. If unavailable, record `blocked:<reason>` before proceeding.
 5. Implement: make the smallest scoped edits that satisfy the done criteria. Preserve unrelated dirty changes and local style.
 6. Verify: run focused tests/checks and any required smoke or static validation. If validation cannot run, capture the exact blocker and residual risk.
@@ -45,7 +45,7 @@ When V2 is available:
 
 ## Escalate Or Stop
 
-Ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex-director:director-dynamic-workflow` if implementation splits into independent lanes, crosses repos, needs approval gates, touches production/external writes, or requires long-lived monitoring. Stop for secrets, destructive operations, unclear commit authority, or ownership ambiguity.
+Ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex-director:director-dynamic-workflow` if implementation splits into independent lanes, crosses repos, needs approval gates, touches production/external writes, hosted provider config, direct deploy/alias work, secrets/auth/security, browser/desktop proof, or requires long-lived monitoring. Stop for secrets, destructive operations, unclear commit authority, or ownership ambiguity.
 
 ## Required Invariants
 
@@ -53,6 +53,8 @@ Ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex
 - Use orchestration as the top-level control loop for non-trivial build work unless the brief records a direct-leaf exception.
 - Non-trivial work needs a real helper/subagent lane or a clear blocked helper capability. Direct leaf is allowed only with separate tiny, mechanical, and low-risk rationale.
 - If the task grows into multiple independent lanes, risky writes, cross-repo work, or packetization, stop and ask the Director to reroute to `$codex-director:director-orchestrate` or `$codex-director:director-dynamic-workflow`.
+- Do not call the user goal complete from passing tests, a deployed preview, a provider setting save, or a health check unless that is the exact final verification surface. Report checkpoint evidence and remaining proof separately.
+- If authorized to perform a direct preview deploy or alias move, record the deployment id, alias target, no-production proof when relevant, validation URL, residual gap, and the durable git/PR follow-up. Direct deploy evidence does not replace a requested commit/PR.
 - Do not create nested top-level Codex workers unless the Director explicitly delegates that authority.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as implementation evidence.
 - Treat final output as candidate evidence until the Director reads the worker thread and reconciles it.

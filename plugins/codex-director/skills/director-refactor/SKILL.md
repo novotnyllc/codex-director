@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions and the owning Director brief.
 2. Load [Refactor Workflow](../codex-director/references/refactor-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-refactor`, selected workflow/playbook `director-refactor`, top-level control loop, behavior-preservation contract, helper/subagent lane plan, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-refactor`, selected workflow/playbook `director-refactor`, top-level control loop, user-outcome fit, behavior-preservation contract, helper/subagent lane plan, and evidence contract.
 4. Identify the smallest safe boundary and baseline verification.
 5. Refactor, verify unchanged behavior, run a review/self-check, and return concise evidence.
 
@@ -34,7 +34,7 @@ When V2 is available:
 
 ## Workflow
 
-1. Activate: restate refactor goal, behavior-preservation boundary, selected workflow, top-level loop, helper policy, and verification contract.
+1. Activate: restate refactor goal, behavior-preservation boundary, selected workflow, top-level loop, user outcome, helper policy, and verification contract.
 2. Baseline: identify current behavior, tests, public contracts, call sites, and dirty worktree state. Run focused baseline checks when useful.
 3. Plan: choose the smallest refactor boundary, expected mechanical changes, risk areas, rollback path, and verification commands.
 4. Helper lane: for non-trivial refactors, use a helper/subagent lane for call-site mapping, risk review, test-gap search, or verification.
@@ -54,6 +54,7 @@ Ask the Director to reroute if behavior changes become necessary, ownership cros
 - Use helper/subagent lanes for non-trivial refactors, or record a blocked helper capability.
 - If tests are missing, add low-risk characterization or document the verification gap.
 - Stop for risky public contracts, migrations, production data, or unclear ownership.
+- Do not treat behavior-preservation checks as completion of a broader user outcome. Report checkpoint evidence and remaining proof separately when the refactor supports a larger task.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as behavior-preservation evidence.
 - Treat final output as candidate evidence until Director readback and reconciliation.
 

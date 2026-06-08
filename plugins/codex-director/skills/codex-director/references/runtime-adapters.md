@@ -19,6 +19,10 @@ RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-lay
 
 The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update ledgers or workflow artifacts, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. Direct inline corrective repo, browser, desktop, provider, or hosted-service execution after a worker stalls is prohibited; for emergencies, the Director records explicit authority and dispatches a bounded emergency worker or dynamic workflow, but the Director still must not inspect or execute repo/prod/browser/provider work inline or take over a worker's browser, desktop, repo, or hosted-service session. If a status/checkup/lookup answer would require repo/docs/code inspection, provider-dashboard inspection, Browser/Chrome/Computer Use state checks, env/token probing, or service checks, the Director must spawn or continue a Codex worker thread instead of doing the work inline. Latest-Codex thread/project tooling is the assumed execution surface for that worker-thread path.
 
+Completion is tied to the user's outcome, not the nearest successful checkpoint. The Director ledger and every worker brief must distinguish `final_verification_surface`, `checkpoint_evidence`, and `remaining_proof`. A redirect probe, provider setting save, DB status read, hosted health check, worker diagnosis, or browser handoff can be accepted only as checkpoint evidence unless it directly satisfies the user's stated finish line.
+
+Incident-mode tasks are decomposition-first. If a task mixes browser/desktop control, hosted provider config, logs, app code, deploy/alias work, auth/security, secrets, user accounts, or external writes, the Director must dispatch dynamic workflow packets or separate goal-bearing workers before worker-only tools are used. The parent does not keep the live browser session as an inline operator while workers investigate, and a single worker should not own diagnosis, provider mutation, code patching, direct deployment, E2E proof, security review, and PR durability unless the brief explicitly proves a tiny/mechanical/low-risk exception.
+
 The Director is a rapid-fire intake surface, not a single-task executor. For multiple user asks, dispatch or continue separate bounded worker threads or workflow packets, record handles and expected evidence in the ledger, and stop after the dispatch/checkpoint instead of waiting inline unless the user explicitly asks for live narration.
 
 ## Tooling Boundaries
@@ -160,6 +164,8 @@ Before calling `codex_app.create_thread`, define:
 - checkpoint continuation policy for coordinator-only workers: next packet dispatch, existing monitor, blocker, or approval wait state
 - git/worktree handling and commit authority derived from the user's request
 - done criteria
+- user outcome fit: final verification surface, checkpoint evidence this worker may prove, and remaining proof before Director completion
+- live config/credential-source policy when relevant: source order, provider/dashboard/write authority, direct deploy/alias authority, and restoration/durable follow-up proof
 - evidence format and verbosity limit
 - Director callback policy and Director thread id, if worker-to-Director callbacks are available and useful
 
@@ -213,6 +219,10 @@ checkpoint_continuation: none | next-packet-dispatched | monitor-scheduled | blo
 commit_authority:
 done_criteria:
 evidence_required:
+user_outcome:
+final_verification_surface:
+checkpoint_evidence:
+remaining_proof_before_completion:
 created_at:
 last_poll_at:
 next_wake_at:
@@ -240,6 +250,7 @@ helper_policy_accepted: yes | no | direct-leaf:<tiny/mechanical/low-risk rationa
 acceptance_status: running | pending-readback | insufficient-evidence | accepted | blocked | stale | archived
 next_action:
 blockers:
+live_config_credential_policy:
 archive_after:
 cleanup_required:
 pinned: director-only | explicit-user-request | durable-lane | not-pinned
@@ -311,6 +322,28 @@ The current `codex_app` thread contract uses cooperative cancellation: send a st
 Partial worktree cleanup is project work. The Director records the cleanup requirement and dispatches a cleanup/reconciliation worker. The Director does not resolve files, remove branches, or rewrite working trees inline.
 
 Stalled worker recovery is still worker-owned. The Director may read the worker, send one or more bounded steers, cancel/archive after recording state, relaunch a replacement, or dispatch a narrow emergency worker. It must not take over the stalled worker's browser, desktop, repo, provider dashboard, service console, or local execution context from the parent thread.
+
+When a worker reports browser, desktop, dashboard, or consent automation trouble, classify the state precisely:
+
+- `tooling-blocked:<surface>` when automation cannot attach, click, type, screenshot, or inspect.
+- `environment-blocked:<surface>` when the desktop is locked, app is unavailable, auth/login requires user action, or OS/browser policy prevents control.
+- `stale-flow:<reason>` when OAuth state, invite/session state, callback state, or a one-time link may have expired because of elapsed time or reused tabs.
+
+The owning worker should preserve the latest safe state, avoid printing tokens or invite links, supersede any exposed one-time token when possible, and restart from a fresh flow rather than repeatedly interacting with stale OAuth/consent pages. The Director can accept this only as checkpoint/blocker evidence, with the next fresh-flow restart point and any non-browser alternatives recorded.
+
+### Hosted Config, Credentials, And Direct Deploys
+
+Provider credentials and hosted auth config are worker-owned execution surfaces. Workers must try approved project-local sources before proposing resets or dashboard edits: repo-local env files by key name and value presence, runbooks/docs, service-token paths, hosted env metadata, and branch/ref mappings. If a source needs interactive password/unlock or the user rejects it, record `source_unavailable:<name>:<reason>` and do not keep probing it without new authorization.
+
+Hosted config changes must separate:
+
+- source-of-truth local config vs live provider state
+- staging/preview/develop vs production scope
+- read-only evidence vs write authority
+- temporary local config edits vs intended repo changes
+- direct hotfix/deploy/alias state vs durable commit/PR follow-up
+
+If a worker uses local config as a push vehicle for live settings, it must restore the local file and verify the post-restore diff before claiming success. If a worker deploys a direct preview or moves an alias, it must record deployment id, alias target, no-production proof when applicable, validation URL, residual gap, and the git/PR action needed to make the live fix durable. Direct deploy evidence does not satisfy a requested commit/PR or durable implementation goal.
 
 ## Hooks Tooling
 

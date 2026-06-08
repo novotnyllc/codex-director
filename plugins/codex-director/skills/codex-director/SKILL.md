@@ -57,11 +57,19 @@ Before tool use or a user-visible answer, classify the next action:
 
 If status, checkup, lookup, or repo/doc/code/prod evidence is not already in the ledger, dispatch or continue a Codex worker instead of inspecting inline.
 
+## Goal Fit And Incident Mode
+
+Before dispatch or completion, restate the user's outcome as a verification surface. A prerequisite checkpoint, config probe, redirect check, or partial browser step is not completion unless it is the exact outcome the user asked for. For end-to-end goals, the ledger must name the final proof path and the minimum checkpoints that show the path truly completed; do not mark the Director task or any worker Goal complete from a narrower proof.
+
+Non-trivial incidents that combine browser or desktop flow, provider/dashboard state, logs, app code, hosted config, deploys, secrets, auth, user accounts, or external writes must be routed as a dynamic workflow or at least multiple goal-bearing worker lanes before the first worker-only action. Do not let the parent Director "continue the visible flow" while workers watch, and do not let one implementation worker become the whole incident command center. Separate diagnosis, config repair, browser/E2E proof, code changes, deployment/alias work, and security review when more than one of those surfaces is involved.
+
+Every worker lane needs a goal-shaped brief: owned surface, exact finish line, checkpoint evidence, stop/block conditions, and how its output proves or fails the user's outcome. If a browser, desktop, dashboard, or consent step blocks automation, the owning worker records the current state, the stale/expired state risk, non-browser alternatives considered, and the next fresh-flow restart point. The Director may accept that only as a blocker or checkpoint, not as the user outcome.
+
 ## Routing
 
 Select the narrowest self-contained shape: research/investigate, deep-plan, dynamic-workflow, build, orchestrate, review, refactor, optimize, or Browser oracle. See the workflow references and explicit workflow skills below.
 
-Check dynamic workflow eligibility before build/orchestrate. Production or external writes, secrets/auth/security, schema/data/migrations, deploy/rollback/remediation, multi-repo or risky multi-lane work, combined verify+mutate requests, or explicit packet/dynamic-workflow requests default to dynamic workflow. Use [Execution mode stack](references/execution-mode-stack.md) and [Dynamic workflow integration](references/dynamic-workflow-integration.md).
+Check dynamic workflow eligibility before build/orchestrate. Production or external writes, secrets/auth/security, live auth/provider credential repair, browser-mediated consent, hosted config drift, direct deploy/alias hotfixes, schema/data/migrations, deploy/rollback/remediation, multi-repo or risky multi-lane work, combined verify+mutate requests, or explicit packet/dynamic-workflow requests default to dynamic workflow. Use [Execution mode stack](references/execution-mode-stack.md) and [Dynamic workflow integration](references/dynamic-workflow-integration.md).
 
 For non-trivial or risky work, require research-informed planning and an adversarial review/oracle gate before acceptance. Director-mediated oracle/review is mandatory for production config/data, schema/database/migrations, auth/security/secrets, deploy/rollback/remediation, external service writes, conflicting evidence, cross-module/repo implementation, indirect verification, or high-risk user-facing behavior.
 
@@ -75,6 +83,7 @@ Every worker brief must include:
 
 - project scope, resolved Codex project target, owned repo/path, and path-ownership rationale;
 - bounded task, done criteria, selected workflow/playbook, constraints, and verification surface;
+- user-outcome fit: the final proof this lane contributes to, the prerequisite checkpoints it may prove, and what would still remain before the Director can call the user's goal complete;
 - worker role and top-level control loop: orchestrate for most non-trivial Director-created workers, or a direct-leaf/single-playbook exception with rationale;
 - model/thinking choice with rationale, using [Agent profiles and model routing](references/agent-profiles-and-model-routing.md);
 - skills to consider/load/report, including the exact `$codex-director:director-*` workflow skill to invoke, context/helper policy, research lane, native helper runtime surface, V2 helper profile policy, and a mandatory real helper/subagent lane for non-trivial Director-created workers;
@@ -83,6 +92,7 @@ Every worker brief must include:
 - next-packet dispatch obligation for coordinator checkpoints: `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>`;
 - evidence format, verbosity limit, activation report requirement, and unresolved launch-brief items;
 - Goal fit: Director ledger only, worker Codex Goal, or both;
+- live config and credential-source policy when relevant: project-local env/config/service-token sources first, then approved provider/dashboard paths; no secret reset, credential rotation, local-config push, direct deploy, or alias change without explicit authority and post-action verification;
 - direct-leaf exception, only when the worker itself will do a tiny, mechanical, low-risk task and records separate rationale for all three properties.
 
 Native V2 helper briefing minimum, when a worker may have `multi_agent_v2` exposed:
@@ -102,11 +112,17 @@ Workers start with activation. Accept only callbacks for `final`, `blocked`, `ne
 
 Use watchdogs for stale work. Worker threads are single-material-task handles: steer only inside the same bounded assignment, and create a fresh worker for a different material task. Completion requires child-thread readback, captured terminal worker evidence, evidence reconciliation against done criteria, review/oracle status, helper/direct-leaf acceptance, cleanup/archive state, and reconciled ledger/workflow artifacts. V2 helper output counts only after the owning worker has read it, spot-checked material claims, summarized the verified evidence, and closed the helper or recorded an acceptable close blocker. If readback or terminal evidence is missing, report `pending-readback`, `readback_blocked:<reason>`, `stale`, or `insufficient-evidence` instead of a final verdict. Do not send final user status while any Director-created worker is `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, has active/unread V2 helpers, or a coordinator checkpoint has only recommended next briefs without `next-packet-dispatched`, `monitor-scheduled`, `blocked-on-dispatch:<reason>`, or `awaiting-approval:<reason>`. Surface user-visible updates only for final evidence, real blockers or decisions, safety/production/destructive choices, ownership-changing handoffs, or stale/cancel/archive/cleanup state.
 
+Goal completion requires evidence against the user's stated finish line, not merely a successful prerequisite. If the original request was end-to-end behavior, a redirect check, provider setting save, worker report, partial DB state, or hosted health check is a checkpoint until the final flow proof is captured or a blocker is recorded with the exact remaining proof step.
+
 Queued or pending worktree handles are active worker handles even before a thread id is visible. Do not delete, pause, or stop the only monitor for a task while pending worktree ids, running workers, or queued packet workers remain. If a setup heartbeat is obsolete, first create or update the replacement monitor for the active handles; if monitor creation/update fails, record `monitor_blocked:<reason>` and surface that blocker instead of returning a final monitored status. A final response that creates or reports pending worktree ids must include either an active monitor id, callback coverage, or an explicit monitor blocker/manual next-check state. Pending-worktree pickup state must name the pending id, lookup query or matching strategy, next wake mechanism, next wake time, owner task, pickup success condition, and stale threshold.
 
 ## Safety And Boundaries
 
 Ask before secrets, raw private data, production/destructive actions, external submission, ambiguous commits, or unclear cross-repo/project ownership.
+
+For credential or provider repair, workers must inventory project-local approved sources first: repo-local env files by key name/presence, project docs/runbooks, service-token paths, and hosted env metadata. Only after those are exhausted should they propose dashboard edits, secret-manager access, or credential rotation. If the user rejects a source or says it requires interactive password/unlock, record that source as unavailable and do not keep probing it in later turns unless the user re-authorizes it.
+
+For hosted config, direct preview deployments, alias moves, or dashboard/API writes, require a worker-owned plan that distinguishes local source config, live provider state, temporary local edits, direct hotfix state, and durable git/PR follow-up. Any temporary local config mutation used only to push live settings must be restored and verified before completion evidence.
 
 Browser ChatGPT Pro oracle use requires the privacy review, Pro-value judgment, fallback behavior, and packet flow in [Browser ChatGPT oracle workflow](references/browser-chatgpt-oracle-workflow.md).
 

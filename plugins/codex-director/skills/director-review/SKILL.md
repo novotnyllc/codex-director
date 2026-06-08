@@ -15,7 +15,7 @@ This split workflow skill is worker-side. If its activation marker, skill body, 
 
 1. Read local instructions, the review scope, and the owning Director brief.
 2. Load [Review Workflow](../codex-director/references/review-workflow.md).
-3. Report activation: `workflow-skill-loaded:$codex-director:director-review`, selected workflow/playbook `director-review`, top-level control loop, review target, severity standard, and evidence contract.
+3. Report activation: `workflow-skill-loaded:$codex-director:director-review`, selected workflow/playbook `director-review`, top-level control loop, review target, user-outcome fit, severity standard, and evidence contract.
 4. Inspect only the approved files/artifacts/diffs/evidence.
 5. Return findings first, ordered by severity, with file/line references when applicable.
 
@@ -37,7 +37,7 @@ When V2 is available:
 1. Activate: restate review target, scope, selected workflow, top-level loop, severity standard, evidence sources, and out-of-scope areas.
 2. Establish baseline: identify the diff, files, plan, worker evidence, tests, logs, or artifacts that are authoritative for the verdict.
 3. Inspect risk areas: correctness, regressions, missing tests, security/privacy/data handling, auth/permissions, migrations, concurrency, error handling, observability, and user-facing behavior as relevant.
-4. Verify claims: run allowed read-only checks or inspect outputs. Do not accept summaries without source evidence.
+4. Verify claims: run allowed read-only checks or inspect outputs. Do not accept summaries without source evidence. Distinguish final user-outcome evidence from prerequisite checkpoints.
 5. Use review helpers: for broad or risky reviews, use a helper/subagent lane for targeted file review, test-gap analysis, security pass, or evidence cross-check.
 6. Decide findings: include only actionable issues. Each finding needs severity, file/line when possible, impact, and what would fix or prove it.
 7. Verdict: return `FAIL` for must-fix issues, `PASS_WITH_RISKS` for accepted gaps/residual risk, or `PASS` when no actionable issues remain.
@@ -54,6 +54,8 @@ Lead with findings. Use concise severity labels such as `[P1]`, `[P2]`, or `[P3]
 - Use helper/subagent review lanes for non-trivial or broad review, or record a blocked helper capability.
 - Do not treat `wait_agent`, `list_agents`, or helper final-status notifications as review findings.
 - Treat callback/final text as a wake signal for Director readback, not acceptance.
+- Treat a redirect check, provider save, deploy health check, DB checkpoint, test pass, or worker diagnosis as checkpoint evidence unless it directly matches the user's final verification surface.
+- When reviewing incident output, fail the acceptance path if diagnosis, provider mutation, code patch, direct deploy/alias work, browser proof, security review, and durable git/PR follow-up were collapsed without a recorded tiny/mechanical/low-risk exception.
 - Stop for secrets, production data, destructive actions, or scope expansion.
 - Keep output concise: findings, evidence, required fixes, residual risk, and test gaps.
 

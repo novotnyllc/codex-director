@@ -35,6 +35,7 @@ Invoke it when any hard trigger is true:
 - The task needs explicit approval checkpoints, packet tracking, integration tracking, or a reusable recipe.
 - The task spans multiple repos, worktrees, service boundaries, or independently mergeable workstreams.
 - Risk and breadth are both present, such as migrations plus code changes, production data plus implementation, or external writes plus verification.
+- The task is an incident that combines two or more of: browser/desktop flow, hosted provider config, logs, app code, deploy/alias work, auth/security, secrets, user accounts, external writes, or final end-to-end proof.
 
 Also invoke it when at least two soft signals are true:
 
@@ -139,6 +140,8 @@ Minimum artifact tree:
 
 `plan.md` must define success criteria, constraints, approval gates, verification, and packet list. The Director ledger must track packet status, owner, branch/worktree, blockers, verification, accepted/rejected decisions, callback policy, terminal signal, readback status, captured final report path, helper/direct-leaf acceptance, cleanup/archive state, pending worktree id before thread pickup, next wake time, monitor interval, monitor status, and heartbeat/automation id when used. `orchestration.md` must define sequencing, parallelism, and signal-first resumable monitoring rules.
 
+For incident runs, `plan.md` must also separate the user's final outcome from checkpoints. Common packet classes are read-only evidence/log trace, provider or hosted-config repair, browser/E2E proof, app-code patch, deploy/alias rollout, security/privacy review, and durable git/PR follow-up. Use only the classes the task actually needs, but do not collapse diagnosis, provider mutation, code patching, direct deployment, and final proof into one monolithic packet unless the Director records a tiny/mechanical/low-risk exception.
+
 Keep the run directory in a project-appropriate local location. Do not put sensitive raw data, bulky transcripts, credentials, invite links, tokens, or raw private data in workflow artifacts. Store large/sensitive evidence outside the repo or in ignored local scratch artifacts, then reference only redacted summaries.
 
 ## Packet Shape
@@ -148,6 +151,10 @@ Each packet should include:
 ```text
 Packet ID:
 Objective:
+User outcome contribution:
+Final verification surface:
+Checkpoint evidence this packet may prove:
+Remaining proof before task completion:
 Context:
 Files / sources:
 Ownership:
@@ -156,6 +163,7 @@ Do not:
 Expected output:
 Verification:
 Evidence required:
+Live config / credential-source policy:
 Helper/subagent lanes required:
 Native helper runtime surface:
 V2 helper profile plan:
@@ -201,11 +209,12 @@ Before marking the task complete:
 7. Confirm packet outputs are integrated.
 8. Confirm approval-gated work had approval.
 9. Confirm verification evidence satisfies success criteria.
-10. Confirm any worker Codex Goals were audited against their verification surfaces.
-11. Confirm commits/worktrees reconciled into the canonical repo/branch.
-12. Confirm final report captures accepted/rejected results, conflicts, remaining risks, cleanup/archive state, and next actions.
-13. Confirm every coordinator checkpoint either dispatched the next packet/review/oracle worker, recorded the monitor already covering it, or recorded `blocked-on-dispatch:<reason>` / `awaiting-approval:<reason>`.
-14. Confirm no pending worktree id or running worker is left without callback coverage, an active monitor, manual next-check state, or `monitor_blocked:<reason>`.
+10. Confirm verification evidence satisfies the user's final outcome, not only prerequisite checkpoints; if not, record the remaining proof step as `blocked`, `stale-flow:<reason>`, or `pending-e2e-proof:<reason>`.
+11. Confirm any worker Codex Goals were audited against their verification surfaces.
+12. Confirm commits/worktrees reconciled into the canonical repo/branch, or direct hotfix/deploy/alias state has a durable git/PR follow-up recorded.
+13. Confirm final report captures accepted/rejected results, conflicts, remaining risks, cleanup/archive state, and next actions.
+14. Confirm every coordinator checkpoint either dispatched the next packet/review/oracle worker, recorded the monitor already covering it, or recorded `blocked-on-dispatch:<reason>` / `awaiting-approval:<reason>`.
+15. Confirm no pending worktree id or running worker is left without callback coverage, an active monitor, manual next-check state, or `monitor_blocked:<reason>`.
 
 If any required worker remains `pending-readback`, `readback_blocked:<reason>`, `insufficient-evidence`, missing helper/direct-leaf acceptance, missing cleanup/archive state, a pending worktree id is unmonitored, or a coordinator checkpoint has only recommendations without dispatch/monitor/blocker/approval state, the dynamic workflow is not complete.
 

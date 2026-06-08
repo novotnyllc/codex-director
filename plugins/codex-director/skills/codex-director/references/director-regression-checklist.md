@@ -65,6 +65,21 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - The parent never takes over the worker's Browser, Chrome, Computer Use, repo, provider dashboard, hosted-service session, env/secret manager, tests, or cleanup context.
    - Browser/Chrome/Computer Use and provider dashboard actions for project/service work are classified as worker-only inspection or execution, not inline coordination.
 
+11. Outcome fit survives checkpoint success.
+   - The Director ledger and worker briefs name the user's final verification surface, checkpoint evidence, and remaining proof.
+   - A redirect URL check, provider setting save, email-proof checkpoint, health endpoint, DB status read, test pass, deploy id, worker diagnosis, or oracle verdict is not accepted as completion unless it exactly matches the user's requested outcome.
+   - If the original request is end-to-end behavior, completion waits for the E2E proof or records `pending-e2e-proof:<reason>`, `stale-flow:<reason>`, `tooling-blocked:<surface>`, or `environment-blocked:<surface>`.
+
+12. Incident-mode work decomposes before execution.
+   - Tasks combining browser/desktop flow, hosted provider config, logs, app code, deploy/alias work, auth/security, secrets, user accounts, external writes, or final E2E proof route to dynamic workflow or separate goal-bearing workers before worker-only actions.
+   - The parent Director does not continue the visible browser/provider flow inline while workers investigate.
+   - No single worker owns diagnosis, provider mutation, code patching, direct deploy/alias work, security review, and final proof without a recorded tiny/mechanical/low-risk exception.
+
+13. Credential and hosted-config repair follows source order.
+   - Workers check approved project-local env/config/runbook/service-token/hosted-metadata sources before proposing dashboard edits or secret rotation.
+   - If the user rejects a source or says it needs interactive password/unlock, that source is recorded unavailable and is not repeatedly probed without renewed authorization.
+   - Direct preview deploys, alias moves, and hosted config pushes record live state, no-production proof when relevant, validation URL, temporary local config restore proof, and durable git/PR follow-up.
+
 ## Evidence To Capture
 
 For each regression pass, record:
@@ -79,5 +94,8 @@ For each regression pass, record:
 - one worker activation/evidence record showing native helper runtime surface and, when used, V2 helper profile/evidence/cleanup
 - one approval-pressure case showing the parent steered/dispatched a worker instead of executing inline
 - one stalled-worker case showing recovery by steer/relaunch/archive/emergency worker instead of parent takeover
+- one outcome-fit case showing checkpoint evidence rejected as final completion until the user outcome is proven or blocked
+- one incident-mode case showing separate evidence/config/browser/code/deploy/review/durability packets or a justified tiny exception
+- one credential/config case showing source-order checks, rejected-source handling, and direct hotfix durability state
 - one pending-worktree or monitor ledger row when applicable
 - one child-thread readback acceptance record
