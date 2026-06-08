@@ -11,6 +11,8 @@ metadata:
 
 Use only when explicitly invoked by a Director brief or by the user.
 
+This split workflow skill is worker-side. If its activation marker, skill body, callback text, or readback evidence appears in a parent Director thread, the parent treats it only as routing input or child evidence. It does not load this workflow into the parent and does not permit parent inline browser, repo, provider, or project execution.
+
 1. Read local instructions and the owning Director brief.
 2. Load [Optimize Workflow](../codex-director/references/optimize-workflow.md).
 3. Report activation: `workflow-skill-loaded:$codex-director:director-optimize`, selected workflow/playbook `director-optimize`, top-level control loop, metric target, helper/subagent lane plan, and evidence contract.

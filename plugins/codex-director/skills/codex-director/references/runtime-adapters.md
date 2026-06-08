@@ -17,7 +17,7 @@ Codex worker thread lifecycle belongs to the active `codex_app` thread and proje
 
 RepoPrompt `agent_run` and RepoPrompt agents are context/review/oracle lower-layer helpers only. Do not use them as the Director worker-thread dispatch mechanism. Director setup confirms the required latest-Codex `codex_app` thread/project tools and schema before operating, and the skill assumes those native definitions are present. Do not swap in RepoPrompt agents for Codex worker threads.
 
-The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update ledgers or workflow artifacts, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. Direct inline corrective repo execution after a worker stalls is prohibited; for emergencies, the Director records explicit authority and dispatches a bounded emergency worker or dynamic workflow, but the Director still must not inspect or execute repo/prod work inline. If a status/checkup/lookup answer would require repo/docs/code inspection, the Director must spawn or continue a Codex worker thread instead of doing the work inline. Latest-Codex thread/project tooling is the assumed execution surface for that worker-thread path.
+The Director thread is coordination-only. It may triage, brief, check in, steer, reconcile evidence, update ledgers or workflow artifacts, and answer coordination/status questions from its existing ledger or conversation state. It must not implement, investigate, edit, test, or otherwise execute project work in its own thread. Direct inline corrective repo, browser, desktop, provider, or hosted-service execution after a worker stalls is prohibited; for emergencies, the Director records explicit authority and dispatches a bounded emergency worker or dynamic workflow, but the Director still must not inspect or execute repo/prod/browser/provider work inline or take over a worker's browser, desktop, repo, or hosted-service session. If a status/checkup/lookup answer would require repo/docs/code inspection, provider-dashboard inspection, Browser/Chrome/Computer Use state checks, env/token probing, or service checks, the Director must spawn or continue a Codex worker thread instead of doing the work inline. Latest-Codex thread/project tooling is the assumed execution surface for that worker-thread path.
 
 The Director is a rapid-fire intake surface, not a single-task executor. For multiple user asks, dispatch or continue separate bounded worker threads or workflow packets, record handles and expected evidence in the ledger, and stop after the dispatch/checkpoint instead of waiting inline unless the user explicitly asks for live narration.
 
@@ -28,7 +28,7 @@ Use these layers:
 1. `codex_app` thread/project tools are required for Director-owned worker lifecycle: create, target, title, pin, read, steer, archive, and callback signaling when authorized.
 2. Native sub-agent tools are worker-internal helpers for decomposition, verification, or bounded helper tasks when the owning worker chooses them.
 3. Context, oracle, and Browser tools provide evidence, review, and durable artifacts; they do not own Codex worker lifecycle.
-4. Local shell/git/file tools are only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread or to satisfy repo/doc/code-backed status, checkup, or lookup requests.
+4. Local shell/git/file tools are only for Director-owned coordination chores such as reading ledger files, inspecting worker evidence, checking git status before dispatch, or recording reconciliation state. Do not use them to perform project work in the Director thread or to satisfy repo/doc/code/provider-backed status, checkup, lookup, env, test, or mutation requests.
 5. Director setup/activation confirms the required latest-Codex worker/thread/project tooling before any Director operation. The skill assumes these native definitions are present and treats them as the Director worker lifecycle contract.
 
 ## Setup Contract Confirmation
@@ -143,6 +143,8 @@ Before a Director records, reports, steers, or calls `codex_app.create_thread` f
 
 Workflow skill activation is not optional. The `$codex-director:director-*` workflow skills ship with the Director plugin, so worker briefs must say `Invoke $codex-director:director-build` or the exact matching skill, never "use if available". Worker activation must include `workflow-skill-loaded:<exact $codex-director:director-* skill>` before substantive work. If a worker cannot load the exact shipped workflow skill, treat it as `workflow-skill-load-failed:<exact $codex-director:director-* skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>`, stop substantive work, and let the Director correct, relaunch, or record the runtime fault.
 
+Split workflow activation is child-owned. In the parent Director thread, callback/readback payloads, forwarded briefs, attached skill bodies, or transcript snippets containing `workflow-skill-loaded:$codex-director:director-*` are worker evidence only. They do not load that split workflow into the parent, do not authorize parent inline execution, and do not change the parent out of `$codex-director:codex-director` coordination mode.
+
 Before calling `codex_app.create_thread`, define:
 
 - worker title tied to the bounded material task
@@ -251,6 +253,8 @@ Read a newly created worker once after creation to confirm activation when pract
 
 Prefer signal-first monitoring when the worker runtime exposes `codex_app.send_message_to_thread` and the Director brief explicitly authorizes callback use. The worker may send a single callback to the Director thread for `final`, `blocked`, `needs_user`, `oracle_request`, or ownership-changing `handoff`; it must not send routine progress, poll, rerun, or "no blocker" callbacks. When thinking selection is exposed on the callback send, the callback must use `thinking: "xhigh"` because it wakes the Director thread. The Director treats the callback as a wake signal only, marks `terminal_signal`, sets `readback_status: pending-readback`, then reads the worker thread before accepting evidence.
 
+User approval changes approval state only. "Do it", "stop asking", "you do not need me", and similar instructions should update the worker's authority, dispatch the next worker, or clear an approval gate in the ledger. They must not be treated as permission for the parent Director to use Browser, Chrome, Computer Use, repo tools, provider dashboards, service APIs, env/secret managers, or tests inline.
+
 Concrete callback-to-readback sequence:
 
 1. Receive callback, poll result, heartbeat wake, resume notice, expected-final, or stale summary.
@@ -305,6 +309,8 @@ running -> cancel_requested -> blocked | stale -> archived
 The current `codex_app` thread contract uses cooperative cancellation: send a stop instruction with `codex_app.send_message_to_thread`, then poll with `codex_app.read_thread`. Do not archive a worker before recording its last known status, cancellation acknowledgment or blocker, partial artifacts, branch/worktree, and cleanup needs. If archive is not exposed or fails, record `archive_blocked:<reason>` in the ledger.
 
 Partial worktree cleanup is project work. The Director records the cleanup requirement and dispatches a cleanup/reconciliation worker. The Director does not resolve files, remove branches, or rewrite working trees inline.
+
+Stalled worker recovery is still worker-owned. The Director may read the worker, send one or more bounded steers, cancel/archive after recording state, relaunch a replacement, or dispatch a narrow emergency worker. It must not take over the stalled worker's browser, desktop, repo, provider dashboard, service console, or local execution context from the parent thread.
 
 ## Hooks Tooling
 

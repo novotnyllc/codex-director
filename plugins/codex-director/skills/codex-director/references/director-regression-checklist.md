@@ -29,6 +29,8 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - Worker briefs say `Invoke $codex-director:director-build` or the exact matching workflow skill, never "if available".
    - Worker activation reports `workflow-skill-loaded:<exact $codex-director:director-* skill>` before substantive work.
    - Failure to load a shipped workflow skill is recorded as `workflow-skill-load-failed:<exact $codex-director:director-* skill>:<stale-runtime|broken-install|wrong-plugin-context|reason>` and blocks work until corrected or relaunched.
+   - A child callback/readback containing `workflow-skill-loaded:$codex-director:director-*`, a forwarded split-skill brief, or an attached split skill body is recorded as child evidence only; it does not activate that split workflow in the parent Director.
+   - The parent remains in `$codex-director:codex-director` coordination mode and routes/steers/reads workers instead of running split workflow steps inline.
 
 5. Pending worktree handles remain monitored.
    - A `pendingWorktreeId` is recorded as an active handle before any final-looking user status.
@@ -40,6 +42,7 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - Callback, expected final text, stale summary, and worker claims are terminal signals only.
    - The Director calls `codex_app.read_thread` and captures the terminal child report before acceptance.
    - Acceptance reconciles done criteria, evidence, review/oracle status, helper/direct-leaf policy, cleanup/archive state, and coordinator continuation state.
+   - Callback payload text never becomes the parent skill activation surface, even when it includes a valid worker activation marker.
 
 7. Coordinator checkpoints continue the workflow.
    - Coordinator-only output is accepted only as checkpoint evidence.
@@ -52,6 +55,16 @@ Use this checklist when changing Director routing, monitoring, workflow-skill ac
    - When V2 helpers are used, worker evidence records RP-style profile (`explore`, `pair`, `engineer`, or `design`), model/thinking/fork rationale when exposed, helper task paths, owner spot-check evidence, and `close_agent` or `close_blocked:<reason>`.
    - `wait_agent`, `list_agents`, helper final-status notifications, and unread helper prose are not accepted as evidence.
 
+9. User approval does not change execution role.
+   - "Do it", "stop asking", "you do not need me", or similar pressure is recorded as an approval or steering signal only.
+   - The Director steers the same worker, dispatches the next/replacement worker, records `awaiting-approval` cleared, or reports a blocker.
+   - The parent Director does not inspect, click, edit, test, seed, deploy, or mutate project/service state inline because the user cleared an approval gate.
+
+10. Stalled worker recovery stays worker-owned.
+   - If a worker stalls, the parent reads, steers, cancels, archives, relaunches, or dispatches a bounded emergency worker.
+   - The parent never takes over the worker's Browser, Chrome, Computer Use, repo, provider dashboard, hosted-service session, env/secret manager, tests, or cleanup context.
+   - Browser/Chrome/Computer Use and provider dashboard actions for project/service work are classified as worker-only inspection or execution, not inline coordination.
+
 ## Evidence To Capture
 
 For each regression pass, record:
@@ -62,6 +75,9 @@ For each regression pass, record:
 - Director thinking/effort setting used for parent continuations
 - one worker brief showing exact `$codex-director:director-*` invocation
 - one worker activation showing `workflow-skill-loaded:<exact $codex-director:director-* skill>`
+- one callback/readback example where a split workflow activation marker remains child evidence and does not activate the parent
 - one worker activation/evidence record showing native helper runtime surface and, when used, V2 helper profile/evidence/cleanup
+- one approval-pressure case showing the parent steered/dispatched a worker instead of executing inline
+- one stalled-worker case showing recovery by steer/relaunch/archive/emergency worker instead of parent takeover
 - one pending-worktree or monitor ledger row when applicable
 - one child-thread readback acceptance record

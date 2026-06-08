@@ -1,6 +1,6 @@
 {
   "name": "codex-director",
-  "version": "0.8.16",
+  "version": "0.8.17",
   "description": "Start and operate a project-scoped Codex Director that titles and pins a coordinator thread, then routes work to bounded worker threads.",
   "author": {
     "name": "Claire Novotny LLC",

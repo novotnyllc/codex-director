@@ -11,6 +11,8 @@ metadata:
 
 Use only when explicitly invoked by a Director brief or by the user.
 
+This split workflow skill is worker-side. If its activation marker, skill body, callback text, or readback evidence appears in a parent Director thread, the parent treats it only as routing input or child evidence. It does not load this workflow into the parent and does not permit parent inline browser, repo, provider, or project execution.
+
 1. Read local instructions, the Oracle Request Packet, and the owning Director brief.
 2. Load [Browser ChatGPT Pro Oracle Workflow](../codex-director/references/browser-chatgpt-oracle-workflow.md).
 3. Report activation: `workflow-skill-loaded:$codex-director:director-browser-oracle`, selected workflow/playbook `director-browser-oracle`, top-level control loop, privacy classification, fallback plan, and evidence contract.

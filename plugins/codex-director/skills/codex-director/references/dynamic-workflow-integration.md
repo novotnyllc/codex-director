@@ -76,6 +76,8 @@ The Director creates real Codex worker threads for packets that benefit from iso
 
 A coordinator-only worker does not own implementation packets merely because it created the packet files. If coordinator scope is selected, packet execution must move to Director-created packet workers or remain blocked/awaiting approval in the workflow state.
 
+Approval gates authorize packet actions, not parent execution. When the user clears an approval gate with language like "do it" or "stop asking", the Director records the approval and steers or dispatches the owning worker. The parent Director still must not perform packet browser, repo, provider, service, env, test, or cleanup work inline.
+
 A packet result is not durable accepted output merely because a worker callback arrived or an artifact exists. Worker outputs become `results/` only after the Director reads the child thread with `codex_app.read_thread`, captures the terminal child report, reconciles done criteria, review/oracle status, helper/direct-leaf acceptance, and records cleanup/archive state. Before that, store them as candidate evidence in the ledger, orchestration notes, or scratch/candidate artifacts.
 
 Workers should use the matching explicit workflow skill and thinking policy inside their packet:

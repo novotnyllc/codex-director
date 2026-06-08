@@ -11,6 +11,8 @@ metadata:
 
 Use only when explicitly invoked by a Director brief or by the user. This skill is the worker-side orchestration lane, not the parent Director coordinator.
 
+This split workflow skill is worker-side. If its activation marker, skill body, callback text, or readback evidence appears in a parent Director thread, the parent treats it only as routing input or child evidence. It does not load this workflow into the parent and does not permit parent inline browser, repo, provider, or project execution.
+
 1. Read local instructions and the owning Director brief.
 2. Load [Orchestrate Workflow](../codex-director/references/orchestrate-workflow.md).
 3. Report activation: `workflow-skill-loaded:$codex-director:director-orchestrate`, selected workflow/playbook, top-level control loop, scope, helper/subagent lane plan, direct-leaf status, and evidence contract.
